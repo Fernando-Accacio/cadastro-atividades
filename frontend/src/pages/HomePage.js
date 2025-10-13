@@ -53,8 +53,8 @@ function HomePage() {
       <section id="projects">
         <h2 className="page-title">Meus Trabalhos</h2>
         {Object.keys(projectsByArea).map(area => (
-          <div key={area} style={{ marginBottom: '40px' }}>
-            <h3 style={{ color: '#2c3e50', borderBottom: '2px solid #ecf0f1', paddingBottom: '10px' }}>
+          <div key={area} style={{ marginBottom: '70px' }}>
+            <h3 style={{ fontSize: '22px', color: '#2c3e50', borderBottom: '2px solid #ecf0f1', paddingBottom: '10px' }}>
               {area}
             </h3>
             <div className="project-grid">
