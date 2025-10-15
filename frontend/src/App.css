@@ -1,4 +1,25 @@
-/* Header Styles */
+/* =============================================== */
+/* ESTILOS GERAIS E LAYOUT PRINCIPAL               */
+/* =============================================== */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; 
+}
+
+main {
+  flex-grow: 1; 
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* =============================================== */
+/* HEADER STYLES (RESPONSIVO)                      */
+/* =============================================== */
 .app-header {
   background-color: #2c3e50;
   padding: 15px 30px;
@@ -7,26 +28,93 @@
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.app-header h1 {
+.header-logo {
+  text-decoration: none; /* Garante que o logo não seja sublinhado */
+}
+
+.header-logo h1 {
   margin: 0;
   font-size: 1.8em;
+  color: white;
 }
 
-.app-header nav a {
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-menu a {
   color: white;
   text-decoration: none;
-  margin-left: 20px;
   font-size: 1.1em;
   transition: color 0.3s;
+  padding: 5px 0;
+  position: relative;
 }
 
-.app-header nav a:hover {
+.nav-menu a:hover {
   color: #1abc9c;
 }
 
-/* Page Title Styles */
+.nav-menu a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #1abc9c;
+  transform: scaleX(0);
+  transition: transform 0.3s ease-in-out;
+}
+
+.nav-menu a:hover::after {
+  transform: scaleX(1);
+}
+
+.hamburger {
+  display: none;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 960px) {
+  .nav-menu {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: calc(100vh - 70px);
+    position: absolute;
+    top: 70px;
+    left: -100%;
+    transition: all 0.5s ease;
+    background-color: #2c3e50;
+    padding-top: 40px;
+  }
+
+  .nav-menu.active {
+    left: 0;
+  }
+
+  .nav-menu a {
+    font-size: 1.5rem;
+  }
+
+  .hamburger {
+    display: block;
+  }
+}
+
+/* =============================================== */
+/* ESTILOS DE PÁGINA (TÍTULOS, SEÇÕES, ETC)        */
+/* =============================================== */
 .page-title {
   color: #2c3e50;
   text-align: center;
@@ -34,7 +122,6 @@
   font-size: 40px;
 }
 
-/* About Section Styles */
 .about-section {
   background-color: white;
   padding: 40px;
@@ -60,14 +147,15 @@
   font-size: 16px;
 }
 
-/* Project Grid Styles */
+/* =============================================== */
+/* ESTILOS DOS CARDS DE PROJETO                    */
+/* =============================================== */
 .project-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 30px;
 }
 
-/* Project Card Styles */
 .project-card {
   background-color: white;
   border-radius: 8px;
@@ -110,13 +198,10 @@
   justify-content: space-between;
   align-items: center;
   margin-top: 20px;
-  gap: 10px; /* espaço entre botão e link */
-  flex-wrap: wrap; /* responsivo em telas pequenas */
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-/* --- INÍCIO DA SUBSTITUIÇÃO --- */
-
-/* Estilo base compartilhado para ambos os "botões" no rodapé do card */
 .project-card-footer a,
 .project-card-footer .vote-button {
   padding: 8px 15px;
@@ -131,10 +216,9 @@
   cursor: pointer;
   transition: background-color 0.3s;
   line-height: normal;
-  min-width: 120px; /* largura mínima igual */
+  min-width: 120px;
 }
 
-/* Estilo específico para o link 'Ver Projeto' */
 .project-card-footer a {
   background-color: #3498db;
 }
@@ -143,7 +227,6 @@
   background-color: #2980b9;
 }
 
-/* Estilo específico para o botão 'Votar' */
 .vote-button {
   background-color: #1abc9c;
 }
@@ -152,9 +235,20 @@
   background-color: #16a085;
 }
 
-/* --- FIM DA SUBSTITUIÇÃO --- */
+.image-placeholder {
+  width: 100%;
+  height: 200px;
+  background-color: #ecf0f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #bdc3c7;
+  font-style: italic;
+}
 
-/* Contact Form Styles */
+/* =============================================== */
+/* FORMULÁRIOS E BOTÕES GERAIS                     */
+/* =============================================== */
 .contact-form {
   max-width: 600px;
   margin: 40px auto;
@@ -198,7 +292,43 @@
   background-color: #34495e;
 }
 
-/* Ranking and Messages Table Styles */
+.download-button {
+  display: block;
+  width: 250px;
+  margin: 40px auto;
+  padding: 15px 20px;
+  background-color: #2c3e50;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 1.1em;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.download-button:hover {
+  background-color: #34495e;
+  transform: translateY(-2px);
+}
+
+.danger-button {
+  background-color: #e74c3c; 
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s;
+}
+
+.danger-button:hover {
+  background-color: #c0392b; 
+}
+
+/* =============================================== */
+/* TABELAS (RANKING E ADMIN)                       */
+/* =============================================== */
 .data-table {
   width: 100%;
   border-collapse: collapse;
@@ -221,28 +351,154 @@
   background-color: #f2f2f2;
 }
 
-/* Footer Styles */
-.app-footer {
+@media screen and (max-width: 768px) {
+  .data-table {
+    border: none;
+  }
+
+  .data-table thead {
+    display: none;
+  }
+
+  .data-table tr {
+    display: block;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  .data-table td {
+    display: block;
+    text-align: right;
+    padding-left: 50%;
+    position: relative;
+    border-bottom: 1px solid #eee;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    padding-right: 12px;
+    overflow-wrap: break-word; 
+  }
+
+  .data-table td:last-child {
+    border-bottom: none;
+  }
+
+  .data-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 12px;
+    width: 45%; 
+    font-weight: bold;
+    text-align: left;
+    white-space: nowrap; 
+  }
+}
+
+.top-rank-1 {
+  background-color: #fffbe6;
+  font-weight: bold;
+}
+
+.top-rank-2 {
+  background: linear-gradient(to right, #f0f0f0, #dcdcdc);
+  font-weight: 600;
+}
+
+.top-rank-3 {
+  background-color: #fff1e6;
+  font-weight: 500;
+}
+
+.rank-medal {
+  margin-left: 8px;
+  font-size: 1.2em;
+}
+
+/* =============================================== */
+/* PÁGINA SOBRE MIM / HOBBIES                      */
+/* =============================================== */
+.informal-intro {
+  background-color: #fff;
+  padding: 20px; 
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
   text-align: center;
-  padding: 20px;
-  margin-top: 40px;
-  background-color: #ecf0f1;
-  color: #7f8c8d;
+  margin-bottom: 40px; 
+  font-size: 1.05em;
+  line-height: 1.7;
 }
 
-/* Estilo para o espaço reservado da imagem */
-.image-placeholder {
-  width: 100%;
-  height: 200px;
-  background-color: #ecf0f1;
+.hobbies-container {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #bdc3c7;
-  font-style: italic;
+  flex-direction: column;
+  gap: 30px; 
 }
 
-/* Estilos para a seção de links sociais */
+.hobby-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.hobby-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
+.hobby-image {
+  width: 100%;
+  height: 220px;
+  object-fit: cover; 
+}
+
+.hobby-content {
+  padding: 20px;
+  flex-grow: 1;
+}
+
+.hobby-content h3 {
+  margin-top: 0;
+  color: #2c3e50;
+  font-size: clamp(1.5rem, 4vw, 1.8rem);
+}
+
+@media (min-width: 768px) {
+  .informal-intro {
+    padding: 30px;
+    font-size: 1.1em;
+  }
+
+  .hobbies-container {
+    gap: 40px;
+  }
+
+  .hobby-card {
+    flex-direction: row; 
+  }
+
+  .hobby-card:nth-child(even) {
+    flex-direction: row-reverse;
+  }
+
+  .hobby-image {
+    width: 40%;
+    height: 300px; 
+  }
+
+  .hobby-content {
+    padding: 30px;
+    width: 60%;
+  }
+}
+
+/* =============================================== */
+/* OUTROS COMPONENTES                              */
+/* =============================================== */
 .social-links {
   margin-top: 25px;
   display: flex;
@@ -266,27 +522,6 @@
   color: #1abc9c; 
 }
 
-/*Estilo para o botão de download do currículo */
-.download-button {
-  display: block;
-  width: 250px;
-  margin: 40px auto;
-  padding: 15px 20px;
-  background-color: #2c3e50;
-  color: white;
-  text-align: center;
-  text-decoration: none;
-  border-radius: 5px;
-  font-size: 1.1em;
-  transition: background-color 0.3s, transform 0.3s;
-}
-
-.download-button:hover {
-  background-color: #34495e;
-  transform: translateY(-2px);
-}
-
-/* Estilos para o Painel Admin */
 .admin-section {
   background-color: #fff;
   padding: 20px 30px;
@@ -302,17 +537,10 @@
   flex-wrap: wrap;
 }
 
-.danger-button {
-  background-color: #e74c3c; 
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1em;
-  transition: background-color 0.3s;
-}
-
-.danger-button:hover {
-  background-color: #c0392b; 
+.app-footer {
+  text-align: center;
+  padding: 20px;
+  margin-top: 40px;
+  background-color: #ecf0f1;
+  color: #7f8c8d;
 }

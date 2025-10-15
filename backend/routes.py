@@ -15,13 +15,20 @@ def init_routes(app):
             
         return jsonify(grouped_projects)
 
-    @app.route('/api/projects/ranked', methods=['GET'])
-    def get_ranked_projects():
-        conn = get_db()
-        projects_cursor = conn.execute('SELECT * FROM projects ORDER BY votes DESC').fetchall()
-        conn.close()
-        projects_list = [dict(row) for row in projects_cursor]
-        return jsonify(projects_list)
+@app.route('/api/projects/ranked', methods=['GET'])
+def get_ranked_projects():
+    conn = get_db()
+    projects_cursor = conn.execute('SELECT * FROM projects ORDER BY votes DESC').fetchall()
+    conn.close()
+    projects_list = [dict(row) for row in projects_cursor]
+
+    has_votes = any(p['votes'] > 0 for p in projects_list)
+    
+    if not has_votes:
+        return jsonify({'hasVotes': False, 'projects': []})
+    
+    return jsonify({'hasVotes': True, 'projects': projects_list})
+
 
     @app.route('/api/projects/<int:project_id>/vote', methods=['POST'])
     def vote_project(project_id):

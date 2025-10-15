@@ -1,22 +1,23 @@
 # 💼 Portfólio de Trabalhos Acadêmicos (Full-Stack)
 
-Este projeto é uma aplicação **web completa** desenvolvida para servir como um **portfólio pessoal e interativo**.  
-Ele apresenta **trabalhos acadêmicos**, um **currículo profissional**, **links para redes sociais** e um **painel de controle administrativo** para gerenciamento do site.
+Este projeto é uma aplicação **web completa e responsiva** desenvolvida para servir como um **portfólio pessoal e interativo**.
+Ele apresenta **trabalhos acadêmicos**, um **currículo profissional**, uma página **"Sobre Mim"** com hobbies e interesses, **links para redes sociais** e um **painel de controle administrativo** para gerenciamento do site.
 
 ---
 
 ## ✨ Funcionalidades
 
-- 🧑‍💻 **Apresentação Pessoal:** Página inicial com foto, biografia e links diretos para **LinkedIn, GitHub e E-mail**.  
-- 📚 **Visualização de Projetos:** Trabalhos acadêmicos organizados por “Áreas do Saber”, com suporte para projetos com imagem, link externo, ambos ou nenhum.  
-- 📄 **Página de Currículo:** Exibe o currículo completo e oferece **botão para download em PDF**.  
-- ⭐ **Sistema de Votação e Ranking:** Visitantes podem votar nos projetos, e uma página de ranking exibe os mais votados.  
-- 💬 **Formulário de Contato:** Permite o envio direto de mensagens.  
+- 🧑‍💻 **Apresentação Pessoal:** Página inicial com foto, biografia e links diretos para **LinkedIn, GitHub e E-mail**.
+- 😊 **Página Sobre Mim:** Uma seção mais pessoal com hobbies e interesses, apresentados em um layout de cards com imagem e texto.
+- 📚 **Visualização de Projetos:** Trabalhos acadêmicos organizados por “Áreas do Saber”, com suporte para projetos com imagem, link externo, ambos ou nenhum.
+- 📄 **Página de Currículo:** Exibe o currículo completo e oferece **botão para download em PDF**.
+- ⭐ **Sistema de Votação e Ranking:** Visitantes podem votar nos projetos, e uma página de ranking exibe os mais votados, com destaque para o Top 3.
+- 💬 **Formulário de Contato:** Permite o envio direto de mensagens.
+- 📱 **Design Responsivo:** A interface se adapta a diferentes tamanhos de tela, de celulares a desktops, incluindo menu "hambúrguer" e tabelas que se transformam em cards.
 - 🔐 **Painel de Administrador:** Área protegida por senha com:
   - Visualização de todas as mensagens recebidas (com data e hora local);
   - Ferramentas de manutenção com **botões para resetar votos ou apagar mensagens**, com confirmações de segurança.
-  - **Nota de Segurança:** A autenticação deste painel é realizada no **frontend (client-side)**. É uma medida de simplicidade para ocultar a página de visitantes comuns, adequada para o escopo deste projeto, e não uma barreira de segurança robusta contra um usuário com conhecimento técnico.
-
+  - **Nota de Segurança:** A autenticação deste painel é realizada no **frontend (client-side)**. É uma medida de simplicidade para ocultar a página de visitantes comuns, adequada para o escopo deste projeto, e não uma barreira de segurança robusta.
 
 ---
 
@@ -25,14 +26,14 @@ Ele apresenta **trabalhos acadêmicos**, um **currículo profissional**, **links
 O projeto é dividido em duas partes principais: **frontend** e **backend**.
 
 ### 🖥️ Frontend
-- ⚛️ [React](https://reactjs.org/) — Biblioteca JavaScript para interfaces de usuário.  
-- 🌐 [Axios](https://axios-http.com/) — Cliente HTTP para requisições à API.  
-- 🔀 [React Router](https://reactrouter.com/) — Gerenciamento de rotas e navegação.  
+- ⚛️ [React](https://reactjs.org/) — Biblioteca JavaScript para interfaces de usuário.
+- 🌐 [Axios](https://axios-http.com/) — Cliente HTTP para requisições à API.
+- 🔀 [React Router](https://reactrouter.com/) — Gerenciamento de rotas e navegação.
 - 🧩 [React Icons](https://react-icons.github.io/react-icons/) — Inclusão de ícones (GitHub, LinkedIn, etc.).
 
 ### ⚙️ Backend
-- 🐍 [Python](https://www.python.org/) — Linguagem utilizada no servidor.  
-- 🔥 [Flask](https://flask.palletsprojects.com/) — Microframework para criação da API.  
+- 🐍 [Python](https://www.python.org/) — Linguagem utilizada no servidor.
+- 🔥 [Flask](https://flask.palletsprojects.com/) — Microframework para criação da API.
 - 🔄 [Flask-CORS](https://flask-cors.readthedocs.io/) — Gerenciamento de CORS.
 
 ### 💾 Banco de Dados
@@ -46,7 +47,7 @@ O projeto é dividido em duas partes principais: **frontend** e **backend**.
 
 Antes de começar, garanta que você possui instalados:
 - **[Node.js](https://nodejs.org/)** (versão 18 ou superior)
-- **[Python](https://www.python.org/)** (versão 3.8 ou superior)  
+- **[Python](https://www.python.org/)** (versão 3.8 ou superior)
   > 💡 No Windows, marque “Add Python to PATH” durante a instalação.
 
 ---
@@ -112,11 +113,9 @@ npm start
 
 Existem **duas formas** de gerenciar os dados do site:
 
----
-
 ### ✅ 1. Painel Admin (Método Recomendado)
 
-A forma **principal e mais segura** de gerenciar o site é pela interface web.
+A forma **principal e mais prática** de gerenciar o site é pela interface web.
 
 1. Acesse a aba **"Painel Admin"** no menu principal.
 2. Insira a senha de acesso.
@@ -126,27 +125,26 @@ A forma **principal e mais segura** de gerenciar o site é pela interface web.
    * ⭐ **Resetar votos** de todos os projetos com um clique (com confirmação).
    * 🧹 **Apagar todas as mensagens** com um clique (com confirmação).
 
-> 💡 Este é o método recomendado para uso diário, sem necessidade de comandos manuais.
+> 💡 Este é o método recomendado para uso diário.
 
 ---
 
-### 🧠 2. Via Terminal (Para Setup e Desenvolvedores)
+### 👨‍💻 2. Via Terminal (Para Setup e Desenvolvedores)
 
-Os comandos no terminal ainda são úteis para **configuração inicial** e **tarefas de desenvolvimento**.
+Os comandos no terminal ainda são essenciais para a **configuração inicial** e para **tarefas de desenvolvimento**.
 
 #### `flask init-db`
 
 * **Função:** Cria ou recria o banco de dados do zero.
 * **Uso:**
 
-  * Setup inicial.
-  * Aplicar alterações feitas em `backend/database.py`.
+  * Setup inicial do projeto.
+  * Aplicar alterações feitas na lista de projetos em `backend/database.py`.
 * **Ação:** Apaga **tudo** (projetos, votos e mensagens) e recria o banco com os dados padrão.
 
 #### `flask reset-votes` e `flask reset-messages`
 
-* **Função:** Comandos alternativos ao painel Admin.
-* **Uso:** Desenvolvedores que preferem operar via terminal.
+* **Função:** Comandos alternativos ao painel Admin para desenvolvedores que preferem operar via terminal.
 
 ---
 
@@ -156,25 +154,26 @@ Os comandos no terminal ainda são úteis para **configuração inicial** e **ta
 meu-portfolio/
 ├── backend/
 │   ├── venv/
-│   ├── __init__.py        # Fábrica da aplicação Flask
-│   ├── database.py        # Lógica do banco de dados e comandos CLI
-│   ├── routes.py          # Rotas da API
+│   ├── __init__.py          # Fábrica da aplicação Flask
+│   ├── database.py          # Lógica do banco de dados e comandos CLI
+│   ├── routes.py            # Rotas da API
 │   ├── requirements.txt
 │   └── portfolio.db
 │
 └── frontend/
     ├── public/
-    │   ├── documents/     # Arquivos para download (ex: curriculo.pdf)
-    │   ├── images/        # Imagens dos projetos
+    │   ├── documents/       # Arquivos para download (ex: curriculo.pdf)
+    │   ├── images/          # Imagens dos projetos
     │   └── index.html
     └── src/
-        ├── components/    # Componentes reutilizáveis (Header, Card, etc.)
-        ├── pages/         # Páginas do site
+        ├── components/      # Componentes reutilizáveis (Header, Card, etc.)
+        ├── pages/           # Páginas do site
         │   ├── HomePage.js
+        │   ├── SobreMimPage.js
         │   ├── CurriculumPage.js
         │   ├── RankingPage.js
         │   ├── ContactPage.js
         │   └── AdminPage.js
-        ├── App.js         # Roteador principal da aplicação
+        ├── App.js           # Roteador principal da aplicação
         └── index.js
 ```
