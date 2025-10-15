@@ -141,6 +141,11 @@ main {
   height: 220px;
   border-radius: 50%;
   object-fit: cover;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.about-section img:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
 .about-section p {
