@@ -16,18 +16,18 @@ const getRankDetails = (index) => {
 
 function RankingPage() {
   const [rankedProjects, setRankedProjects] = useState([]);
+  const [hasVotes, setHasVotes] = useState(false);
 
   useEffect(() => {
     axios.get('http://127.0.0.1:5000/api/projects/ranked')
       .then(response => {
-        setRankedProjects(response.data);
+        setHasVotes(response.data.hasVotes);
+        setRankedProjects(response.data.projects);
       })
       .catch(error => {
         console.error("Houve um erro ao buscar o ranking!", error);
       });
   }, []);
-
-  const hasVotes = rankedProjects.some(p => p.votes > 0);
 
   return (
     <div className="container">
@@ -37,8 +37,8 @@ function RankingPage() {
       </p>
 
       {!hasVotes ? (
-        <p style={{ textAlign: 'center', fontStyle: 'italic' }}>
-          Nenhum projeto votado ainda.
+        <p style={{ textAlign: 'center', fontStyle: 'italic', marginTop: '40px' }}>
+          Ainda não há votos registrados. Seja o primeiro a votar!
         </p>
       ) : (
         <table className="data-table">
@@ -50,36 +50,23 @@ function RankingPage() {
               <th>Total de Votos</th>
             </tr>
           </thead>
-
           <tbody>
             {rankedProjects.map((project, index) => {
-              const { className, medal } = hasVotes ? getRankDetails(index) : { className: '', medal: null };
+              const { className, medal } = getRankDetails(index);
 
               return (
                 <tr key={project.id} className={className}>
-                  {/* ADICIONE O 'data-label' AQUI */}
                   <td data-label="Posição">
-                    {project.votes > 0 ? (
-                      <>
-                        {index + 1}º {medal && <span className="rank-medal">{medal}</span>}
-                      </>
-                    ) : (
-                      '-'
-                    )}
+                    {index + 1}º
+                    {medal && <span className="rank-medal">{medal}</span>}
                   </td>
-                  {/* E AQUI */}
-                  <td data-label="Projeto" style={project.votes > 0 ? {} : {}}>
-                    {project.name}
-                  </td>
-                  {/* E AQUI */}
+                  <td data-label="Projeto">{project.name}</td>
                   <td data-label="Descrição">{project.description}</td>
-                  {/* E AQUI */}
                   <td data-label="Votos">{project.votes}</td>
                 </tr>
               );
             })}
           </tbody>
-
         </table>
       )}
     </div>
