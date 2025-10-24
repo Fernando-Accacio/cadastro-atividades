@@ -54,21 +54,27 @@ Antes de começar, garanta que você possui instalados:
 
 ### 1️⃣ Configurando o Backend (Python/Flask)
 
-> **Observação:** Os comandos do backend devem ser executados a partir da **pasta raiz do projeto (`meu-portfolio/`)**.
+> **Observação:** Os comandos do backend devem ser executados a partir da **pasta raiz do projeto**.
 
 Abra um terminal na pasta raiz e execute:
 
 ```powershell
-# 1. Ative o ambiente virtual que está DENTRO da pasta backend
+# 1. Crie o ambiente virtual (se for a primeira vez/ainda não existir)
+#    (O Python precisa estar instalado)
+python -m venv .\backend\venv 
+ou 
+py -m venv .\backend\venv
+
+# 2. Ative o ambiente virtual que está DENTRO da pasta backend
 .\backend\venv\Scripts\activate
 
-# 2. Instale as dependências do Python (se for a primeira vez)
+# 3. Instale as dependências do Python (se for a primeira vez)
 pip install -r .\backend\requirements.txt
 
-# 3. Defina a aplicação Flask a ser executada
+# 4. Defina a aplicação Flask a ser executada
 $env:FLASK_APP="backend"
 
-# 4. Crie o banco de dados pela primeira vez com o comando 'init-db'
+# 5. Crie o banco de dados pela primeira vez com o comando 'init-db'
 flask init-db
 ````
 
@@ -92,7 +98,7 @@ Com as dependências instaladas, você precisará de **dois terminais** abertos.
 #### 🖥️ Terminal 1 (Backend)
 
 ```powershell
-# Na pasta raiz (meu-portfolio), com o venv ativado e o FLASK_APP definido
+# Na pasta raiz do projeto, com o venv ativado e o FLASK_APP definido
 flask run
 ```
 

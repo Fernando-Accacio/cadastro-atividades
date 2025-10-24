@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ProjectCard from '../components/ProjectCard';
 import { FaLinkedin, FaGithub, FaEnvelope } from 'react-icons/fa';
+// ADICIONADO: Importação do Link
+import { Link } from 'react-router-dom'; 
 
 function HomePage() {
   const [projectsByArea, setProjectsByArea] = useState({});
@@ -29,11 +31,19 @@ function HomePage() {
   return (
     <div className="container">
       <section className="about-section">
-        <img src="/images/marcelo.JPG" alt="Foto do Aluno Marcelo" />
+        <img src="/images/marcelo.JPG" alt="Foto do Aluno" />
         <h2>Marcelo Antony Accacio Olhier</h2>
-        <p>Sou Marcelo, tenho 18 anos, e estudo Internet das Coisas (IoT) no Senac Nações Unidas. Tenho um grande interesse por tecnologia, inovação e segurança digital, e busco minha primeira oportunidade profissional para aplicar meus conhecimentos e evoluir na área. Sou curioso, dedicado e colaborativo, sempre em busca de aprender mais e entregar o meu melhor em cada desafio.</p>
 
-        {/*Links sociais */}
+        <p>
+          Sou Marcelo, tenho 18 anos, e estudo Internet das Coisas (IoT) no Senac Nações Unidas. Tenho um grande interesse por tecnologia, inovação e segurança digital, e busco minha primeira oportunidade profissional para aplicar meus conhecimentos e evoluir na área. Sou curioso, dedicado e colaborativo, sempre em busca de aprender mais e entregar o meu melhor em cada desafio. 
+          {' '}
+          Venha conhecer um pouco mais{' '}
+          <Link to="/sobremim" className="link-effect">
+            sobre mim!
+          </Link>
+        </p>
+
+
         <div className="social-links">
           <a href="https://www.linkedin.com/in/marcelo-antony-741296363/" target="_blank" rel="noopener noreferrer">
             <FaLinkedin size={24} />
