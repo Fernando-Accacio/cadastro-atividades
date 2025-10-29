@@ -18,12 +18,31 @@
       "src": "/api/(.*)",
       "dest": "api/__init__.py"
     },
+
     {
-      "handle": "filesystem"
+      "src": "/static/(.*)",
+      "dest": "/frontend/static/$1" 
     },
     {
+      "src": "/(.*\\.(ico|png|jpg|jpeg|svg|gif|json))",
+      "dest": "/frontend/$1"
+    },
+    {
+       "src": "/documents/(.*)",
+       "dest": "/frontend/documents/$1"
+    },
+    {
+      "src": "/asset-manifest.json",
+      "dest": "/frontend/asset-manifest.json"
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "/frontend/favicon.ico"
+    },
+    
+    {
       "src": "/(.*)",
-      "dest": "/index.html" 
+      "dest": "/frontend/index.html"
     }
   ]
 }
