@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "outputDirectory": "frontend/build",
   "builds": [
     {
       "src": "api/__init__.py",
@@ -9,7 +10,7 @@
       "src": "frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "build"
+        "distDir": "frontend/build"
       }
     }
   ],
