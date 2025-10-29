@@ -8,7 +8,7 @@
     {
       "src": "frontend/package.json",
       "use": "@vercel/static-build",
-      "config": {
+      "config": { 
         "distDir": "build"
       }
     }
@@ -19,20 +19,11 @@
       "dest": "api/__init__.py"
     },
     {
-      "src": "/static/(.*)",
-      "dest": "/frontend/build/static/$1"
-    },
-    {
-      "src": "/(.*\\.(ico|png|jpg|jpeg|svg|gif|json))",
-      "dest": "/frontend/build/$1"
-    },
-    {
-      "src": "/documents/(.*)",
-      "dest": "/frontend/build/documents/$1"
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "/frontend/build/index.html"
+      "dest": "/index.html" 
     }
   ]
 }
