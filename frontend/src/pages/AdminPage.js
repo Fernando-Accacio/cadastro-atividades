@@ -10,7 +10,7 @@ function AdminPage() {
   const [error, setError] = useState('');
 
   const fetchMessages = () => {
-    axios.get('http://127.0.0.1:5000/api/messages')
+    axios.get('/api/messages')
       .then(response => {
         setMessages(response.data);
       })
@@ -20,7 +20,7 @@ function AdminPage() {
   };
 
   const fetchProjects = () => {
-    axios.get('http://127.0.0.1:5000/api/projects')
+    axios.get('/api/projects')
       .then(response => {
         const flatProjects = Object.values(response.data).flat();
         setProjects(flatProjects);
@@ -56,7 +56,7 @@ function AdminPage() {
     }
 
     if (window.confirm("Você tem CERTEZA que deseja resetar TODOS os votos? Esta ação não pode ser desfeita.")) {
-      axios.post('http://127.0.0.1:5000/api/admin/reset-votes')
+      axios.post('/api/admin/reset-votes')
         .then(() => {
           alert('Votos resetados com sucesso!');
           fetchProjects(); 
@@ -75,7 +75,7 @@ function AdminPage() {
     }
     
     if (window.confirm("Você tem CERTEZA que deseja apagar TODAS as mensagens? Esta ação não pode ser desfeita.")) {
-      axios.post('http://127.0.0.1:5000/api/admin/reset-messages')
+      axios.post('/api/admin/reset-messages')
         .then(() => {
           alert('Mensagens apagadas com sucesso!');
           fetchMessages(); 

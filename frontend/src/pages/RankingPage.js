@@ -19,7 +19,7 @@ function RankingPage() {
   const [hasVotes, setHasVotes] = useState(false);
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:5000/api/projects/ranked')
+    axios.get('/api/projects/ranked')
       .then(response => {
         setHasVotes(response.data.hasVotes);
         setRankedProjects(response.data.projects);

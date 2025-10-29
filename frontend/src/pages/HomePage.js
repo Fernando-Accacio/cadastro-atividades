@@ -2,14 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ProjectCard from '../components/ProjectCard';
 import { FaLinkedin, FaGithub, FaEnvelope } from 'react-icons/fa';
-// ADICIONADO: Importação do Link
 import { Link } from 'react-router-dom'; 
 
 function HomePage() {
   const [projectsByArea, setProjectsByArea] = useState({});
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:5000/api/projects')
+    axios.get('/api/projects')
       .then(response => {
         setProjectsByArea(response.data);
       })

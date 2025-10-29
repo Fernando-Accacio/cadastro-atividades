@@ -13,7 +13,7 @@ function ContactForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     setStatusMessage('Enviando...');
-    axios.post('http://127.0.0.1:5000/api/contact', formData)
+    axios.post('/api/contact', formData)
       .then(response => {
         setStatusMessage(response.data.success);
         setFormData({ name: '', email: '', message: '' }); // Limpa o formulário

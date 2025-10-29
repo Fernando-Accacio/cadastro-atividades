@@ -11,7 +11,7 @@ const materiaStyle = {
 function ProjectCard({ project, onVote }) {
   
   const handleVote = () => {
-    axios.post(`http://127.0.0.1:5000/api/projects/${project.id}/vote`)
+    axios.post(`/api/projects/${project.id}/vote`)
       .then(response => {
         onVote(response.data);
       })
