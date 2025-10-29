@@ -2,15 +2,16 @@
   "version": 2,
   "builds": [
     {
-      "src": "requirements.txt",
-      "use": "@vercel/python" 
+      "src": "api/__init__.py",
+      "use": "@vercel/python",
+      "config": { "maxLambdaSize": "15mb" }
     },
     {
       "src": "frontend/package.json",
       "use": "@vercel/node",
       "config": {
         "buildCommand": "cd frontend && npm install && npm run build",
-        "outputDirectory": "frontend/build" 
+        "outputDirectory": "frontend/build"
       }
     }
   ],
@@ -21,19 +22,22 @@
     },
     {
       "src": "/static/(.*)",
-      "dest": "/frontend/build/static/$1" 
+      "dest": "/frontend/build/static/$1"
     },
     {
       "src": "/(.*\\.(ico|png|jpg|jpeg|svg|gif))",
-      "dest": "/frontend/build/$1" 
+      "dest": "/frontend/build/$1"
     },
     {
        "src": "/documents/(.*)",
        "dest": "/frontend/build/documents/$1"
     },
     {
+      "handle": "filesystem" 
+    },
+    {
       "src": "/(.*)",
-      "dest": "/frontend/build/index.html" 
+      "dest": "/frontend/build/index.html"
     }
   ]
 }
