@@ -3,14 +3,14 @@
   "builds": [
     {
       "src": "requirements.txt",
-      "use": "@vercel/python"
+      "use": "@vercel/python" 
     },
     {
       "src": "frontend/package.json",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["frontend/build/**"],
-        "buildCommand": "cd frontend && npm install && npm run build"
+        "buildCommand": "cd frontend && npm install && npm run build",
+        "outputDirectory": "frontend/build" 
       }
     }
   ],
@@ -21,7 +21,7 @@
     },
     {
       "src": "/static/(.*)",
-      "dest": "/frontend/build/static/$1"
+      "dest": "/frontend/build/static/$1" 
     },
     {
       "src": "/(.*\\.(ico|png|jpg|jpeg|svg|gif))",
@@ -33,7 +33,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/frontend/build/index.html"
+      "dest": "/frontend/build/index.html" 
     }
   ]
 }
