@@ -184,7 +184,7 @@ function AdminPage() {
               {messages.map((msg) => (
                 <tr key={msg.id}>
                   <td data-label="Data">
-                    {new Date(msg.timestamp + 'Z').toLocaleString('pt-BR', {
+                    {new Date(msg.timestamp).toLocaleString('pt-BR', {
                       timeZone: 'America/Sao_Paulo'
                     })}
                   </td>
