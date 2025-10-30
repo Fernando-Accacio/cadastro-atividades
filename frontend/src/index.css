@@ -5,36 +5,41 @@
 :root {
   --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   
-  --bg-main: #fbfbfd; /* Um branco 'mais macio' que o branco puro */
+  /* Paleta de Cores Base (Apple-style) */
+  --bg-main: #f5f5f7; /* Fundo cinza claro */
   --bg-card: #ffffff; /* Fundo de todos os cards e seções */
   --bg-header: rgba(255, 255, 255, 0.7); /* Fundo do header semi-transparente para o blur */
-  --bg-gray-light: #f5f5f7; /* Fundo de inputs e rodapé */
-  --bg-accent-hover: #16a085; /* Versão escura do accent */
-  --bg-danger-hover: #c0392b; /* Vermelho mais escura para hover */
+  --bg-gray-light: #fafafa; /* Fundo de inputs e linhas de tabela */
 
+  /* Paleta de Texto */
   --text-primary: #1d1d1f; /* Cor de texto principal (quase preto) */
   --text-secondary: #555555; /* Cor de texto para descrições */
   --text-tertiary: #888; /* Cor de texto mais clara (ex: rodapé) */
-  --text-accent: #1abc9c; /* Sua cor de destaque */
-  --text-danger: #e74c3c; /* Cor de perigo para botões */
 
-  --border-light: #e8e8ed; /* Borda sutil para divisões */
+  /* Paleta de Ação */
+  --text-accent: #0077cc; /* Cor de destaque (Azul) */
+  --bg-accent-hover: #005fa3; /* Versão escura do azul */
+  --text-danger: #e74c3c; /* Cor de perigo para botões */
+  --bg-danger-hover: #c0392b; /* Vermelho mais escuro para hover */
+  --text-secondary-action: #333; /* Cor dos botões pretos */
+  --bg-secondary-action-hover: #111;
+
+  /* Bordas e Sombras */
+  --border-light: #e5e5e5; /* Borda sutil para divisões */
   --shadow-soft: 0 4px 12px rgba(0,0,0,0.05); /* Sombra suave padrão */
-  --radius-main: 10px; /* Bordas arredondadas padrão */
+  --radius-main: 12px; /* Bordas arredondadas */
 }
 
 /* --- ESTILOS GLOBAIS DO BODY --- */
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-main); /* Usa a fonte Inter */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
-  background-color: #f5f5f7;
-  
-  color: #1d1d1f; 
+  background-color: var(--bg-main);
+  color: var(--text-primary); 
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 code {
@@ -48,3 +53,4 @@ code {
   padding: 30px;
   box-sizing: border-box;
 }
+

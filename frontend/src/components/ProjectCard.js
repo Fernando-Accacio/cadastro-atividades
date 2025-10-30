@@ -1,13 +1,6 @@
 import React from 'react';
 import axios from 'axios';
 
-const materiaStyle = {
-  fontWeight: 'bold',
-  color: '#1abc9c',
-  marginBottom: '10px',
-  display: 'block'
-};
-
 function ProjectCard({ project, onVote }) {
   
   const handleVote = () => {
@@ -33,7 +26,7 @@ function ProjectCard({ project, onVote }) {
       
       <div className="project-card-content">
         <h3>{project.name}</h3>
-        <span style={materiaStyle}>{project.materia}</span>
+        <span className="project-card-materia">{project.materia}</span>
         <p>{project.description}</p>
         <div className="project-card-footer">
 

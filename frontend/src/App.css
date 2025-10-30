@@ -4,38 +4,26 @@
 .app-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;  
+  min-height: 100vh; 
 }
 
 main {
-  flex-grow: 1;  
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 30px;
-  box-sizing: border-box;
+  flex-grow: 1; 
 }
 
 /* =============================================== */
 /* HEADER STYLES (RESPONSIVO)                      */
 /* =============================================== */
 .app-header {
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: var(--bg-header);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  
   padding: 15px 30px;
-  
-  color: #111; 
-  
+  color: var(--text-primary); 
   display: flex;
   justify-content: space-between;
   align-items: center;
-  
-  border-bottom: 1px solid #ddd;
-  
+  border-bottom: 1px solid var(--border-light);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -50,7 +38,7 @@ main {
 .header-logo h1 {
   margin: 0;
   font-size: 1.8em;
-  color: #111;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
@@ -61,7 +49,7 @@ main {
 }
 
 .nav-menu a {
-  color: #333; 
+  color: var(--text-secondary); 
   text-decoration: none;
   font-size: 1.05em;
   font-weight: 500;
@@ -71,7 +59,7 @@ main {
 }
 
 .nav-menu a:hover {
-  color: #0077cc;
+  color: var(--text-accent);
 }
 
 .nav-menu a::after {
@@ -81,7 +69,7 @@ main {
   left: 0;
   width: 100%;
   height: 2px;
-  background-color: #0077cc; 
+  background-color: var(--text-accent); 
   transform: scaleX(0);
   transition: transform 0.3s ease-in-out;
 }
@@ -94,7 +82,7 @@ main {
   display: none;
   cursor: pointer;
   font-size: 1.8rem; 
-  color: #111;
+  color: var(--text-primary);
 }
 
 @media screen and (max-width: 960px) {
@@ -107,7 +95,7 @@ main {
     top: 70px;
     left: -100%;
     transition: all 0.5s ease;
-    background-color: #ffffff; 
+    background-color: var(--bg-card); 
     padding-top: 40px;
   }
 
@@ -125,7 +113,7 @@ main {
 }
 
 .page-title {
-  color: #111;
+  color: var(--text-primary);
   text-align: center;
   margin-bottom: 40px;
   font-size: 2.5rem;
@@ -133,11 +121,11 @@ main {
 }
 
 .about-section {
-  background-color: white;
+  background-color: var(--bg-card);
   padding: 48px;
-  border-radius: 12px;
+  border-radius: var(--radius-main);
   margin-bottom: 40px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-soft);
   text-align: center;
 }
 
@@ -152,22 +140,25 @@ main {
   height: 220px;
   border-radius: 50%;
   object-fit: cover;
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 .about-section img:hover {
-  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-  transform: translateY(-5px);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.12), 
+              0 4px 10px rgba(0,0,0,0.08);
 }
 
 .about-section p {
   font-size: 1.05rem; 
   line-height: 1.6;
+  color: var(--text-secondary);
 }
 
 .link-effect {
   position: relative;
-  color: #0077cc; 
+  color: var(--text-accent); 
   text-decoration: none;
   font-weight: 500;
 }
@@ -179,7 +170,7 @@ main {
   left: 0;
   width: 100%;
   height: 2px;
-  background-color: #0077cc;
+  background-color: var(--text-accent);
   transform: scaleX(0);
   transition: transform 0.3s ease-in-out;
 }
@@ -198,10 +189,10 @@ main {
 }
 
 .project-card {
-  background-color: white;
-  border-radius: 12px; 
+  background-color: var(--bg-card);
+  border-radius: var(--radius-main); 
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-soft);
   transition: transform 0.3s, box-shadow 0.3s;
   display: flex;
   flex-direction: column;
@@ -227,24 +218,34 @@ main {
 
 .project-card-content h3 {
   margin-top: 0;
-  color: #111;
+  color: var(--text-primary);
   font-weight: 600;
   font-size: 1.4rem;
 }
 
+.project-card-materia {
+  font-weight: 500;
+  color: var(--text-accent);
+  margin-bottom: 10px;
+  display: block;
+  font-size: 0.95rem;
+}
+
 .project-card-content p {
-  flex-grow: 1;
   line-height: 1.6;
+  color: var(--text-secondary);
+  flex-grow: 1;
 }
 
 .project-card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 20px;
+  margin-top: auto;
   gap: 10px;
   flex-wrap: wrap;
-  padding: 0 24px 24px;
+  padding: 24px;
+  padding-top: 20px;
 }
 
 .project-card-footer a,
@@ -271,29 +272,29 @@ main {
 }
 
 .project-card-footer a {
-  background-color: #0077cc;
+  background-color: var(--text-secondary-action);
 }
 
 .project-card-footer a:hover {
-  background-color: #005fa3;
+  background-color: var(--bg-secondary-action-hover);
 }
 
 .vote-button {
-  background-color: #333;
+  background-color: var(--text-accent);
 }
 
 .vote-button:hover {
-  background-color: #111;
+  background-color: var(--bg-accent-hover);
 }
 
 .image-placeholder {
   width: 100%;
   height: 200px;
-  background-color: #f5f5f7; 
+  background-color: var(--bg-gray-light); 
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #999; 
+  color: var(--text-tertiary); 
   font-style: italic;
 }
 
@@ -304,9 +305,9 @@ main {
   max-width: 600px;
   margin: 40px auto;
   padding: 30px;
-  background: white;
-  border-radius: 12px; 
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  background: var(--bg-card);
+  border-radius: var(--radius-main); 
+  box-shadow: var(--shadow-soft);
 }
 
 .form-group {
@@ -317,22 +318,25 @@ main {
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
+  color: var(--text-secondary);
 }
 
 .form-group input,
 .form-group textarea {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-light);
   border-radius: 8px;
   box-sizing: border-box;
-  background-color: #fafafa;
+  background-color: var(--bg-gray-light);
   transition: border-color 0.3s, box-shadow 0.3s;
+  font-family: var(--font-main);
+  font-size: 1rem;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
-  border-color: #0077cc;
+  border-color: var(--text-accent);
   box-shadow: 0 0 0 3px rgba(0, 119, 204, 0.2);
   outline: none;
   background-color: #fff;
@@ -341,7 +345,7 @@ main {
 .contact-form button {
   width: 100%;
   padding: 14px;
-  background-color: #0077cc;
+  background-color: var(--text-accent);
   color: white;
   border: none;
   border-radius: 8px;
@@ -353,7 +357,7 @@ main {
 }
 
 .contact-form button:hover {
-  background-color: #005fa3;
+  background-color: var(--bg-accent-hover);
   box-shadow: 0 6px 12px rgba(0,0,0,0.4);
   transform: translateY(-1px);
 }
@@ -363,7 +367,7 @@ main {
   width: 250px;
   margin: 40px auto;
   padding: 15px 20px;
-  background-color: #111;
+  background-color: var(--text-secondary-action);
   color: white;
   text-align: center;
   text-decoration: none;
@@ -375,13 +379,13 @@ main {
 }
 
 .download-button:hover {
-  background-color: #333;
+  background-color: var(--bg-secondary-action-hover);
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0,0,0,0.4);
 }
 
 .danger-button {
-  background-color: #e74c3c;  
+  background-color: var(--text-danger); 
   color: white;
   border: none;
   padding: 10px 15px;
@@ -390,13 +394,23 @@ main {
   font-size: 1em;
   font-weight: 500;
   box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  transition: background-color 0.3s, box-shadow 0.2s, transform 0.2s;
+  transition: background-color 0.3s, box-shadow 0.2s, transform 0.2s, opacity 0.3s;
 }
 
 .danger-button:hover {
-  background-color: #c0392b;  
+  background-color: var(--bg-danger-hover); 
   box-shadow: 0 6px 12px rgba(0,0,0,0.4);
   transform: translateY(-1px);
+}
+
+.danger-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+.danger-button:disabled:hover {
+  background-color: var(--text-danger);
 }
 
 /* =============================================== */
@@ -405,21 +419,21 @@ main {
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  border-radius: 12px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-soft);
+  border-radius: var(--radius-main);
   overflow: hidden;
 }
 
 .data-table th, .data-table td {
-  border: 1px solid #eee;
+  border: 1px solid var(--border-light);
   padding: 14px;
   text-align: left;
 }
 
 .data-table th {
-  background-color: #f5f5f7;
-  color: #333;
+  background-color: var(--bg-gray-light);
+  color: var(--text-secondary);
   font-weight: 600;
   text-transform: uppercase;
   font-size: 0.9em;
@@ -427,7 +441,7 @@ main {
 }
 
 .data-table tr:nth-child(even) {
-  background-color: #fafafa;
+  background-color: var(--bg-gray-light);
 }
 
 @media screen and (max-width: 768px) {
@@ -445,10 +459,10 @@ main {
     display: block;
     margin-bottom: 20px;
     border: none;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border-radius: var(--radius-main);
+    box-shadow: var(--shadow-soft);
     overflow: hidden;
-    background: #fff;
+    background: var(--bg-card);
   }
 
   .data-table td {
@@ -456,21 +470,21 @@ main {
     text-align: right;
     padding-left: 50%;
     position: relative;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-light);
     padding-top: 14px;
     padding-bottom: 14px;
     padding-right: 14px;
-    overflow-wrap: break-word;  
+    overflow-wrap: break-word; 
   }
   
   .data-table tr:nth-child(even) {
-     background-color: #fff;
+    background-color: var(--bg-card);
   }
 
   .data-table td:first-child {
-      background-color: #f5f5f7;
-      font-weight: 600;
-      border-radius: 12px 12px 0 0;
+    background-color: var(--bg-gray-light);
+    font-weight: 600;
+    border-radius: 12px 12px 0 0;
   }
 
   .data-table td:last-child {
@@ -481,11 +495,11 @@ main {
     content: attr(data-label);
     position: absolute;
     left: 14px;
-    width: 45%;  
+    width: 45%; 
     font-weight: 600;
     text-align: left;
-    white-space: nowrap;  
-    color: #111;
+    white-space: nowrap; 
+    color: var(--text-primary);
   }
 }
 
@@ -513,26 +527,27 @@ main {
 /* PÁGINA SOBRE MIM / HOBBIES                      */
 /* =============================================== */
 .informal-intro {
-  background-color: #fff;
-  padding: 30px;  
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  background-color: var(--bg-card);
+  padding: 30px; 
+  border-radius: var(--radius-main);
+  box-shadow: var(--shadow-soft);
   text-align: center;
-  margin-bottom: 40px;  
+  margin-bottom: 40px; 
   font-size: 1.1em;
   line-height: 1.7;
+  color: var(--text-secondary);
 }
 
 .hobbies-container {
   display: flex;
   flex-direction: column;
-  gap: 40px;  
+  gap: 40px; 
 }
 
 .hobby-card {
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  background-color: var(--bg-card);
+  border-radius: var(--radius-main);
+  box-shadow: var(--shadow-soft);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -547,7 +562,7 @@ main {
 .hobby-image {
   width: 100%;
   height: 220px;
-  object-fit: cover;  
+  object-fit: cover; 
 }
 
 .hobby-content {
@@ -557,7 +572,7 @@ main {
 
 .hobby-content h3 {
   margin-top: 0;
-  color: #111;
+  color: var(--text-primary);
   font-size: clamp(1.5rem, 4vw, 1.8rem);
   font-weight: 600;
 }
@@ -569,7 +584,7 @@ main {
   }
 
   .hobby-card {
-    flex-direction: row;  
+    flex-direction: row; 
   }
 
   .hobby-card:nth-child(even) {
@@ -578,7 +593,7 @@ main {
 
   .hobby-image {
     width: 40%;
-    height: 300px;  
+    height: 300px; 
   }
 
   .hobby-content {
@@ -620,10 +635,10 @@ main {
 }
 
 .admin-section {
-  background-color: #fff;
+  background-color: var(--bg-card);
   padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border-radius: var(--radius-main);
+  box-shadow: var(--shadow-soft);
   margin-bottom: 40px;
 }
 
@@ -638,7 +653,7 @@ main {
   text-align: center;
   padding: 30px;
   margin-top: 60px;
-  background-color: #ffffff;
-  color: #777;
-  border-top: 1px solid #e5e5e5;
+  background-color: var(--bg-card);
+  color: var(--text-tertiary);
+  border-top: 1px solid var(--border-light);
 }
