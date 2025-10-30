@@ -8,7 +8,7 @@ const hobbiesData = [
   },
   {
     title: 'Namoro',
-    image: '/images/namorada.jpg',
+    image: '/images/spfc.jpg',
     description: 'Atualmente, divido a vida com minha namorada, Karol. Compartilhamos risadas, planos e muitos momentos especiais. É com ela que aprendo, cresço e descubro o valor das pequenas coisas que tornam a vida leve e cheia de sentido..'
   },
   {

@@ -30,7 +30,7 @@ function HomePage() {
   return (
     <div className="container">
       <section className="about-section">
-        <img src="/images/marcelo.jpg" alt="Foto do Aluno" />
+        <img src="/images/familia.jpg" alt="Foto do Aluno" />
         <h2>Marcelo Antony Accacio Olhier</h2>
 
         <p>
