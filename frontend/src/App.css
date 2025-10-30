@@ -231,22 +231,14 @@ main {
   font-size: 0.95rem;
 }
 
-.project-card-content p {
-  line-height: 1.6;
-  color: var(--text-secondary);
-  flex-grow: 1;
-}
-
 .project-card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: auto;
   padding: 0 24px 24px;
-  flex-wrap: wrap;
+  margin-top: auto;
   gap: 10px;
 }
-
 
 .project-card-footer a,
 .project-card-footer .vote-button {
@@ -281,7 +273,8 @@ main {
 
 .project-card-content p {
   line-height: 1.6;
-  flex-grow: 1; 
+  color: var(--text-secondary);
+  flex-grow: 1;
   overflow-wrap: break-word;
 }
 
