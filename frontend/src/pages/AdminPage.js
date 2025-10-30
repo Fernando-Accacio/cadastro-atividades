@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+// NOVO: Importa os ícones de olho da biblioteca react-icons
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 function AdminPage() {
   const [messages, setMessages] = useState([]);
@@ -97,8 +99,19 @@ function AdminPage() {
             <label htmlFor="password">Senha</label>
             <div style={{ position: 'relative', width: '100%' }}>
               <input type={showPassword ? 'text' : 'password'} id="password" value={password} onChange={(e) => setPassword(e.target.value)} autoFocus />
-              <span style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', userSelect: 'none' }} onClick={() => setShowPassword(!showPassword)}>
-                {showPassword ? '🙈' : '👁️'}
+              <span 
+                style={{ 
+                  position: 'absolute', 
+                  right: '14px', 
+                  top: '55%', 
+                  transform: 'translateY(-50%)', 
+                  cursor: 'pointer', 
+                  userSelect: 'none',
+                  color: 'var(--text-secondary)'
+                }} 
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
               </span>
             </div>
           </div>
@@ -109,9 +122,11 @@ function AdminPage() {
     );
   }
 
+  // --- VERIFICAÇÕES DE EXISTÊNCIA ---
   const hasMessages = messages.length > 0;
   const hasVotes = projects.some(p => p.votes > 0);
 
+  // --- PAINEL ADMIN ---
   return (
     <div className="container">
       <h1 className="page-title">Painel do Administrador</h1>
@@ -171,7 +186,7 @@ function AdminPage() {
         {!hasMessages ? (
           <p style={{ textAlign: 'center', fontStyle: 'italic' }}>Nenhuma mensagem recebida ainda.</p>
         ) : (
-         <table className="data-table">
+          <table className="data-table">
             <thead>
               <tr>
                 <th>Data</th>
