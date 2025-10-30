@@ -18,33 +18,12 @@
       "src": "/api/(.*)",
       "dest": "api/__init__.py"
     },
-    
     {
-      "src": "/static/(.*)",
-      "dest": "/frontend/static/$1" 
+      "handle": "filesystem" 
     },
-
-    {
-      "src": "/images/(.*\\.(png|PNG|jpg|JPG|jpeg|JPEG|svg|SVG|gif|GIF))",
-      "dest": "/frontend/images/$1"
-    },
-
-    {
-      "src": "/favicon.ico",
-      "dest": "/frontend/favicon.ico"
-    },
-    {
-      "src": "/asset-manifest.json",
-      "dest": "/frontend/asset-manifest.json"
-    },
-    {
-       "src": "/documents/(.*)",
-       "dest": "/frontend/documents/$1"
-    },
-
     {
       "src": "/(.*)",
-      "dest": "/frontend/index.html"
+      "dest": "/index.html"
     }
   ]
 }

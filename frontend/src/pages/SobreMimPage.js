@@ -3,7 +3,7 @@ import React from 'react';
 const hobbiesData = [
   {
     title: 'Familia',
-    image: 'images/familia.jpeg',
+    image: 'images/familia.jpg',
     description: 'Minha base e meu maior orgulho. Estar com minha família é o que me recarrega de verdade — seja numa conversa tranquila, num almoço de domingo ou só compartilhando o dia a dia. São eles que me lembram sempre de onde vim e por que sigo em frente.'
   },
   {
