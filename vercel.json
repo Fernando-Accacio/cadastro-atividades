@@ -8,7 +8,7 @@
     {
       "src": "frontend/package.json",
       "use": "@vercel/static-build",
-      "config": { 
+      "config": {
         "distDir": "build"
       }
     }
@@ -19,11 +19,32 @@
       "dest": "api/__init__.py"
     },
     {
-      "handle": "filesystem" 
+      "src": "/favicon.ico",
+      "dest": "/frontend/favicon.ico"
+    },
+    {
+      "src": "/asset-manifest.json",
+      "dest": "/frontend/asset-manifest.json"
+    },
+    {
+      "src": "/manifest.json",
+      "dest": "/frontend/manifest.json"
+    },
+    {
+      "src": "/static/(.*)",
+      "dest": "/frontend/static/$1"
+    },
+    {
+      "src": "/images/(.*\\.(?i)(png|jpg|jpeg|svg|gif))",
+      "dest": "/frontend/images/$1"
+    },
+    {
+      "src": "/documents/(.*)",
+      "dest": "/frontend/documents/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/frontend/index.html"
     }
   ]
 }
