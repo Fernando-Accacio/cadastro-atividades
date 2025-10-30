@@ -18,7 +18,6 @@
       "src": "/api/(.*)",
       "dest": "api/__init__.py"
     },
-
     {
       "src": "/favicon.ico",
       "dest": "/frontend/favicon.ico"
@@ -31,15 +30,16 @@
       "src": "/static/(.*)",
       "dest": "/frontend/static/$1" 
     },
+    
     {
-      "src": "/(.*\\.(png|jpg|jpeg|svg|gif))",
+      "src": "/images/(.*\\.(?i)(png|jpg|jpeg|svg|gif))",
       "dest": "/frontend/images/$1"
     },
+    
     {
        "src": "/documents/(.*)",
        "dest": "/frontend/documents/$1"
     },
-    
     {
       "src": "/(.*)",
       "dest": "/frontend/index.html"
