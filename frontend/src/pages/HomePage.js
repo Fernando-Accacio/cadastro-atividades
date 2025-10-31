@@ -22,23 +22,30 @@ function HomePage() {
           // Pega o array de projetos para a área atual
           const projects = data[area];
 
-          // Ordena o array de projetos pelo ID, em ordem crescente
-          // (a.id - b.id) = crescente (mais antigo primeiro)
-          // (b.id - a.id) = decrescente (mais novo primeiro)
+          // Verifica se 'projects' é realmente um array antes de ordenar
           if (Array.isArray(projects)) {
-            const sortedProjects = projects.sort((a, b) => a.id - b.id);
+            
+            // --- MODIFICAÇÃO PRINCIPAL AQUI ---
+            // Ordena o array de projetos pela data de criação.
+            // new Date(a.created_at) - new Date(b.created_at)
+            // Isso garante que a data mais antiga venha primeiro (ordem crescente).
+            const sortedProjects = projects.sort((a, b) => 
+              new Date(a.created_at) - new Date(b.created_at)
+            );
+
             // Adiciona o array ordenado ao nosso novo objeto
             sortedData[area] = sortedProjects;
           }
         }
 
+        // Define o estado com o objeto contendo os arrays ordenados
         setProjectsByArea(sortedData);
         
       })
       .catch(error => {
         console.error("Houve um erro ao buscar os projetos!", error);
       });
-  }, []); 
+  }, []); // Array de dependências vazio, roda só uma vez
 
   const handleVoteUpdate = (updatedProject) => {
     const { area_saber } = updatedProject;
