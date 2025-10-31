@@ -7,10 +7,11 @@
   min-height: 100vh;
 }
 
-/* === MODIFICAÇÃO 1: Adicionado padding-bottom === */
+/* === MODIFICAÇÃO: Adicionado padding-top e padding-bottom === */
 main {
   flex-grow: 1;
-  padding-bottom: 60px; /* Garante espaço uniforme antes do footer */
+  padding-top: 40px;    /* Garante espaço uniforme DEPOIS do header */
+  padding-bottom: 60px; /* Garante espaço uniforme ANTES do footer */
 }
 
 /* =============================================== */
@@ -673,16 +674,28 @@ main {
   flex-wrap: wrap;
 }
 
+/* Alterado: 'margin-top' foi comentada */
 .app-footer {
   text-align: center;
   padding: 30px;
+  /* margin-top: 60px; */ /* Removido para padronizar o espaço no 'main' */
   background-color: var(--bg-card);
   color: var(--text-tertiary);
   border-top: 1px solid var(--border-light);
 }
-/* Garante que o último elemento dentro de 'main' não tenha
-margem inferior, pois 'main' já controla o espaçamento.
+
+/* Garante que o primeiro elemento DENTRO do '.container'
+   não tenha margem no topo, para padronizar o espaço.
 */
-main > *:last-child {
+/* === Seletor ':last-child' === */
+/* Garante que o último elemento DENTRO do '.container'
+não tenha margem inferior.
+*/
+
+main .container > *:first-child {
+  margin-top: 0 !important;
+}
+
+main .container > *:last-child {
   margin-bottom: 0 !important;
 }
