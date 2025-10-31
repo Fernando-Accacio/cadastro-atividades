@@ -6,48 +6,51 @@ import { Link } from 'react-router-dom';
 
 function HomePage() {
   const [projectsByArea, setProjectsByArea] = useState({});
+  const [sortedAreaKeys, setSortedAreaKeys] = useState([]);
 
   useEffect(() => {
     axios.get('/api/projects')
       .then(response => {
         
-        // Pega o objeto de resposta (ex: { "IoT": [...], "Web": [...] })
         const data = response.data;
-        
-        // Cria um novo objeto para guardar os dados ordenados
         const sortedData = {};
 
-        // Itera sobre cada chave (cada "área") no objeto
+        // Etapa A: Ordena os projetos DENTRO de cada área
         for (const area in data) {
-          // Pega o array de projetos para a área atual
           const projects = data[area];
-
-          // Verifica se 'projects' é realmente um array antes de ordenar
           if (Array.isArray(projects)) {
-            
-            // --- MODIFICAÇÃO PRINCIPAL AQUI ---
-            // Ordena o array de projetos pela data de criação.
-            // new Date(a.created_at) - new Date(b.created_at)
-            // Isso garante que a data mais antiga venha primeiro (ordem crescente).
-            const sortedProjects = projects.sort((a, b) => 
-              new Date(a.created_at) - new Date(b.created_at)
-            );
-
-            // Adiciona o array ordenado ao nosso novo objeto
+            // --- MUDANÇA 1: Usando parseInt para garantir a comparação numérica ---
+            const sortedProjects = projects.sort((a, b) => parseInt(a.id) - parseInt(b.id));
             sortedData[area] = sortedProjects;
           }
         }
+        
+        // Etapa B: Ordenar as próprias ÁREAS
+        const keys = Object.keys(sortedData);
+        keys.sort((areaA, areaB) => {
+          const projectsA = sortedData[areaA];
+          const projectsB = sortedData[areaB];
+          
+          // --- MUDANÇA 2: Usando parseInt aqui também ---
+          const oldestIdA = parseInt((projectsA[0] || {id: Infinity}).id);
+          const oldestIdB = parseInt((projectsB[0] || {id: Infinity}).id);
+          
+          return oldestIdA - oldestIdB;
+        });
 
-        // Define o estado com o objeto contendo os arrays ordenados
-        setProjectsByArea(sortedData);
+        // Etapa C: Salvar AMBOS os estados
+        setProjectsByArea(sortedData); 
+        setSortedAreaKeys(keys);
         
       })
       .catch(error => {
         console.error("Houve um erro ao buscar os projetos!", error);
       });
-  }, []); // Array de dependências vazio, roda só uma vez
+  }, []); 
 
+  // Função de Voto (sem alteração)
   const handleVoteUpdate = (updatedProject) => {
+    // ... (código idêntico)
     const { area_saber } = updatedProject;
     setProjectsByArea(currentAreas => ({
       ...currentAreas,
@@ -59,10 +62,10 @@ function HomePage() {
 
   return (
     <div className="container">
+      {/* ... seção 'about-section' (sem alteração) ... */}
       <section className="about-section">
         <img src="/images/marcelo-foto.jpg" alt="Foto do Aluno" />
         <h2>Marcelo Antony Accacio Olhier</h2>
-
         <p>
           Sou Marcelo, tenho 18 anos, e estudo Internet das Coisas (IoT) no Senac Nações Unidas. Tenho um grande interesse por tecnologia, inovação e segurança digital, e busco minha primeira oportunidade profissional para aplicar meus conhecimentos e evoluir na área. Sou curioso, dedicado e colaborativo, sempre em busca de aprender mais e entregar o meu melhor em cada desafio. 
           {' '}
@@ -71,8 +74,6 @@ function HomePage() {
             sobre mim!
           </Link>
         </p>
-
-
         <div className="social-links">
           <a href="https://www.linkedin.com/in/marcelo-antony-741296363/" target="_blank" rel="noopener noreferrer">
             <FaLinkedin size={24} />
@@ -91,18 +92,21 @@ function HomePage() {
 
       <section id="projects">
         <h2 className="page-title">Meus Trabalhos</h2>
-        {Object.keys(projectsByArea).map(area => (
-          <div key={area} style={{ marginBottom: '70px' }}>
-            <h3 style={{ fontSize: '22px', color: '#2c3e50', borderBottom: '2px solid #ecf0f1', paddingBottom: '10px' }}>
-              {area}
-            </h3>
-            <div className="project-grid">
-              {projectsByArea[area].map(project => (
-                <ProjectCard key={project.id} project={project} onVote={handleVoteUpdate} />
-              ))}
+        
+        {/* Renderiza usando o array de chaves JÁ ORDENADO */}
+        {sortedAreaKeys.map(area => (
+            <div key={area} style={{ marginBottom: '70px' }}>
+              <h3 style={{ fontSize: '22px', color: '#2c3e50', borderBottom: '2px solid #ecf0f1', paddingBottom: '10px' }}>
+                {area}
+              </h3>
+              <div className="project-grid">
+                {/* Acessa os projetos (que também já estão ordenados) */}
+                {projectsByArea[area] && projectsByArea[area].map(project => (
+                  <ProjectCard key={project.id} project={project} onVote={handleVoteUpdate} />
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
       </section>
     </div>
   );
