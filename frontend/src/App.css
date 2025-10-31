@@ -483,6 +483,9 @@ main {
     padding-bottom: 14px;
     padding-right: 14px;
     overflow-wrap: break-word;
+
+    box-sizing: border-box;
+    word-break: break-all;
   }
   
   .data-table tr:nth-child(even) {
@@ -494,6 +497,19 @@ main {
     font-weight: 600;
     border-radius: 12px 12px 0 0;
   }
+
+  .data-table td.top-rank-1:first-child {
+  background-color: #fffbe6;
+  font-weight: bold;
+}
+.data-table td.top-rank-2:first-child {
+  background-color: #f7f7f7;
+  font-weight: 600;
+}
+.data-table td.top-rank-3:first-child {
+  background-color: #fff1e6;
+  font-weight: 500;
+}
 
   .data-table td:last-child {
     border-bottom: none;
