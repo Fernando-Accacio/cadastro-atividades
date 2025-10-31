@@ -19,7 +19,7 @@ function HomePage() {
         for (const area in data) {
           const projects = data[area];
           if (Array.isArray(projects)) {
-            // --- MUDANÇA 1: Usando parseInt para garantir a comparação numérica ---
+            // Usando parseInt para garantir a comparação numérica
             const sortedProjects = projects.sort((a, b) => parseInt(a.id) - parseInt(b.id));
             sortedData[area] = sortedProjects;
           }
@@ -31,7 +31,7 @@ function HomePage() {
           const projectsA = sortedData[areaA];
           const projectsB = sortedData[areaB];
           
-          // --- MUDANÇA 2: Usando parseInt aqui também ---
+          // Usando parseInt aqui também
           const oldestIdA = parseInt((projectsA[0] || {id: Infinity}).id);
           const oldestIdB = parseInt((projectsB[0] || {id: Infinity}).id);
           
@@ -46,11 +46,10 @@ function HomePage() {
       .catch(error => {
         console.error("Houve um erro ao buscar os projetos!", error);
       });
-  }, []); 
+  }, []); // Array de dependências vazio, roda só uma vez
 
-  // Função de Voto (sem alteração)
+  // Função de Voto
   const handleVoteUpdate = (updatedProject) => {
-    // ... (código idêntico)
     const { area_saber } = updatedProject;
     setProjectsByArea(currentAreas => ({
       ...currentAreas,
@@ -62,7 +61,7 @@ function HomePage() {
 
   return (
     <div className="container">
-      {/* ... seção 'about-section' (sem alteração) ... */}
+      {/* ... seção 'about-section' ... */}
       <section className="about-section">
         <img src="/images/marcelo-foto.jpg" alt="Foto do Aluno" />
         <h2>Marcelo Antony Accacio Olhier</h2>
