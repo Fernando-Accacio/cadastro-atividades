@@ -7,44 +7,33 @@ import { Link } from 'react-router-dom';
 function HomePage() {
   const [projectsByArea, setProjectsByArea] = useState({});
 
+  // 1. ORDENAÇÃO DENTRO DAS ÁREAS (roda 1 vez quando o componente carrega)
   useEffect(() => {
     axios.get('/api/projects')
       .then(response => {
         
-        // Pega o objeto de resposta (ex: { "IoT": [...], "Web": [...] })
         const data = response.data;
-        
-        // Cria um novo objeto para guardar os dados ordenados
         const sortedData = {};
 
-        // Itera sobre cada chave (cada "área") no objeto
         for (const area in data) {
-          // Pega o array de projetos para a área atual
           const projects = data[area];
-
-          // Verifica se 'projects' é realmente um array antes de ordenar
+          
           if (Array.isArray(projects)) {
-            
-            // --- ESTA É A LÓGICA CORRETA ---
-            // Ordena o array de projetos pelo ID, em ordem crescente.
-            // (a.id - b.id) = crescente (mais antigo primeiro)
+            // Ordena os projetos dentro da área por ID (crescente)
+            // ex: [Projeto 1, Projeto 2, Projeto 3]
             const sortedProjects = projects.sort((a, b) => a.id - b.id);
-            // --- FIM DA LÓGICA ---
-
-            // Adiciona o array ordenado ao nosso novo objeto
             sortedData[area] = sortedProjects;
           }
         }
-
-        // Define o estado com o objeto contendo os arrays ordenados
-        setProjectsByArea(sortedData);
         
+        setProjectsByArea(sortedData);
       })
       .catch(error => {
         console.error("Houve um erro ao buscar os projetos!", error);
       });
-  }, []); // Array de dependências vazio, roda só uma vez
+  }, []); 
 
+  // Função para atualizar o estado quando um voto é computado
   const handleVoteUpdate = (updatedProject) => {
     const { area_saber } = updatedProject;
     setProjectsByArea(currentAreas => ({
@@ -70,7 +59,6 @@ function HomePage() {
           </Link>
         </p>
 
-
         <div className="social-links">
           <a href="https://www.linkedin.com/in/marcelo-antony-741296363/" target="_blank" rel="noopener noreferrer">
             <FaLinkedin size={24} />
@@ -89,18 +77,36 @@ function HomePage() {
 
       <section id="projects">
         <h2 className="page-title">Meus Trabalhos</h2>
-        {Object.keys(projectsByArea).map(area => (
-          <div key={area} style={{ marginBottom: '70px' }}>
-            <h3 style={{ fontSize: '22px', color: '#2c3e50', borderBottom: '2px solid #ecf0f1', paddingBottom: '10px' }}>
-              {area}
-            </h3>
-            <div className="project-grid">
-              {projectsByArea[area].map(project => (
-                <ProjectCard key={project.id} project={project} onVote={handleVoteUpdate} />
-              ))}
+        
+        {/* 2. ORDENAÇÃO DAS PRÓPRIAS ÁREAS (roda a cada renderização) */}
+        {Object.keys(projectsByArea)
+          .sort((areaA, areaB) => {
+            // Pega os arrays de projetos (já ordenados pelo useEffect)
+            const projectsA = projectsByArea[areaA];
+            const projectsB = projectsByArea[areaB];
+
+            // Pega o ID do projeto MAIS ANTIGO de cada área (o primeiro item)
+            // (Usamos '|| {id: Infinity}' como segurança caso a área esteja vazia)
+            const oldestIdA = (projectsA[0] || {id: Infinity}).id;
+            const oldestIdB = (projectsB[0] || {id: Infinity}).id;
+
+            // Compara os IDs mais antigos. A área com o ID menor vem primeiro.
+            return oldestIdA - oldestIdB;
+          })
+          .map(area => (
+            // Renderiza as áreas na ordem correta
+            <div key={area} style={{ marginBottom: '70px' }}>
+              <h3 style={{ fontSize: '22px', color: '#2c3e50', borderBottom: '2px solid #ecf0f1', paddingBottom: '10px' }}>
+                {area}
+              </h3>
+              <div className="project-grid">
+                {/* Renderiza os projetos (que já estão em ordem [1, 2, 3...]) */}
+                {projectsByArea[area].map(project => (
+                  <ProjectCard key={project.id} project={project} onVote={handleVoteUpdate} />
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
       </section>
     </div>
   );
