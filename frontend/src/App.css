@@ -502,6 +502,21 @@ main {
   }
 }
 
+.top-rank-1 {
+  background-color: #fffbe6;
+  font-weight: bold;
+}
+
+.top-rank-2 {
+  background-color: #f7f7f7;
+  font-weight: 600;
+}
+
+.top-rank-3 {
+  background-color: #fff1e6;
+  font-weight: 500;
+}
+
 .rank-medal {
   margin-left: 5px;
 }
@@ -511,7 +526,6 @@ main {
   vertical-align: middle;
   margin-bottom: 3px;
 }
-
 
 .top-rank-1 .rank-medal svg {
   color: #FFD700;
