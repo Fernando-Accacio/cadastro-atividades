@@ -513,15 +513,15 @@ main {
 }
 
 
-.top-rank-1 .rank-medal {
+.top-rank-1 .rank-medal svg {
   color: #FFD700;
 }
 
-.top-rank-2 .rank-medal {
+.top-rank-2 .rank-medal svg {
   color: #C0C0C0;
 }
 
-.top-rank-3 .rank-medal {
+.top-rank-3 .rank-medal svg {
   color: #CD7F32;
 }
 

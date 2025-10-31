@@ -57,18 +57,17 @@ function RankingPage() {
             {rankedProjects.map((project, index) => {
               const { className, medal } = getRankDetails(index);
 
-              return (
-                <tr key={project.id} className={className}>
-                  <td data-label="Posição">
-                    {index + 1}º
-                    {/* 3. O ícone será renderizado aqui dentro do span */}
-                    {medal && <span className="rank-medal">{medal}</span>}
-                  </td>
-                  <td data-label="Projeto">{project.name}</td>
-                  <td data-label="Descrição">{project.description}</td>
-                  <td data-label="Votos">{project.votes}</td>
-                </tr>
-              );
+            return (
+              <tr key={project.id}> 
+                <td data-label="Posição" className={className}> 
+                   {index + 1}º
+                   {medal && <span className="rank-medal">{medal}</span>}
+                </td>
+                <td data-label="Projeto">{project.name}</td>
+                 <td data-label="Descrição">{project.description}</td>
+                <td data-label="Votos">{project.votes}</td>
+              </tr>
+             );
             })}
           </tbody>
         </table>
