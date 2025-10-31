@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 
 function HomePage() {
   const [projectsByArea, setProjectsByArea] = useState({});
-  // --- MUDANÇA 1: Novo estado para guardar as chaves/áreas JÁ ORDENADAS ---
   const [sortedAreaKeys, setSortedAreaKeys] = useState([]);
 
   useEffect(() => {
@@ -16,32 +15,32 @@ function HomePage() {
         const data = response.data;
         const sortedData = {};
 
-        // Etapa A: Ordena os projetos DENTRO de cada área (como antes)
+        // Etapa A: Ordena os projetos DENTRO de cada área
         for (const area in data) {
           const projects = data[area];
           if (Array.isArray(projects)) {
-            const sortedProjects = projects.sort((a, b) => a.id - b.id);
+            // --- MUDANÇA 1: Usando parseInt para garantir a comparação numérica ---
+            const sortedProjects = projects.sort((a, b) => parseInt(a.id) - parseInt(b.id));
             sortedData[area] = sortedProjects;
           }
         }
         
-        // --- MUDANÇA 2: Ordenar as próprias ÁREAS aqui dentro ---
-        
-        // Pega as chaves (nomes das áreas)
+        // Etapa B: Ordenar as próprias ÁREAS
         const keys = Object.keys(sortedData);
-
-        // Ordena as chaves com base no ID mais antigo de cada área
         keys.sort((areaA, areaB) => {
           const projectsA = sortedData[areaA];
           const projectsB = sortedData[areaB];
-          const oldestIdA = (projectsA[0] || {id: Infinity}).id;
-          const oldestIdB = (projectsB[0] || {id: Infinity}).id;
+          
+          // --- MUDANÇA 2: Usando parseInt aqui também ---
+          const oldestIdA = parseInt((projectsA[0] || {id: Infinity}).id);
+          const oldestIdB = parseInt((projectsB[0] || {id: Infinity}).id);
+          
           return oldestIdA - oldestIdB;
         });
 
-        // --- MUDANÇA 3: Salvar AMBOS os estados ---
-        setProjectsByArea(sortedData); // Salva os dados dos projetos
-        setSortedAreaKeys(keys);       // Salva a ORDEM correta das áreas
+        // Etapa C: Salvar AMBOS os estados
+        setProjectsByArea(sortedData); 
+        setSortedAreaKeys(keys);
         
       })
       .catch(error => {
@@ -51,6 +50,7 @@ function HomePage() {
 
   // Função de Voto (sem alteração)
   const handleVoteUpdate = (updatedProject) => {
+    // ... (código idêntico)
     const { area_saber } = updatedProject;
     setProjectsByArea(currentAreas => ({
       ...currentAreas,
@@ -93,19 +93,15 @@ function HomePage() {
       <section id="projects">
         <h2 className="page-title">Meus Trabalhos</h2>
         
-        {/* --- MUDANÇA 4: Mapear o NOVO estado 'sortedAreaKeys' --- */}
-        {/*
-          Agora não usamos 'Object.keys' nem '.sort' aqui.
-          Apenas mapeamos o array 'sortedAreaKeys' que JÁ ESTÁ na ordem certa.
-        */}
+        {/* Renderiza usando o array de chaves JÁ ORDENADO */}
         {sortedAreaKeys.map(area => (
             <div key={area} style={{ marginBottom: '70px' }}>
               <h3 style={{ fontSize: '22px', color: '#2c3e50', borderBottom: '2px solid #ecf0f1', paddingBottom: '10px' }}>
                 {area}
               </h3>
               <div className="project-grid">
-                {/* O 'projectsByArea[area]' pega os projetos já ordenados pelo useEffect */}
-                {projectsByArea[area].map(project => (
+                {/* Acessa os projetos (que também já estão ordenados) */}
+                {projectsByArea[area] && projectsByArea[area].map(project => (
                   <ProjectCard key={project.id} project={project} onVote={handleVoteUpdate} />
                 ))}
               </div>
