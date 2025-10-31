@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+// 1. Importe o ícone que deseja usar
+import { MdEmojiEvents } from 'react-icons/md';
 
 const getRankDetails = (index) => {
   switch (index) {
     case 0:
-      return { className: 'top-rank-1', medal: '🥇' };
+      // 2. Retorne o componente do ícone em vez do emoji
+      return { className: 'top-rank-1', medal: <MdEmojiEvents /> };
     case 1:
-      return { className: 'top-rank-2', medal: '🥈' };
+      return { className: 'top-rank-2', medal: <MdEmojiEvents /> };
     case 2:
-      return { className: 'top-rank-3', medal: '🥉' };
+      return { className: 'top-rank-3', medal: <MdEmojiEvents /> };
     default:
       return { className: '', medal: null };
   }
@@ -58,6 +61,7 @@ function RankingPage() {
                 <tr key={project.id} className={className}>
                   <td data-label="Posição">
                     {index + 1}º
+                    {/* 3. O ícone será renderizado aqui dentro do span */}
                     {medal && <span className="rank-medal">{medal}</span>}
                   </td>
                   <td data-label="Projeto">{project.name}</td>

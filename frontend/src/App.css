@@ -502,24 +502,27 @@ main {
   }
 }
 
-.top-rank-1 {
-  background-color: #fffbe6;
-  font-weight: bold;
-}
-
-.top-rank-2 {
-  background: linear-gradient(to right, #f0f0f0, #dcdcdc);
-  font-weight: 600;
-}
-
-.top-rank-3 {
-  background-color: #fff1e6;
-  font-weight: 500;
-}
-
 .rank-medal {
-  margin-left: 8px;
-  font-size: 1.2em;
+  margin-left: 5px;
+}
+
+.rank-medal svg {
+  font-size: 1.25em;
+  vertical-align: middle;
+  margin-bottom: 3px;
+}
+
+
+.top-rank-1 .rank-medal {
+  color: #FFD700;
+}
+
+.top-rank-2 .rank-medal {
+  color: #C0C0C0;
+}
+
+.top-rank-3 .rank-medal {
+  color: #CD7F32;
 }
 
 /* =============================================== */
