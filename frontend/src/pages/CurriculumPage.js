@@ -1,6 +1,5 @@
 import React from 'react';
 
-// Estilos para a página de currículo, para melhorar a legibilidade
 const curriculumStyle = {
   background: 'white',
   padding: '40px',
@@ -14,7 +13,6 @@ const sectionTitleStyle = {
   marginTop: '10px'
 };
 
-// Estilo para a linha que separa as seções
 const separatorStyle = {
     border: 'none',
     borderTop: '2px solid #ecf0f1',
@@ -23,7 +21,7 @@ const separatorStyle = {
 
 const personalInfoStyle = {
   textAlign: 'center',
-  marginBottom: '0' // Ajustado para alinhar com a linha separadora
+  marginBottom: '0'
 };
 
 

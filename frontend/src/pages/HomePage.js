@@ -94,7 +94,7 @@ function HomePage() {
         
         {/* Renderiza usando o array de chaves JÁ ORDENADO */}
         {sortedAreaKeys.map(area => (
-            <div key={area} style={{ marginBottom: '70px' }}>
+            <div key={area}>
               <h3 style={{ fontSize: '22px', color: '#2c3e50', borderBottom: '2px solid #ecf0f1', paddingBottom: '10px' }}>
                 {area}
               </h3>

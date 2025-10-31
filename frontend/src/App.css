@@ -4,11 +4,13 @@
 .app-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; 
+  min-height: 100vh;
 }
 
+/* === MODIFICAÇÃO 1: Adicionado padding-bottom === */
 main {
-  flex-grow: 1; 
+  flex-grow: 1;
+  padding-bottom: 60px; /* Garante espaço uniforme antes do footer */
 }
 
 /* =============================================== */
@@ -19,7 +21,7 @@ main {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   padding: 15px 30px;
-  color: var(--text-primary); 
+  color: var(--text-primary);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -45,11 +47,11 @@ main {
 .nav-menu {
   display: flex;
   align-items: center;
-  gap: 25px; 
+  gap: 25px;
 }
 
 .nav-menu a {
-  color: var(--text-secondary); 
+  color: var(--text-secondary);
   text-decoration: none;
   font-size: 1.05em;
   font-weight: 500;
@@ -69,7 +71,7 @@ main {
   left: 0;
   width: 100%;
   height: 2px;
-  background-color: var(--text-accent); 
+  background-color: var(--text-accent);
   transform: scaleX(0);
   transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
 }
@@ -89,7 +91,7 @@ main {
 .hamburger {
   display: none;
   cursor: pointer;
-  font-size: 1.8rem; 
+  font-size: 1.8rem;
   color: var(--text-primary);
 }
 
@@ -103,7 +105,7 @@ main {
     top: 70px;
     left: -100%;
     transition: all 0.5s ease;
-    background-color: var(--bg-card); 
+    background-color: var(--bg-card);
     padding-top: 40px;
   }
 
@@ -138,7 +140,7 @@ main {
 }
 
 .about-section h2 {
-  font-size: 2.8rem; 
+  font-size: 2.8rem;
   margin-bottom: 20px;
   font-weight: 600;
 }
@@ -154,19 +156,19 @@ main {
 
 .about-section img:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 26px rgba(0,0,0,0.12), 
+  box-shadow: 0 10px 26px rgba(0,0,0,0.12),
               0 4px 10px rgba(0,0,0,0.08);
 }
 
 .about-section p {
-  font-size: 1.05rem; 
+  font-size: 1.05rem;
   line-height: 1.6;
   color: var(--text-secondary);
 }
 
 .link-effect {
   position: relative;
-  color: var(--text-accent); 
+  color: var(--text-accent);
   text-decoration: none;
   font-weight: 500;
 }
@@ -198,7 +200,7 @@ main {
 
 .project-card {
   background-color: var(--bg-card);
-  border-radius: var(--radius-main); 
+  border-radius: var(--radius-main);
   overflow: hidden;
   box-shadow: var(--shadow-soft);
   transition: transform 0.3s, box-shadow 0.3s;
@@ -218,7 +220,7 @@ main {
 }
 
 .project-card-content {
-  padding: 24px; 
+  padding: 24px;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
@@ -243,20 +245,20 @@ main {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: auto; 
+  margin-top: auto;
   gap: 10px;
 }
 
 .project-card-footer a,
 .project-card-footer .vote-button {
   padding: 10px 16px;
-  border-radius: 8px; 
+  border-radius: 8px;
   border: none;
   color: white;
   text-decoration: none;
   font-family: inherit;
-  font-size: 0.95em; 
-  font-weight: 500; 
+  font-size: 0.95em;
+  font-weight: 500;
   text-align: center;
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0,0,0,0.3);
@@ -266,7 +268,7 @@ main {
 
 .project-card-footer a:hover,
 .project-card-footer .vote-button:hover {
-  transform: translateY(-1px); 
+  transform: translateY(-1px);
   box-shadow: 0 6px 12px rgba(0,0,0,0.4);
 }
 
@@ -295,15 +297,13 @@ main {
 .image-placeholder {
   width: 100%;
   height: 200px;
-  background-color: var(--bg-gray-light); 
+  background-color: var(--bg-gray-light);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-tertiary); 
+  color: var(--text-tertiary);
   font-style: italic;
 }
-
-
 
 /* =============================================== */
 /* FORMULÁRIOS E BOTÕES GERAIS                     */
@@ -313,7 +313,7 @@ main {
   margin: 40px auto;
   padding: 30px;
   background: var(--bg-card);
-  border-radius: var(--radius-main); 
+  border-radius: var(--radius-main);
   box-shadow: var(--shadow-soft);
 }
 
@@ -392,7 +392,7 @@ main {
 }
 
 .danger-button {
-  background-color: var(--text-danger); 
+  background-color: var(--text-danger);
   color: white;
   border: none;
   padding: 10px 15px;
@@ -405,7 +405,7 @@ main {
 }
 
 .danger-button:hover {
-  background-color: var(--bg-danger-hover); 
+  background-color: var(--bg-danger-hover);
   box-shadow: 0 6px 12px rgba(0,0,0,0.4);
   transform: translateY(-1px);
 }
@@ -481,7 +481,7 @@ main {
     padding-top: 14px;
     padding-bottom: 14px;
     padding-right: 14px;
-    overflow-wrap: break-word; 
+    overflow-wrap: break-word;
   }
   
   .data-table tr:nth-child(even) {
@@ -502,10 +502,10 @@ main {
     content: attr(data-label);
     position: absolute;
     left: 14px;
-    width: 45%; 
+    width: 45%;
     font-weight: 600;
     text-align: left;
-    white-space: nowrap; 
+    white-space: nowrap;
     color: var(--text-primary);
   }
 }
@@ -552,11 +552,11 @@ main {
 /* =============================================== */
 .informal-intro {
   background-color: var(--bg-card);
-  padding: 30px; 
+  padding: 30px;
   border-radius: var(--radius-main);
   box-shadow: var(--shadow-soft);
   text-align: center;
-  margin-bottom: 40px; 
+  margin-bottom: 40px;
   font-size: 1.1em;
   line-height: 1.7;
   color: var(--text-secondary);
@@ -565,7 +565,7 @@ main {
 .hobbies-container {
   display: flex;
   flex-direction: column;
-  gap: 40px; 
+  gap: 40px;
 }
 
 .hobby-card {
@@ -586,7 +586,7 @@ main {
 .hobby-image {
   width: 100%;
   height: 220px;
-  object-fit: cover; 
+  object-fit: cover;
 }
 
 .hobby-content {
@@ -608,7 +608,7 @@ main {
   }
 
   .hobby-card {
-    flex-direction: row; 
+    flex-direction: row;
   }
 
   .hobby-card:nth-child(even) {
@@ -617,7 +617,7 @@ main {
 
   .hobby-image {
     width: 40%;
-    height: 300px; 
+    height: 300px;
   }
 
   .hobby-content {
@@ -676,8 +676,13 @@ main {
 .app-footer {
   text-align: center;
   padding: 30px;
-  margin-top: 60px;
   background-color: var(--bg-card);
   color: var(--text-tertiary);
   border-top: 1px solid var(--border-light);
+}
+/* Garante que o último elemento dentro de 'main' não tenha
+margem inferior, pois 'main' já controla o espaçamento.
+*/
+main > *:last-child {
+  margin-bottom: 0 !important;
 }
