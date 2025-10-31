@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { FaBars, FaTimes } from 'react-icons/fa'; // Ícones de hambúrguer e 'X'
+import { NavLink, Link } from 'react-router-dom';
+import { FaBars, FaTimes } from 'react-icons/fa';
 
 function Header() {
-  // Estado para controlar se o menu mobile está aberto ou fechado
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Função para alternar o estado do menu
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -18,15 +16,14 @@ function Header() {
       </Link>
       
       <nav className={isMenuOpen ? 'nav-menu active' : 'nav-menu'}>
-        <Link to="/" onClick={toggleMenu}>Home</Link>
-        <Link to="/sobremim" onClick={toggleMenu}>Sobre Mim</Link>
-        <Link to="/curriculo" onClick={toggleMenu}>Currículo</Link>
-        <Link to="/ranking" onClick={toggleMenu}>Ranking</Link>
-        <Link to="/contact" onClick={toggleMenu}>Contato</Link>
-        <Link to="/admin" onClick={toggleMenu}>Painel Admin</Link>
+        <NavLink to="/" onClick={toggleMenu}>Home</NavLink>
+        <NavLink to="/sobremim" onClick={toggleMenu}>Sobre Mim</NavLink>
+        <NavLink to="/curriculo" onClick={toggleMenu}>Currículo</NavLink>
+        <NavLink to="/ranking" onClick={toggleMenu}>Ranking</NavLink>
+        <NavLink to="/contact" onClick={toggleMenu}>Contato</NavLink>
+        <NavLink to="/admin" onClick={toggleMenu}>Painel Admin</NavLink>
       </nav>
 
-      {/* Botão hambúrguer que só aparece no mobile */}
       <div className="hamburger" onClick={toggleMenu}>
         {isMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
       </div>

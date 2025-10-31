@@ -10,12 +10,35 @@ function HomePage() {
   useEffect(() => {
     axios.get('/api/projects')
       .then(response => {
-        setProjectsByArea(response.data);
+        
+        // Pega o objeto de resposta (ex: { "IoT": [...], "Web": [...] })
+        const data = response.data;
+        
+        // Cria um novo objeto para guardar os dados ordenados
+        const sortedData = {};
+
+        // Itera sobre cada chave (cada "área") no objeto
+        for (const area in data) {
+          // Pega o array de projetos para a área atual
+          const projects = data[area];
+
+          // Ordena o array de projetos pelo ID, em ordem crescente
+          // (a.id - b.id) = crescente (mais antigo primeiro)
+          // (b.id - a.id) = decrescente (mais novo primeiro)
+          if (Array.isArray(projects)) {
+            const sortedProjects = projects.sort((a, b) => a.id - b.id);
+            // Adiciona o array ordenado ao nosso novo objeto
+            sortedData[area] = sortedProjects;
+          }
+        }
+
+        setProjectsByArea(sortedData);
+        
       })
       .catch(error => {
         console.error("Houve um erro ao buscar os projetos!", error);
       });
-  }, []);
+  }, []); 
 
   const handleVoteUpdate = (updatedProject) => {
     const { area_saber } = updatedProject;
