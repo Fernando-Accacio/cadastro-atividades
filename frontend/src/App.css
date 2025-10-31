@@ -190,6 +190,21 @@ main {
   transform: scaleX(1);
 }
 
+.area-saber-titulo {
+  color: var(--text-primary);
+  font-size: 22px;
+  padding-bottom: 10px;
+  
+  border-bottom: 2px solid var(--border-light); 
+  
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+
+.area-saber-titulo:not(:first-child) {
+  margin-top: 50px;
+}
+
 /* =============================================== */
 /* ESTILOS DOS CARDS DE PROJETO                    */
 /* =============================================== */

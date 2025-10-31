@@ -95,8 +95,8 @@ function HomePage() {
         {/* Renderiza usando o array de chaves JÁ ORDENADO */}
         {sortedAreaKeys.map(area => (
             <div key={area}>
-              <h3 style={{ fontSize: '22px', color: '#2c3e50', borderBottom: '2px solid #ecf0f1', paddingBottom: '10px' }}>
-                {area}
+              <h3 className="area-saber-titulo">
+                  {area}
               </h3>
               <div className="project-grid">
                 {/* Acessa os projetos (que também já estão ordenados) */}
