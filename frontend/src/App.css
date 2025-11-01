@@ -539,10 +539,6 @@ main {
   letter-spacing: 0.5px;
 }
 
-.data-table tr:nth-child(even) {
-  background-color: rgba(245, 247, 250, 0.4);
-}
-
 @media screen and (max-width: 768px) {
 .data-table {
   border: none;
@@ -591,10 +587,6 @@ main {
 
   .data-table td:not(:first-child) {
     border-top: 1px solid var(--border-light);
-  }
-  
-  .data-table tr:nth-child(even) {
-    background: rgba(255, 255, 255, 0.7);
   }
 
   .data-table td:first-child {
@@ -834,10 +826,21 @@ main .container > *:last-child {
   .admin-actions {
     flex-direction: column;
     gap: 15px;
-}
+  }
 
   .admin-actions .danger-button {
     width: 100%;
     box-sizing: border-box;
+  }
+
+  .admin-section .data-table td {
+    padding-left: 14px;
+    text-align: left;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  .admin-section .data-table td::before {
+    display: none;
   }
 }
