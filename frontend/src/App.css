@@ -1,5 +1,6 @@
+
 /* =============================================== */
-/* FUNDO ANIMADO PROFISSIONAL                      */
+/* FUNDO DO SITE                                   */
 /* =============================================== */
 body {
   position: relative;
@@ -544,7 +545,6 @@ main {
 
 @media screen and (max-width: 768px) {
 .data-table {
-  /* A TABELA vira o card principal */
   border: 1px solid rgba(255, 255, 255, 0.5);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
               0 2px 8px rgba(0, 0, 0, 0.04);
@@ -562,7 +562,6 @@ main {
 
 .data-table tr {
   display: block;
-  /* Removemos o visual de card individual */
   margin-bottom: 0;
   border: none;
   border-radius: 0;
@@ -830,11 +829,11 @@ main .container > *:last-child {
 @media screen and (max-width: 768px) {
   .admin-actions {
     flex-direction: column;
-    gap: 15px; /* Adiciona um espaço entre eles */
+    gap: 15px;
 }
 
   .admin-actions .danger-button {
     width: 100%;
-    box-sizing: border-box; /* Garante que o padding não quebre o layout */
+    box-sizing: border-box;
   }
 }
