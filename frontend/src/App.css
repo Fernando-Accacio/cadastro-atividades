@@ -161,32 +161,51 @@ main {
 }
 
 @media screen and (max-width: 960px) {
-  .nav-menu {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: calc(100vh - 70px);
-    position: absolute;
-    top: 70px;
-    left: -100%;
-    transition: all 0.5s ease;
-    background-color: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    padding-top: 40px;
-  }
+.nav-menu {
+  display: flex;
+  flex-direction: column;
 
-  .nav-menu.active {
-    left: 0;
-  }
+  width: 90%;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  position: absolute;
+  top: 85px;
+  left: 0;
+  right: 0;
 
-  .nav-menu a {
-    font-size: 1.5rem;
-  }
+  max-height: 85vh;
+  padding: 20px 0;
+  margin-bottom: 20px;
+  overflow-y: auto;
+  box-sizing: border-box;
 
-  .hamburger {
-    display: block;
-  }
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--radius-main);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+
+  transform: translateX(150%); 
+  transition: transform 0.5s ease;
+}
+
+.nav-menu.active {
+  transform: translateX(0);
+}
+
+.nav-menu a {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 15px 20px;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.hamburger {
+  display: block;
+}
+
 }
 
 .page-title {
