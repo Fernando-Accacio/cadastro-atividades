@@ -5,6 +5,12 @@
 body {
   position: relative;
   overflow-x: hidden;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: normal; 
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
+  hyphens: auto;
 }
 
 body::before {
@@ -548,6 +554,7 @@ main {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   overflow: visible;
+  overflow-x: hidden;
 }
 
 
@@ -570,19 +577,20 @@ main {
 
   .data-table td {
     display: block;
-    text-align: right;
+    text-align: left;
     padding-left: 50%;
     position: relative;
     padding-top: 14px;
     padding-bottom: 14px;
     padding-right: 14px;
     overflow-wrap: break-word;
+    word-break: break-word;
     box-sizing: border-box;
-    word-break: break-all;
     border-left: none;
     border-right: none;
     border-bottom: none;
     border-top: 1px solid var(--border-light);
+    max-width: 100%;
   }
 
   .data-table td:not(:first-child) {
