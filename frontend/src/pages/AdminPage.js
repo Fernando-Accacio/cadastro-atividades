@@ -1,19 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react'; // 1. Adicione 'useCallback'
 import api from '../api/axiosConfig';
 import { FaEye, FaEyeSlash, FaPlus, FaTrash, FaPencilAlt, FaSave } from 'react-icons/fa';
-import { Link } from 'react-router-dom'; // Removido 'useNavigate' se não for usado aqui
+import { Link } from 'react-router-dom';
 
 function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   const [messages, setMessages] = useState([]);
   const [projects, setProjects] = useState([]);
-  
-  // --- Estados do formulário de Login ---
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
-  // --- Estados para o formulário de Credenciais ---
   const [credData, setCredData] = useState({
     currentPassword: '',
     newUsername: '',
@@ -24,7 +22,8 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   const [credMessage, setCredMessage] = useState('');
   const [credError, setCredError] = useState('');
 
-  const fetchMessages = () => {
+  // 2. Envolva as funções fetch com 'useCallback'
+  const fetchMessages = useCallback(() => {
     api.get('/api/messages')
       .then(response => {
         setMessages(response.data);
@@ -32,14 +31,14 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       .catch(error => {
         console.error("Houve um erro ao buscar as mensagens!", error);
         if (error.response && error.response.status === 401) {
-           setError('Sessão expirada. Faça login novamente.');
-           if (onLogout) onLogout(); // Força o logout se o token for inválido
+          setError('Sessão expirada. Faça login novamente.');
+          if (onLogout) onLogout();
         }
       });
-  };
+  }, [onLogout]); // Adicione 'onLogout' como dependência
 
-  const fetchProjects = () => {
-    api.get('/api/projects') 
+  const fetchProjects = useCallback(() => {
+    api.get('/api/projects')
       .then(response => {
         const flatProjects = Object.values(response.data).flat();
         flatProjects.sort((a, b) => parseInt(a.id) - parseInt(b.id));
@@ -48,14 +47,15 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       .catch(error => {
         console.error("Houve um erro ao buscar os projetos!", error);
       });
-  };
+  }, []); // Dependência vazia
 
+  // 3. Adicione as funções ao array de dependência do useEffect
   useEffect(() => {
     if (isAuthenticated) {
       fetchMessages();
       fetchProjects();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, fetchMessages, fetchProjects]); // <-- CORREÇÃO AQUI
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
@@ -73,19 +73,19 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
         setError('Usuário ou senha incorretos.');
       });
   };
-  
+
   const handleResetVotes = () => {
     const hasVotes = projects.some(p => p.votes > 0);
     if (!hasVotes) {
       alert('Não há nenhum voto registrado para resetar.');
-      return; 
+      return;
     }
 
     if (window.confirm("Você tem CERTEZA que deseja resetar TODOS os votos? Esta ação não pode ser desfeita.")) {
       api.post('/api/admin/reset-votes')
         .then(() => {
           alert('Votos resetados com sucesso!');
-          fetchProjects(); 
+          fetchProjects();
         })
         .catch(err => {
           alert('Ocorreu um erro ao resetar os votos.');
@@ -97,14 +97,14 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   const handleResetMessages = () => {
     if (messages.length === 0) {
       alert('Não há nenhuma mensagem para apagar.');
-      return; 
+      return;
     }
-    
+
     if (window.confirm("Você tem CERTEZA que deseja apagar TODAS as mensagens? Esta ação não pode ser desfeita.")) {
       api.post('/api/admin/reset-messages')
         .then(() => {
           alert('Mensagens apagadas com sucesso!');
-          fetchMessages(); 
+          fetchMessages();
         })
         .catch(err => {
           alert('Ocorreu um erro ao apagar as mensagens.');
@@ -144,7 +144,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       setCredError('A Senha Atual é obrigatória para salvar.');
       return;
     }
-    
+
     if (!credData.newUsername && !credData.newPassword) {
       setCredError('Você deve fornecer um Novo Usuário ou uma Nova Senha.');
       return;
@@ -158,13 +158,13 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
 
     api.put('/api/admin/credentials', payload)
       .then(response => {
-        alert(response.data.message); // Alerta de sucesso
-        setCredData({ // Limpa o formulário
+        alert(response.data.message);
+        setCredData({
           currentPassword: '',
           newUsername: '',
           newPassword: '',
         });
-        if (onLogout) onLogout(); // Força o logout
+        if (onLogout) onLogout();
       })
       .catch(error => {
         console.error('Erro ao atualizar credenciais:', error.response);
@@ -176,8 +176,6 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       });
   };
 
-
-  // --- PARTE DE LOGIN (Se não estiver autenticado) ---
   if (!isAuthenticated) {
     return (
       <div className="container" style={{ textAlign: 'center', maxWidth: '400px' }}>
@@ -186,43 +184,42 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
         <form onSubmit={handleLoginSubmit} className="contact-form">
           <div className="form-group">
             <label htmlFor="username">Usuário</label>
-            <input 
-              type="text" 
-              id="username" 
-              value={username} 
-              onChange={(e) => setUsername(e.target.value)} 
-              required 
-              autoFocus 
+            <input
+              type="text"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              autoFocus
             />
           </div>
-          
+
           <div className="form-group">
-            <div className="password-input-wrapper">
             <label htmlFor="password">Senha</label>
-            <div style={{ position: 'relative', width: '100%' }}>
-              <input 
-                type={showPassword ? 'text' : 'password'} 
-                id="password" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                required 
+            <div className="password-input-wrapper" style={{ position: 'relative', width: '100%' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
               />
-              <span 
-                style={{ 
-                  position: 'absolute', 
-                  right: '14px', 
-                  top: '55%', 
-                  transform: 'translateY(-50%)', 
-                  cursor: 'pointer', 
+              <span
+                className="password-toggle-icon"
+                style={{
+                  position: 'absolute',
+                  right: '14px',
+                  top: '55%',
+                  transform: 'translateY(-50%)',
+                  cursor: 'pointer',
                   userSelect: 'none',
                   color: 'var(--text-secondary)'
-                }} 
+                }}
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
               </span>
             </div>
-          </div>
           </div>
           <button type="submit">Entrar</button>
           {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
@@ -235,7 +232,6 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   const hasVotes = projects.some(p => p.votes > 0);
   const hasProjects = projects.length > 0;
 
-  // --- PARTE AUTENTICADA (Painel Admin) ---
   return (
     <div className="container">
       <h1 className="page-title">Painel do Administrador</h1>
@@ -254,10 +250,11 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
         <h2>Alterar Credenciais</h2>
         <p>Mude seu nome de usuário ou senha. Você será deslogado após a alteração.</p>
         <form onSubmit={handleCredentialsSubmit} className="admin-credentials-form">
-<div className="form-group">
+
+          <div className="form-group">
             <label htmlFor="currentPassword">Senha Atual *</label>
             <div className="password-input-wrapper" style={{ position: 'relative', width: '100%' }}>
-              <input 
+              <input
                 type={showCurrentPassword ? 'text' : 'password'}
                 id="currentPassword"
                 name="currentPassword"
@@ -265,7 +262,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
                 onChange={handleCredChange}
                 required
               />
-              <span 
+              <span
                 className="password-toggle-icon"
                 onClick={() => setShowCurrentPassword(!showCurrentPassword)}
               >
@@ -274,12 +271,12 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
             </div>
             <small>Necessária para confirmar qualquer alteração.</small>
           </div>
-          
+
           <hr className="form-divider" />
 
           <div className="form-group">
             <label htmlFor="newUsername">Novo Nome de Usuário</label>
-            <input 
+            <input
               type="text"
               id="newUsername"
               name="newUsername"
@@ -292,15 +289,15 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
           <div className="form-group">
             <label htmlFor="newPassword">Nova Senha</label>
             <div className="password-input-wrapper" style={{ position: 'relative', width: '100%' }}>
-              <input 
-                type={showNewPassword ? 'text' : 'password'} 
+              <input
+                type={showNewPassword ? 'text' : 'password'}
                 id="newPassword"
                 name="newPassword"
                 value={credData.newPassword}
                 onChange={handleCredChange}
                 placeholder="Deixe em branco para manter a atual"
               />
-              <span 
+              <span
                 className="password-toggle-icon"
                 onClick={() => setShowNewPassword(!showNewPassword)}
               >
@@ -308,13 +305,13 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
               </span>
             </div>
           </div>
-          
+
           <div className="admin-actions" style={{ justifyContent: 'flex-start' }}>
             <button type="submit" className="add-button">
               <FaSave /> Salvar Alterações
             </button>
           </div>
-          
+
           {credError && <p className="form-message error">{credError}</p>}
           {credMessage && <p className="form-message success">{credMessage}</p>}
         </form>
@@ -346,7 +343,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
                     <Link to={`/admin/edit-project/${p.id}`} className="edit-button-small">
                       <FaPencilAlt /> Editar
                     </Link>
-                    <button 
+                    <button
                       className="danger-button-small"
                       onClick={() => handleDeleteProject(p.id, p.name)}
                     >
@@ -364,16 +361,17 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
         <h2>Manutenção</h2>
         <p>Ações perigosas que afetam o banco de dados. Use com cuidado.</p>
         <div className="admin-actions">
-          <button 
-            onClick={handleResetVotes} 
+          <button
+            onClick={handleResetVotes}
             className="danger-button"
             disabled={!hasVotes}
             style={{ opacity: !hasVotes ? 0.5 : 1, cursor: !hasVotes ? 'not-allowed' : 'pointer' }}
           >
             Resetar Votos de Todos os Projetos
           </button>
-          <button 
-            onClick={handleResetMessages} 
+
+          <button
+            onClick={handleResetMessages}
             className="danger-button"
             disabled={!hasMessages}
             style={{ opacity: !hasMessages ? 0.5 : 1, cursor: !hasMessages ? 'not-allowed' : 'pointer' }}
@@ -427,11 +425,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
             <tbody>
               {messages.map((msg) => (
                 <tr key={msg.id}>
-                  <td data-label="Data">
-                    {msg.timestamp ? new Date(msg.timestamp).toLocaleString('pt-BR', {
-                      timeZone: 'America/Sao_Paulo'
-                    }) : 'Sem data'}
-                  </td>
+                  <td data-label="Data">{msg.timestamp ? new Date(msg.timestamp).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : 'Sem data'}</td>
                   <td data-label="Nome">{msg.name}</td>
                   <td data-label="Email">{msg.email}</td>
                   <td data-label="Mensagem">{msg.message}</td>
@@ -446,3 +440,4 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
 }
 
 export default AdminPage;
+
