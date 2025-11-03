@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-// 1. Importe o ícone que deseja usar
+import api from '../api/axiosConfig';
 import { MdEmojiEvents } from 'react-icons/md';
 
 const getRankDetails = (index) => {
   switch (index) {
     case 0:
-      // 2. Retorne o componente do ícone em vez do emoji
       return { className: 'top-rank-1', medal: <MdEmojiEvents /> };
     case 1:
       return { className: 'top-rank-2', medal: <MdEmojiEvents /> };
@@ -22,7 +20,7 @@ function RankingPage() {
   const [hasVotes, setHasVotes] = useState(false);
 
   useEffect(() => {
-    axios.get('/api/projects/ranked')
+    api.get('/api/projects/ranked')
       .then(response => {
         setHasVotes(response.data.hasVotes);
         setRankedProjects(response.data.projects);

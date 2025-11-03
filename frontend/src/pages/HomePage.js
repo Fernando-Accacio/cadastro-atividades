@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/axiosConfig'; 
 import ProjectCard from '../components/ProjectCard';
 import { FaLinkedin, FaGithub, FaEnvelope } from 'react-icons/fa';
 import { Link } from 'react-router-dom'; 
@@ -9,7 +9,7 @@ function HomePage() {
   const [sortedAreaKeys, setSortedAreaKeys] = useState([]);
 
   useEffect(() => {
-    axios.get('/api/projects')
+    api.get('/api/projects')
       .then(response => {
         
         const data = response.data;
