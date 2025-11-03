@@ -280,7 +280,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
               name="newUsername"
               value={credData.newUsername}
               onChange={handleCredChange}
-              placeholder="Deixe em branco para manter o atual"
+              placeholder="Opcional"
             />
           </div>
 
@@ -293,7 +293,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
                 name="newPassword"
                 value={credData.newPassword}
                 onChange={handleCredChange}
-                placeholder="Deixe em branco para manter a atual"
+                placeholder="Opcional"
               />
               <span
                 className="password-toggle-icon"

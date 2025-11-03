@@ -1,230 +1,201 @@
 # 💼 Portfólio de Trabalhos Acadêmicos (Full-Stack)
 
-Este projeto é uma aplicação **web completa e responsiva** desenvolvida para servir como um **portfólio pessoal e interativo**.  
-Ele apresenta **trabalhos acadêmicos**, um **currículo profissional**, uma página **"Sobre Mim"** com hobbies e interesses, **links para redes sociais** e um **painel de controle administrativo** para gerenciamento do site.
+Este projeto é uma aplicação web completa, responsiva e de pilha dividida (decoupled), servindo como um portfólio pessoal interativo. Ele apresenta trabalhos acadêmicos, um currículo profissional e um painel de controle administrativo seguro para gerenciamento de todo o conteúdo.
 
-🌐 **[Acesse o site em produção](https://cadastro-atividades.vercel.app/)**
-
----
+🌐 Site em Produção: [https://cadastro-atividades.vercel.app/]
+⚙️ API em Produção: [https://cadastro-atividades.onrender.com/]
 
 ## ✨ Funcionalidades
 
-- 🧑‍💻 **Apresentação Pessoal:**  
-  Página inicial com foto, biografia e links diretos para **LinkedIn, GitHub e E-mail**.
-- 😊 **Página Sobre Mim:**  
-  Seção mais pessoal com hobbies e interesses, apresentados em um layout de cards com imagem e texto.
-- 📚 **Visualização de Projetos:**  
-  Trabalhos acadêmicos organizados por "Áreas do Saber", com suporte para projetos com imagem, link externo, ambos ou nenhum.
-- 📄 **Página de Currículo:**  
-  Exibe o currículo completo e oferece **botão para download em PDF**.
-- ⭐ **Sistema de Votação e Ranking:**  
-  Visitantes podem votar nos projetos, e uma página de ranking exibe os mais votados, com destaque para o Top 3.
-- 💬 **Formulário de Contato:**  
-  Permite o envio direto de mensagens.
-- 📱 **Design Responsivo:**  
-  A interface se adapta a diferentes tamanhos de tela, de celulares a desktops, incluindo menu "hambúrguer" e tabelas que se transformam em cards.
-- 🔐 **Painel de Administrador:**  
-  Área protegida por senha com:
-  - Visualização de todas as mensagens recebidas (com data e hora local);
-  - Ferramentas de manutenção com **botões para resetar votos ou apagar mensagens**, com confirmações de segurança.
-  - **Nota de Segurança:**  
-    A autenticação deste painel é realizada no **frontend (client-side)**. É uma medida de simplicidade para ocultar a página de visitantes comuns, adequada para o escopo deste projeto, e não uma barreira de segurança robusta.
+### Públicas
+
+🧑‍💻 Apresentação Pessoal: Página inicial com biografia e links diretos para LinkedIn, GitHub e E-mail.
+
+📚 Visualização de Projetos: Trabalhos organizados por "Áreas do Saber", com cards interativos.
+
+📄 Página de Currículo: Exibe o currículo e oferece um botão para download do PDF.
+
+⭐ Sistema de Votação e Ranking: Visitantes podem votar nos projetos. Uma página de ranking exibe os mais votados, com destaque para o Top 3.
+
+💬 Formulário de Contato: Permite o envio direto de mensagens para o administrador.
+
+📱 Design Responsivo: A interface se adapta a celulares, tablets e desktops.
+
+### Painel de Administrador Seguro
+
+Área protegida por um sistema de autenticação real baseado em Token (JWT). Apenas o administrador pode acessar:
+
+🔐 Login Seguro: Autenticação via API que retorna um JSON Web Token (JWT) salvo no localStorage.
+
+➕ Adicionar Projetos: Formulário para criar novos trabalhos no portfólio.
+
+✏️ Editar Projetos: Capacidade de alterar qualquer informação de um projeto existente.
+
+🗑️ Deletar Projetos: Remover projetos do banco de dados.
+
+📨 Visualização de Mensagens: Acesso a todas as mensagens enviadas pelo formulário de contato.
+
+🔑 Alterar Credenciais: O administrador pode alterar seu próprio nome de usuário e senha de forma segura.
+
+☢️ Zona de Perigo: Ferramentas para resetar todos os votos ou apagar todas as mensagens, com confirmação.
+
+---
+
+## 🏗️ Arquitetura de Produção
+
+Este projeto utiliza uma arquitetura de pilha dividida (decoupled), onde o Frontend e o Backend são aplicações completamente separadas e hospedadas em plataformas otimizadas para suas respectivas tecnologias.
+
+```
+┌───────────────────┐           ┌───────────────────┐           ┌──────────────────┐
+│     VERCEL        │           │     RENDER        │           │     NEON        │
+│   (Frontend)      │           │   (Backend)       │           │   (Database)    │
+│     React         │  ── API ──>│   Python / Flask │  ── SQL ──>│   PostgreSQL    │
+│ (cadastro-...)    │   Calls   │   (gunicorn)      │   Calls   │   (Serverless)  │
+└───────────────────┘           └───────────────────┘           └──────────────────┘
+```
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
-O projeto é dividido em duas partes principais: **frontend** e **backend**.
-
 ### 🖥️ Frontend
-- ⚛️ [React](https://reactjs.org/) — Biblioteca JavaScript para interfaces de usuário.
-- 🌐 [Axios](https://axios-http.com/) — Cliente HTTP para requisições à API.
-- 🔀 [React Router](https://reactrouter.com/) — Gerenciamento de rotas e navegação.
-- 🧩 [React Icons](https://react-icons.github.io/react-icons/) — Inclusão de ícones (GitHub, LinkedIn, etc.).
-- ☁️ **Hospedagem:** [Vercel](https://vercel.com/)
+
+* Framework: React
+* Roteamento: React Router
+* Cliente HTTP: Axios (configurado com baseURL para produção e desenvolvimento)
+* Ícones: React Icons
+* Autenticação: Armazenamento de Token JWT em localStorage.
+* Hospedagem: Vercel
 
 ### ⚙️ Backend
-- 🐍 [Python](https://www.python.org/) — Linguagem utilizada no servidor.
-- 🔥 [Flask](https://flask.palletsprojects.com/) — Microframework para criação da API.
-- 🔄 [Flask-CORS](https://flask-cors.readthedocs.io/) — Gerenciamento de CORS.
-- ☁️ **Hospedagem:** [Vercel](https://vercel.com/)
+
+* Linguagem: Python
+* Framework: Flask (para a API REST)
+* Servidor WSGI: Gunicorn (para produção no Render)
+* ORM: SQLAlchemy (para interagir com o banco de dados)
+* Autenticação: PyJWT (para criar e verificar tokens)
+* Database Driver: Psycopg2 (para conectar ao PostgreSQL)
+* Variáveis de Ambiente: python-dotenv
+* Hospedagem: Render
 
 ### 💾 Banco de Dados
-- 🗄️ [Neon PostgreSQL](https://neon.tech/) — Banco de dados PostgreSQL serverless gerenciado na nuvem.
 
----
-
-## 🌐 Deploy e Produção
-
-### ☁️ Aplicação em Produção
-O projeto está **totalmente hospedado na nuvem**:
-
-- **Frontend:** Hospedado no Vercel com deploy automático a partir do repositório Git
-- **Backend:** API Flask hospedada no Vercel como serverless functions
-- **Banco de Dados:** Neon PostgreSQL (serverless)
-
-🔗 **URL de Produção:** https://cadastro-atividades.vercel.app/
-
-### 🚀 Configuração do Deploy no Vercel
-
-#### Configurações do Frontend
-1. Conecte o repositório ao Vercel
-2. Configure o diretório raiz como `frontend`
-3. Build Command: `npm run build`
-4. Output Directory: `build`
-
-#### Configurações do Backend
-1. Configure o diretório raiz como `api`
-2. Adicione as variáveis de ambiente no dashboard do Vercel:
-   - `DATABASE_URL` — String de conexão do Neon PostgreSQL
-
-#### Banco de Dados
-1. Crie um banco no [Neon](https://neon.tech/)
-2. Copie a connection string
-3. Adicione nas variáveis de ambiente do Vercel
+* Serviço: Neon
+* Tipo: PostgreSQL (Serverless)
 
 ---
 
 ## 💻 Desenvolvimento Local
 
-**Sim, é possível rodar localmente!** O projeto pode ser executado em sua máquina conectando-se ao **mesmo banco de dados na nuvem** usado pela versão em produção.
+Para rodar o projeto em sua máquina, você precisará de 2 terminais abertos. A aplicação local se conectará ao mesmo banco de dados Neon da nuvem.
 
 ### 🔧 Pré-requisitos
-- [Node.js](https://nodejs.org/) (versão 18 ou superior)
-- [Python](https://www.python.org/) (versão 3.8 ou superior)
-  - **No Windows:** Marque "Add Python to PATH" durante a instalação
+
+* Node.js (v18 ou superior)
+* Python (v3.11 recomendado)
+* Uma conta no Neon para o banco de dados.
 
 ---
 
 ### 📦 Instalação
 
-#### 1️⃣ Clone o Repositório
+#### Clone o Repositório
+
 ```bash
-git clone https://github.com/seu-usuario/cadastro-atividades.git
+git clone https://github.com/Fernando-Accacio/cadastro-atividades.git
 cd cadastro-atividades
-````
-
-#### 2️⃣ Configure as Variáveis de Ambiente
-
-Crie um arquivo `.env` na **raiz do projeto** com:
-
-```properties
-DATABASE_URL=postgresql://usuario:senha@host/database?sslmode=require
 ```
-
-> 💡 Obtenha a connection string no dashboard do [Neon](https://neon.tech/)
 
 ---
 
-### 🚀 Rodando o Projeto
+### Configure as Variáveis de Ambiente (Backend)
 
-Você precisará de **2 terminais abertos** ao mesmo tempo.
+Crie um arquivo `.env` na raiz do projeto (`cadastro-atividades/.env`). Adicione as chaves que você configurou no Render:
 
-#### Terminal 1 - Backend (Flask)
+```
+# Do seu banco de dados Neon
+DATABASE_URL=postgresql://...
 
-```powershell
-# Na pasta raiz do projeto
+# Chave secreta para o Flask (pode ser qualquer string aleatória)
+JWT_SECRET_KEY=sua_chave_secreta_aqui
 
-# Criar ambiente virtual (apenas na primeira vez)
+# Senha padrão para o primeiro admin
+ADMIN_PASSWORD=senha_forte_para_o_admin
+
+# Diz ao Flask onde encontrar a aplicação
+FLASK_APP=api
+```
+
+---
+
+### Configure as Variáveis de Ambiente (Frontend)
+
+Crie outro arquivo `.env` dentro da pasta `frontend` (`cadastro-atividades/frontend/.env`):
+
+```
+# Diz ao React para se conectar à sua API local
+REACT_APP_API_URL=http://127.0.0.1:5000
+```
+
+---
+
+## 🚀 Rodando o Projeto
+
+### Terminal 1 - Backend (Flask)
+
+```bash
 py -m venv venv
-
-# Ativar o ambiente virtual
 .\venv\Scripts\activate
-
-# Instalar dependências (apenas na primeira vez)
 pip install -r requirements.txt
+flask init-db
+flask create-admin seu-nome-de-usuario
+flask run
+```
 
-# Configurar a aplicação Flask
+✅ Backend rodando em: [http://127.0.0.1:5000]
+
+---
+
+### Terminal 2 - Frontend (React)
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+✅ Frontend abrindo em: [http://localhost:3000])
+
+> O `axiosConfig.js` do frontend lerá automaticamente a variável do `frontend/.env` e se conectará ao seu backend local.
+
+---
+
+🚀 Rodando o Projeto (após a primeira configuração)
+
+Se você já executou tudo uma vez (criou ambiente virtual, instalou dependências, inicializou o banco e criou o admin), a rotina diária é muito mais simples:
+
+Terminal 1 - Backend (Flask)
+# Ativar o ambiente virtual
+cd cadastro-atividades
+# Windows
+.\venv\Scripts\activate
 $env:FLASK_APP="api"
+# source venv/bin/activate # Linux/Mac
 
 # Rodar o backend
 flask run
-```
 
-✅ Backend rodando em: [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
-#### Terminal 2 - Frontend (React)
+✅ Backend disponível em: http://127.0.0.1:5000
 
-```bash
-# Navegar para a pasta frontend
-cd frontend
-
-# Instalar dependências (apenas na primeira vez)
-npm install
+Terminal 2 - Frontend (React)
+cd cadastro-atividades/frontend
 
 # Rodar o frontend
 npm start
-```
 
-✅ Frontend abrindo automaticamente em: [http://localhost:3000](http://localhost:3000)
 
----
-
-### 🔄 Como Funciona?
-
-```
-┌─────────────────────┐
-│  Frontend Local     │ → http://localhost:3000
-│  (React)            │
-└──────────┬──────────┘
-           │ proxy configurado em package.json
-           ▼
-┌─────────────────────┐
-│  Backend Local      │ → http://127.0.0.1:5000
-│  (Flask API)        │
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐
-│  Banco de Dados     │ → Neon PostgreSQL (Nuvem)
-│  (PostgreSQL)       │
-└─────────────────────┘
-```
-
-**Vantagens:**
-
-* ✅ Não precisa configurar banco de dados local
-* ✅ Testa com dados reais da produção
-* ✅ Alterações no código são testadas localmente antes do deploy
-* ✅ Compartilha o mesmo banco entre dev local e produção
-
-**⚠️ Atenção:** Como está usando o banco de produção, **tome cuidado** ao testar funcionalidades que modificam dados (votos, mensagens, etc.).
-
----
-
-### 🔁 Para Rodar Novamente (Depois da Primeira Vez)
-
-**Terminal 1 (Backend):**
-
-```powershell
-cd caminho/do/projeto
-.\venv\Scripts\activate
-$env:FLASK_APP="api"
-flask run
-```
-
-**Terminal 2 (Frontend):**
-
-```bash
-cd caminho/do/projeto/frontend
-npm start
-```
-
----
-
-## ⚙️ Gerenciamento do Site
-
-### ✅ Painel Admin (Interface Web)
-
-1. Acesse a aba **"Painel Admin"** no menu do site
-2. Insira a senha de acesso
-3. No painel, é possível:
-
-   * 📨 **Visualizar mensagens** de contato recebidas
-   * ⭐ **Resetar votos** de todos os projetos
-   * 🧹 **Apagar todas as mensagens**
-
-> 💡 Todas as ações são executadas com confirmação de segurança.
+✅ Frontend disponível em: http://localhost:3000
 
 ---
 
@@ -232,70 +203,42 @@ npm start
 
 ```
 cadastro-atividades/
-├── .env                     # Variáveis de ambiente (NÃO commitar!)
-├── .gitignore               # Arquivos ignorados pelo Git
-├── requirements.txt         # Dependências Python
-├── venv/                    # Ambiente virtual Python (não sobe pro Git)
+├── .env                # Variáveis de ambiente do Backend (local)
+├── .gitignore
+├── requirements.txt    # Dependências Python (para Render e local)
+├── vercel.json         # Configuração de deploy do Frontend na Vercel
+├── venv/               # Ambiente virtual Python
 │
-├── api/                     # Backend (Flask)
-│   ├── __init__.py          # Inicialização da aplicação Flask
-│   ├── database.py          # Configuração e lógica do banco de dados
-│   ├── models.py            # Modelos de dados (SQLAlchemy)
-│   └── routes.py            # Rotas da API
+├── api/                # CÓDIGO DO BACKEND (PYTHON/FLASK)
+│   ├── __init__.py     # Inicialização da aplicação Flask
+│   ├── database.py     # Comandos (init-db, create-admin)
+│   ├── models.py       # Modelos de dados (SQLAlchemy)
+│   └── routes.py       # Todas as rotas da API (/api/...)
 │
-└── frontend/                # Frontend (React)
+└── frontend/           # CÓDIGO DO FRONTEND (REACT)
+    ├── .env            # Variáveis de ambiente do Frontend (local)
+    ├── build/          # Build de produção (ignorado pelo Git)
+    ├── node_modules/   # Dependências Node.js (ignorado pelo Git)
     ├── public/
-    │   ├── documents/       # Arquivos para download (ex: curriculo.pdf)
-    │   ├── images/          # Imagens dos projetos
+    │   ├── documents/  # PDF do currículo
+    │   ├── images/     # Imagens estáticas (logo, etc.)
     │   └── index.html
     │
     ├── src/
-    │   ├── components/      # Componentes reutilizáveis
-    │   │   ├── ContactForm.js
-    │   │   ├── Footer.js
-    │   │   ├── Header.js
-    │   │   └── ProjectCard.js
+    │   ├── api/
+    │   │   └── axiosConfig.js # Configuração central do Axios (lê .env)
     │   │
-    │   ├── pages/           # Páginas do site
+    │   ├── components/      # Componentes reutilizáveis (Header, Footer, Card)
+    │   │
+    │   ├── pages/           # Páginas principais do site
     │   │   ├── AdminPage.js
-    │   │   ├── ContactPage.js
-    │   │   ├── CurriculumPage.js
+    │   │   ├── AddProjectPage.js
+    │   │   ├── EditProjectPage.js
     │   │   ├── HomePage.js
-    │   │   ├── RankingPage.js
-    │   │   └── SobreMimPage.js
+    │   │   └── ...
     │   │
-    │   ├── App.js           # Roteador principal
-    │   └── index.js         # Ponto de entrada
+    │   ├── App.js           # Roteador principal (React Router)
+    │   ├── App.css
+    │   └── index.js
     │
-    ├── package.json         # Dependências Node.js (com proxy configurado)
-    └── node_modules/        # Dependências instaladas (não sobe pro Git)
-```
-
----
-
-## ❓ Problemas Comuns
-
-* **"python não é reconhecido"** → Use `py` ao invés de `python` ou reinstale o Python marcando "Add to PATH".
-* **"npm não é reconhecido"** → Reinstale o Node.js e reinicie o terminal.
-* **"Erro de conexão com banco"** → Confira o `.env` e a conexão com a internet.
-* **"Porta 3000 ou 5000 já em uso"** → Feche outros programas usando essas portas.
-* **Projetos não aparecem no site local** → Confirme o `proxy` no `frontend/package.json` e que o backend está rodando.
-
----
-
-## 🔒 Segurança
-
-### Arquivo `.gitignore` configurado para proteger:
-
-* ✅ `.env` (senhas do banco de dados)
-* ✅ `venv/` (ambiente virtual Python)
-* ✅ `node_modules/` (dependências Node.js)
-* ✅ `__pycache__/` (arquivos temporários Python)
-
-**⚠️ NUNCA commite o arquivo `.env` no Git!**
-
----
-
-## 📝 Licença
-
-Este projeto é de uso pessoal e acadêmico.
+    └── package.json
