@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'; // 1. Adicione 'useCallback'
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../api/axiosConfig';
 import { FaEye, FaEyeSlash, FaPlus, FaTrash, FaPencilAlt, FaSave } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
@@ -22,7 +22,6 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   const [credMessage, setCredMessage] = useState('');
   const [credError, setCredError] = useState('');
 
-  // 2. Envolva as funções fetch com 'useCallback'
   const fetchMessages = useCallback(() => {
     api.get('/api/messages')
       .then(response => {
@@ -35,7 +34,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
           if (onLogout) onLogout();
         }
       });
-  }, [onLogout]); // Adicione 'onLogout' como dependência
+  }, [onLogout]);
 
   const fetchProjects = useCallback(() => {
     api.get('/api/projects')
@@ -47,15 +46,14 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       .catch(error => {
         console.error("Houve um erro ao buscar os projetos!", error);
       });
-  }, []); // Dependência vazia
+  }, []);
 
-  // 3. Adicione as funções ao array de dependência do useEffect
   useEffect(() => {
     if (isAuthenticated) {
       fetchMessages();
       fetchProjects();
     }
-  }, [isAuthenticated, fetchMessages, fetchProjects]); // <-- CORREÇÃO AQUI
+  }, [isAuthenticated, fetchMessages, fetchProjects]);
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
@@ -217,7 +215,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
                 }}
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+                {showPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
               </span>
             </div>
           </div>
@@ -266,7 +264,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
                 className="password-toggle-icon"
                 onClick={() => setShowCurrentPassword(!showCurrentPassword)}
               >
-                {showCurrentPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+                {showCurrentPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
               </span>
             </div>
             <small>Necessária para confirmar qualquer alteração.</small>
@@ -301,7 +299,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
                 className="password-toggle-icon"
                 onClick={() => setShowNewPassword(!showNewPassword)}
               >
-                {showNewPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+                {showNewPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
               </span>
             </div>
           </div>
@@ -425,7 +423,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
             <tbody>
               {messages.map((msg) => (
                 <tr key={msg.id}>
-                  <td data-label="Data">{msg.timestamp ? new Date(msg.timestamp).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : 'Sem data'}</td>
+                  <td data-label="Data">{msg.timestamp ? new Date(msg.TOC).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : 'Sem data'}</td>
                   <td data-label="Nome">{msg.name}</td>
                   <td data-label="Email">{msg.email}</td>
                   <td data-label="Mensagem">{msg.message}</td>
@@ -440,4 +438,3 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
 }
 
 export default AdminPage;
-

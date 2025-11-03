@@ -1,8 +1,9 @@
 from flask import request, jsonify, current_app, g
 from sqlalchemy.orm import Session
 from collections import defaultdict
-# Importamos o novo modelo 'User'
+# Importamos o novo modelo 'User' e o IntegrityError
 from .models import get_db_session, Project, Contact, User
+from sqlalchemy.exc import IntegrityError
 # Imports para JWT (Login)
 import jwt
 from datetime import datetime, timedelta
@@ -280,9 +281,9 @@ def init_routes(app):
         except Exception as e:
             db.rollback()
             return jsonify({'status': 'error', 'message': f'Erro ao apagar mensagens: {e}'}), 500
-        
+            
     # =========================================================
-    # === NOVA ROTA: ALTERAR CREDENCIAIS DO ADMIN ============
+    # === ROTA ALTERAR CREDENCIAIS (COM VALIDAÇÃO CORRIGIDA) ===
     # =========================================================
     @app.route('/api/admin/credentials', methods=['PUT'])
     @token_required # <-- ROTA PROTEGIDA
@@ -307,38 +308,50 @@ def init_routes(app):
 
         # 1. Verifica a senha atual
         if not user.check_password(current_password):
-            return jsonify({'error': 'Senha atual incorreta.'}), 403 # 403 Forbidden
+            return jsonify({'error': 'Senha atual incorreta.'}), 403
+
+        # Trata valores None ou strings vazias como "não fornecido"
+        new_username = new_username.strip() if new_username else None
+        new_password = new_password.strip() if new_password else None
+
+        # 2. Verifica se pelo menos um campo novo foi fornecido
+        if not new_username and not new_password:
+            return jsonify({'error': 'Você deve fornecer um novo usuário ou uma nova senha.'}), 400
+
+        # 3. Verifica se o novo username é igual ao atual
+        username_is_same = new_username and new_username == user.username
+        
+        # 4. Verifica se a nova senha é igual à atual
+        password_is_same = new_password and user.check_password(new_password)
+
+        # 5. Se AMBOS forem iguais
+        if username_is_same and password_is_same:
+            return jsonify({'error': 'O novo nome de usuário e a nova senha não podem ser iguais aos atuais.'}), 409
+        
+        # 6. Se só o username for igual
+        if username_is_same:
+            return jsonify({'error': 'O novo nome de usuário não pode ser igual ao atual.'}), 409
+        
+        # 7. Se só a senha for igual
+        if password_is_same:
+            return jsonify({'error': 'A nova senha não pode ser igual à atual.'}), 409
 
         try:
-            changes_made = False
-            # 2. Atualiza o username (se foi fornecido e é diferente)
-            if new_username and new_username != user.username:
+            # Atualiza o username se foi fornecido
+            if new_username:
                 user.username = new_username
-                changes_made = True
 
-            # 3. Atualiza a senha (se foi fornecida)
+            # Atualiza a senha se foi fornecida
             if new_password:
                 user.set_password(new_password)
-                changes_made = True
-
-            if not changes_made:
-                return jsonify({'message': 'Nenhum dado novo fornecido para alteração.'}), 200
 
             db.commit()
             
-            # Retorna uma mensagem de sucesso. 
-            # O frontend deve FORÇAR O LOGOUT para o usuário logar com as novas credenciais.
             return jsonify({'status': 'success', 'message': 'Credenciais atualizadas! Por favor, faça login novamente.'}), 200
 
         except IntegrityError:
-            # Erro caso o 'new_username' já exista no banco
             db.rollback()
-            return jsonify({'error': 'Esse nome de usuário já está em uso.'}), 409 # 409 Conflict
+            return jsonify({'error': 'Esse nome de usuário já está em uso.'}), 409
         except Exception as e:
             db.rollback()
             return jsonify({'error': f'Erro interno: {e}'}), 500
-
-    
-    # --- Rotas Públicas (Não precisam de login) ---
-    # @app.route('/api/projects', methods=['GET'])
-    # ... (o resto do seu arquivo routes.py continua) ...
