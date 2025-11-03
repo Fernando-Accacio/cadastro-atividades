@@ -1,50 +1,21 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "builds": [
-    {
-      "src": "api/__init__.py",
-      "use": "@vercel/python"
-    },
     {
       "src": "frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "build"
+        "distDir": "frontend/build"
       }
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "api/__init__.py"
-    },
-
-    {
-      "src": "/static/(.*)",
-      "dest": "/frontend/static/$1"
-    },
-
-    {
-      "src": "/images/(.*\\.(png|PNG|jpg|JPG|jpeg|JPEG|svg|SVG|gif|GIF))",
-      "dest": "/frontend/images/$1"
-    },
-
-    {
-      "src": "/favicon.ico",
-      "dest": "/frontend/favicon.ico"
-    },
-    {
-      "src": "/asset-manifest.json",
-      "dest": "/frontend/asset-manifest.json"
-    },
-    {
-       "src": "/documents/(.*)",
-       "dest": "/frontend/documents/$1"
-    },
-
-    {
-      "src": "/(.*)",
-      "dest": "/frontend/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
-  ]
+  ],
+  "installCommand": "cd frontend && npm install",
+  "buildCommand": "cd frontend && CI=false npm run build"
 }
