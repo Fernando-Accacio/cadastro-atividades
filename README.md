@@ -39,6 +39,10 @@ Este projeto é uma aplicação web completa, responsiva e de pilha dividida (de
 
 ☢️ Zona de Perigo: Ferramentas para resetar todos os votos ou apagar todas as mensagens, com confirmação.
 
+💡 Nota sobre Registro de Usuário: Você notará que o site possui uma tela de "Login" protegida, mas não uma tela de "Registro". Isso é intencional.
+
+Este projeto foi desenhado como um portfólio de usuário único (single-user), onde apenas o proprietário (administrador) pode gerenciar o conteúdo. A conta de administrador não é criada publicamente; ela é criada de forma segura no lado do servidor (backend) através de um comando CLI (flask create-admin), garantindo que ninguém mais possa se registrar ou modificar o portfólio.
+
 ---
 
 ## 🏗️ Arquitetura de Produção
