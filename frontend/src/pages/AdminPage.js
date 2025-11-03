@@ -1,32 +1,34 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../api/axiosConfig';
-import { FaEye, FaEyeSlash, FaPlus, FaTrash, FaPencilAlt, FaSave } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaPlus, FaTrash, FaPencilAlt, FaSave, FaHeart } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 function AdminPage({ isAuthenticated, onLogin, onLogout }) {
+  // --- Estados para Login, Mensagens, Projetos, Credenciais ---
   const [messages, setMessages] = useState([]);
   const [projects, setProjects] = useState([]);
-
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
-
+  const [error, setError] = useState(''); // Erro de login
   const [credData, setCredData] = useState({
-    currentPassword: '',
-    newUsername: '',
-    newPassword: '',
+    currentPassword: '', newUsername: '', newPassword: '',
   });
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [credMessage, setCredMessage] = useState('');
   const [credError, setCredError] = useState('');
 
+  // --- Estados para Hobbies (AGORA APENAS LISTAGEM) ---
+  const [hobbies, setHobbies] = useState([]);
+  const [isHobbyLoading, setIsHobbyLoading] = useState(false);
+  // Estados de mensagem/erro de hobby foram movidos para credError/credMessage
+  // para simplificar e mostrar feedback de delete
+  
+  // --- Funções de Fetch ---
   const fetchMessages = useCallback(() => {
     api.get('/api/messages')
-      .then(response => {
-        setMessages(response.data);
-      })
+      .then(response => setMessages(response.data))
       .catch(error => {
         console.error("Houve um erro ao buscar as mensagens!", error);
         if (error.response && error.response.status === 401) {
@@ -37,37 +39,46 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   }, [onLogout]);
 
   const fetchProjects = useCallback(() => {
-    // Usar a rota pública /api/projects, que já usamos na HomePage
     api.get('/api/projects') 
       .then(response => {
-        // A rota /api/projects retorna um objeto agrupado. 
-        // Precisamos "achatar" ele para a tabela do admin.
         const flatProjects = Object.values(response.data).flat();
-        
-        // Ordenar por ID para consistência
         flatProjects.sort((a, b) => parseInt(a.id) - parseInt(b.id)); 
         setProjects(flatProjects);
       })
-      .catch(error => {
-        console.error("Houve um erro ao buscar os projetos!", error);
+      .catch(error => console.error("Houve um erro ao buscar os projetos!", error));
+  }, []);
+
+  const fetchHobbies = useCallback(() => {
+    setIsHobbyLoading(true);
+    api.get('/api/hobbies')
+      .then(response => {
+        setHobbies(response.data);
+        setIsHobbyLoading(false);
+      })
+      .catch(err => {
+        console.error("Erro ao buscar hobbies:", err);
+        setCredError("Não foi possível carregar os hobbies.");
+        setIsHobbyLoading(false);
       });
   }, []);
 
+  // --- useEffect Principal ---
   useEffect(() => {
     if (isAuthenticated) {
       fetchMessages();
       fetchProjects();
+      fetchHobbies();
     }
-  }, [isAuthenticated, fetchMessages, fetchProjects]);
+  }, [isAuthenticated, fetchMessages, fetchProjects, fetchHobbies]);
 
+  // --- Handlers (Login, Resets, Credenciais) ---
+  
   const handleLoginSubmit = (e) => {
     e.preventDefault();
     setError('');
-
     api.post('/api/login', { username, password })
       .then(response => {
-        const token = response.data.token;
-        onLogin(token);
+        onLogin(response.data.token);
         setUsername('');
         setPassword('');
       })
@@ -80,22 +91,13 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   const handleResetVotes = () => {
     const hasVotes = projects.some(p => p.votes > 0);
     if (!hasVotes) {
-      // Usar uma div de mensagem em vez de alert
       setCredError('Não há nenhum voto registrado para resetar.'); 
       return;
     }
-
-    // Usar um modal customizado no futuro, mas por agora window.confirm
-    if (window.confirm("Você tem CERTEZA que deseja resetar TODOS os votos? Esta ação não pode ser desfeita.")) {
+    if (window.confirm("CERTEZA?")) {
       api.post('/api/admin/reset-votes')
-        .then(() => {
-          setCredMessage('Votos resetados com sucesso!');
-          fetchProjects();
-        })
-        .catch(err => {
-          setCredError('Ocorreu um erro ao resetar os votos.');
-          console.error(err);
-        });
+        .then(() => { setCredMessage('Votos resetados!'); fetchProjects(); })
+        .catch(err => { setCredError('Erro ao resetar os votos.'); console.error(err); });
     }
   };
 
@@ -104,86 +106,72 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       setCredError('Não há nenhuma mensagem para apagar.');
       return;
     }
-
-    if (window.confirm("Você tem CERTEZA que deseja apagar TODAS as mensagens? Esta ação não pode ser desfeita.")) {
+    if (window.confirm("CERTEZA?")) {
       api.post('/api/admin/reset-messages')
-        .then(() => {
-          setCredMessage('Mensagens apagadas com sucesso!');
-          fetchMessages();
-        })
-        .catch(err => {
-          setCredError('Ocorreu um erro ao apagar as mensagens.');
-          console.error(err);
-        });
+        .then(() => { setCredMessage('Mensagens apagadas!'); fetchMessages(); })
+        .catch(err => { setCredError('Erro ao apagar as mensagens.'); console.error(err); });
     }
   };
 
   const handleDeleteProject = (projectId, projectName) => {
-    if (window.confirm(`Você tem CERTEZA que deseja apagar o projeto "${projectName}" (ID: ${projectId})? Esta ação não pode ser desfeita.`)) {
+    if (window.confirm(`CERTEZA que quer apagar o projeto "${projectName}"?`)) {
       api.delete(`/api/projects/${projectId}`)
-        .then(() => {
-          setCredMessage('Projeto apagado com sucesso!');
-          fetchProjects(); // Re-busca os projetos para atualizar a lista
-        })
-        .catch(err => {
-          setCredError('Ocorreu um erro ao apagar o projeto.');
-          console.error(err);
-        });
+        .then(() => { setCredMessage('Projeto apagado!'); fetchProjects(); })
+        .catch(err => { setCredError('Erro ao apagar o projeto.'); console.error(err); });
     }
   };
 
   const handleCredChange = (e) => {
     const { name, value } = e.target;
-    setCredData(prevData => ({
-      ...prevData,
-      [name]: value
-    }));
+    setCredData(prevData => ({ ...prevData, [name]: value }));
   };
 
   const handleCredentialsSubmit = (e) => {
     e.preventDefault();
-    setCredMessage('');
-    setCredError('');
-
+    setCredMessage(''); setCredError('');
     if (!credData.currentPassword) {
-      setCredError('A Senha Atual é obrigatória para salvar.');
-      return;
+      setCredError('A Senha Atual é obrigatória.'); return;
     }
-
     if (!credData.newUsername && !credData.newPassword) {
-      setCredError('Você deve fornecer um Novo Usuário ou uma Nova Senha.');
-      return;
+      setCredError('Forneça um Novo Usuário ou Nova Senha.'); return;
     }
-
     const payload = {
       current_password: credData.currentPassword,
       new_username: credData.newUsername || null,
       new_password: credData.newPassword || null,
     };
-
     api.put('/api/admin/credentials', payload)
       .then(response => {
         setCredMessage(response.data.message + ' Você será deslogado.');
-        setCredData({
-          currentPassword: '',
-          newUsername: '',
-          newPassword: '',
-        });
-        // Desloga o usuário após 3 segundos
-        setTimeout(() => {
-            if (onLogout) onLogout();
-        }, 3000);
+        setCredData({ currentPassword: '', newUsername: '', newPassword: '' });
+        setTimeout(() => { if (onLogout) onLogout(); }, 3000);
       })
       .catch(error => {
-        console.error('Erro ao atualizar credenciais:', error.response);
         if (error.response && error.response.data.error) {
           setCredError(error.response.data.error);
-        } else {
-          setCredError('Erro desconhecido. Tente novamente.');
-        }
+        } else { setCredError('Erro desconhecido.'); }
       });
   };
 
+  // --- Handler de Deletar Hobby (O de Adicionar foi movido) ---
+  const handleHobbyDelete = (hobbyId, hobbyTitle) => {
+    if (window.confirm(`Tem certeza que deseja apagar o hobby "${hobbyTitle}"?`)) {
+      api.delete(`/api/hobbies/${hobbyId}`)
+        .then(() => {
+          setCredMessage("Hobby apagado com sucesso."); // Reusa o state de mensagem
+          fetchHobbies(); // Atualiza a lista
+        })
+        .catch(err => {
+          const errorMsg = err.response?.data?.error || 'Erro ao apagar o hobby.';
+          setCredError(errorMsg); // Reusa o state de erro
+          console.error("Erro ao deletar hobby:", err);
+        });
+    }
+  };
+
+  // --- RENDER ---
+
+  // Formulário de Login (sem mudanças)
   if (!isAuthenticated) {
     return (
       <div className="container" style={{ textAlign: 'center', maxWidth: '400px' }}>
@@ -192,30 +180,13 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
         <form onSubmit={handleLoginSubmit} className="contact-form">
           <div className="form-group">
             <label htmlFor="username">Usuário</label>
-            <input
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              autoFocus
-            />
+            <input type="text" id="username" value={username} onChange={(e) => setUsername(e.target.value)} required autoFocus />
           </div>
-
           <div className="form-group">
             <label htmlFor="password">Senha</label>
             <div className="password-input-wrapper" style={{ position: 'relative', width: '100%' }}>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <span
-                className="password-toggle-icon"
-                onClick={() => setShowPassword(!showPassword)}
-              >
+              <input type={showPassword ? 'text' : 'password'} id="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <span className="password-toggle-icon" onClick={() => setShowPassword(!showPassword)}>
                 {showPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
               </span>
             </div>
@@ -227,101 +198,30 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
     );
   }
 
+  // Constantes de verificação (sem mudanças)
   const hasMessages = messages.length > 0;
   const hasVotes = projects.some(p => p.votes > 0);
   const hasProjects = projects.length > 0;
+  const hasHobbies = hobbies.length > 0;
 
+  // Painel de Admin (REORGANIZADO)
   return (
     <div className="container">
       <h1 className="page-title">Painel do Administrador</h1>
 
-      {/* Seção 1: Adicionar Trabalho */}
+      {/* --- ORDEM 1: GERENCIAR TRABALHOS --- */}
       <div className="admin-section">
-        <h2>Adicionar Trabalho</h2>
-        <p>Adicionar um novo projeto ao portfólio.</p>
+        <h2>Gerenciar Trabalhos</h2>
+        <p>Adicionar um novo projeto ao portfólio ou editar/deletar projetos existentes.</p>
         <div className="admin-actions">
           <Link to="/admin/add-project" className="add-button">
             <FaPlus /> Adicionar Novo Trabalho
           </Link>
         </div>
-      </div>
 
-      {/* Seção 2: Alterar Credenciais */}
-      <div className="admin-section">
-        <h2>Alterar Credenciais</h2>
-        <p>Mude seu nome de usuário ou senha. Você será deslogado após a alteração.</p>
-        <form onSubmit={handleCredentialsSubmit} className="admin-credentials-form">
-
-          <div className="form-group">
-            <label htmlFor="currentPassword">Senha Atual *</label>
-            <div className="password-input-wrapper" style={{ position: 'relative', width: '100%' }}>
-              <input
-                type={showCurrentPassword ? 'text' : 'password'}
-                id="currentPassword"
-                name="currentPassword"
-                value={credData.currentPassword}
-                onChange={handleCredChange}
-                required
-              />
-              <span
-                className="password-toggle-icon"
-                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-              >
-                {showCurrentPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
-              </span>
-            </div>
-            <small>Necessária para confirmar qualquer alteração.</small>
-          </div>
-
-          <hr className="form-divider" />
-
-          <div className="form-group">
-            <label htmlFor="newUsername">Novo Nome de Usuário</label>
-            <input
-              type="text"
-              id="newUsername"
-              name="newUsername"
-              value={credData.newUsername}
-              onChange={handleCredChange}
-              placeholder="Opcional"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="newPassword">Nova Senha</label>
-            <div className="password-input-wrapper" style={{ position: 'relative', width: '100%' }}>
-              <input
-                type={showNewPassword ? 'text' : 'password'}
-                id="newPassword"
-                name="newPassword"
-                value={credData.newPassword}
-                onChange={handleCredChange}
-                placeholder="Opcional"
-              />
-              <span
-                className="password-toggle-icon"
-                onClick={() => setShowNewPassword(!showNewPassword)}
-              >
-                {showNewPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
-              </span>
-            </div>
-          </div>
-
-          <div className="admin-actions" style={{ justifyContent: 'flex-start' }}>
-            <button type="submit" className="add-button">
-              <FaSave /> Salvar Alterações
-            </button>
-          </div>
-          
-          {/* Mensagens de feedback */}
-          {credError && <p className="form-message error">{credError}</p>}
-          {credMessage && <p className="form-message success">{credMessage}</p>}
-        </form>
-      </div>
-
-      {/* Seção 3: Gerenciar Trabalhos (A QUE SUMIU) */}
-      <div className="admin-section">
-        <h2>Gerenciar Trabalhos</h2>
+        <hr className="form-divider" />
+        
+        <h3>Trabalhos Atuais</h3>
         {!hasProjects ? (
           <p style={{ textAlign: 'center', fontStyle: 'italic' }}>Nenhum projeto encontrado.</p>
         ) : (
@@ -346,9 +246,74 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
                     <Link to={`/admin/edit-project/${p.id}`} className="edit-button-small">
                       <FaPencilAlt /> Editar
                     </Link>
+                    <button className="danger-button-small" onClick={() => handleDeleteProject(p.id, p.name)}>
+                      <FaTrash /> Deletar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* --- ORDEM 2: GERENCIAR HOBBIES --- */}
+      <div className="admin-section">
+        <h2>Gerenciar Hobbies</h2>
+        <p>Adicionar um novo hobbie ao portfólio ou editar/deletar hobbies existentes.</p>
+        
+        {/* === FORMULÁRIO REMOVIDO === */}
+        {/* === BOTÃO ADICIONADO === */}
+        <div className="admin-actions">
+          <Link 
+            to="/admin/add-hobby" 
+            className="add-button" 
+            style={{backgroundColor: '##0077cc', color: 'white'}}
+          >
+            <FaPlus /> Adicionar Novo Hobby
+          </Link>
+        </div>
+
+        <hr className="form-divider" />
+
+        {/* Tabela de Hobbies Atuais (sem mudanças) */}
+        <h3>Hobbies Atuais</h3>
+        {isHobbyLoading && !hasHobbies ? (
+          <p>Carregando hobbies...</p>
+        ) : !hasHobbies ? (
+          <p style={{ textAlign: 'center', fontStyle: 'italic' }}>Nenhum hobby cadastrado.</p>
+        ) : (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Imagem</th>
+                <th>Título</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {hobbies.map(hobby => (
+                <tr key={hobby.id}>
+                  <td data-label="ID">{hobby.id}</td>
+                  <td data-label="Imagem">
+                    {hobby.image_url ? (
+                      <img src={hobby.image_url} alt={hobby.title} style={{ width: '80px', height: '50px', objectFit: 'cover', borderRadius: '4px' }} />
+                    ) : (
+                      <span style={{color: '#999'}}>Sem Imagem</span>
+                    )}
+                  </td>
+                  <td data-label="Título">{hobby.title}</td>
+                  <td data-label="Ações" className="admin-actions-cell">
+                    <Link 
+                      to={`/admin/edit-hobby/${hobby.id}`} 
+                      className="edit-button-small"
+                    >
+                      <FaPencilAlt /> Editar
+                    </Link>
                     <button
                       className="danger-button-small"
-                      onClick={() => handleDeleteProject(p.id, p.name)}
+                      onClick={() => handleHobbyDelete(hobby.id, hobby.title)}
                     >
                       <FaTrash /> Deletar
                     </button>
@@ -360,34 +325,64 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
         )}
       </div>
 
-      {/* Seção 4: Manutenção */}
+      {/* --- ORDEM 3: ALTERAR CREDENCIAIS --- */}
+      <div className="admin-section">
+        <h2>Alterar Credenciais</h2>
+        <p>Mude seu nome de usuário ou senha. Você será deslogado após a alteração.</p>
+        <form onSubmit={handleCredentialsSubmit} className="admin-credentials-form">
+          <div className="form-group">
+            <label htmlFor="currentPassword">Senha Atual *</label>
+            <div className="password-input-wrapper" style={{ position: 'relative', width: '100%' }}>
+              <input type={showCurrentPassword ? 'text' : 'password'} id="currentPassword" name="currentPassword" value={credData.currentPassword} onChange={handleCredChange} required />
+              <span className="password-toggle-icon" onClick={() => setShowCurrentPassword(!showCurrentPassword)}>
+                {showCurrentPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
+              </span>
+            </div>
+            <small>Necessária para confirmar qualquer alteração.</small>
+          </div>
+          <hr className="form-divider" />
+          <div className="form-group">
+            <label htmlFor="newUsername">Novo Nome de Usuário</label>
+            <input type="text" id="newUsername" name="newUsername" value={credData.newUsername} onChange={handleCredChange} placeholder="Opcional" />
+          </div>
+          <div className="form-group">
+            <label htmlFor="newPassword">Nova Senha</label>
+            <div className="password-input-wrapper" style={{ position: 'relative', width: '100%' }}>
+              <input type={showNewPassword ? 'text' : 'password'} id="newPassword" name="newPassword" value={credData.newPassword} onChange={handleCredChange} placeholder="Opcional" />
+              <span className="password-toggle-icon" onClick={() => setShowNewPassword(!showNewPassword)}>
+                {showNewPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
+              </span>
+            </div>
+          </div>
+          <div className="admin-actions" style={{ justifyContent: 'flex-start' }}>
+            <button type="submit" className="add-button">
+              <FaSave /> Salvar Alterações
+            </button>
+          </div>
+          {credError && <p className="form-message error">{credError}</p>}
+          {credMessage && <p className="form-message success">{credMessage}</p>}
+        </form>
+      </div>
+
+      {/* --- ORDEM 4: MANUTENÇÃO (Reset) --- */}
       <div className="admin-section">
         <h2>Manutenção</h2>
         <p>Ações perigosas que afetam o banco de dados. Use com cuidado.</p>
         <div className="admin-actions">
-          <button
-            onClick={handleResetVotes}
-            className="danger-button"
-            disabled={!hasVotes}
-          >
+          <button onClick={handleResetVotes} className="danger-button" disabled={!hasVotes}>
             Resetar Votos de Todos os Projetos
           </button>
-
-          <button
-            onClick={handleResetMessages}
-            className="danger-button"
-            disabled={!hasMessages}
-          >
+          <button onClick={handleResetMessages} className="danger-button" disabled={!hasMessages}>
             Apagar Todas as Mensagens
           </button>
         </div>
       </div>
 
-      {/* Seção 5: Resumo de Votos */}
+      {/* --- ORDEM 5: RESUMO DE VOTOS --- */}
       <div className="admin-section">
         <h2>Resumo de Votos</h2>
         {!hasVotes ? (
-          <p style={{ textAlign: 'center', fontStyle: 'italic' }}>Nenhum voto registrado ainda.</p>
+          <p style={{ textAlign: 'center', fontStyle: 'italic' }}>Nenhum voto registrado.</p>
         ) : (
           <table className="data-table">
             <thead>
@@ -400,13 +395,8 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
               {projects
                 .filter(p => p.votes > 0)
                 .sort((a, b) => b.votes - a.votes)
-                .map(p => (
-                  <tr key={p.id} className={
-                    projects.filter(p => p.votes > 0).sort((a, b) => b.votes - a.votes).indexOf(p) === 0 ? "top-rank-1" :
-                    projects.filter(p => p.votes > 0).sort((a, b) => b.votes - a.votes).indexOf(p) === 1 ? "top-rank-2" :
-                    projects.filter(p => p.votes > 0).sort((a, b) => b.votes - a.votes).indexOf(p) === 2 ? "top-rank-3" :
-                    ""
-                  }>
+                .map((p, index) => (
+                  <tr key={p.id} className={ index === 0 ? "top-rank-1" : index === 1 ? "top-rank-2" : index === 2 ? "top-rank-3" : "" }>
                     <td data-label="Projeto">{p.name}</td>
                     <td data-label="Total de Votos">{p.votes}</td>
                   </tr>
@@ -416,11 +406,11 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
         )}
       </div>
 
-      {/* Seção 6: Mensagens Recebidas */}
+      {/* --- ORDEM 6: MENSAGENS RECEBIDAS --- */}
       <div className="admin-section">
         <h2>Mensagens Recebidas</h2>
         {!hasMessages ? (
-          <p style={{ textAlign: 'center', fontStyle: 'italic' }}>Nenhuma mensagem recebida ainda.</p>
+          <p style={{ textAlign: 'center', fontStyle: 'italic' }}>Nenhuma mensagem recebida.</p>
         ) : (
           <table className="data-table">
             <thead>

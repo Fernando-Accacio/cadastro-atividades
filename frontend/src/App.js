@@ -12,10 +12,12 @@ import ContactPage from './pages/ContactPage';
 import AdminPage from './pages/AdminPage';
 import AddProjectPage from './pages/AddProjectPage';
 import EditProjectPage from './pages/EditProjectPage';
+import EditHobbyPage from './pages/EditHobbyPage'; // Da etapa anterior
+import AddHobbyPage from './pages/AddHobbyPage'; // NOVO IMPORT
 
 import './App.css';
 
-// Componente helper para o Logout (necessário para usar o hook useNavigate)
+// Componente helper para o Logout (sem mudanças)
 function LogoutHandler({ handleLogout }) {
   const navigate = useNavigate();
   useEffect(() => {
@@ -29,22 +31,19 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState(localStorage.getItem('admin_token'));
 
-  // Verifica o token no localStorage quando o app carrega
+  // useEffect de verificação de token (sem mudanças)
   useEffect(() => {
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
-        // Verifica se o token não expirou
         if (decodedToken.exp * 1000 > Date.now()) {
           setIsAuthenticated(true);
         } else {
-          // Token expirado
           localStorage.removeItem('admin_token');
           setToken(null);
           setIsAuthenticated(false);
         }
       } catch (error) {
-        // Token inválido
         localStorage.removeItem('admin_token');
         setToken(null);
         setIsAuthenticated(false);
@@ -54,14 +53,14 @@ function App() {
     }
   }, [token]);
 
-  // Função de Login: salva o token
+  // handleLogin (sem mudanças)
   const handleLogin = (newToken) => {
     localStorage.setItem('admin_token', newToken);
     setToken(newToken);
     setIsAuthenticated(true);
   };
 
-  // Função de Logout: remove o token
+  // handleLogout (sem mudanças)
   const handleLogout = () => {
     localStorage.removeItem('admin_token');
     setToken(null);
@@ -71,18 +70,17 @@ function App() {
   return (
     <Router>
       <div className="app-container">
-        {/* Passa o status de login e a função de logout para o Header */}
         <Header isAuthenticated={isAuthenticated} onLogout={handleLogout} />
         <main>
           <Routes>
-            {/* Passa o status de login para a HomePage */}
+            {/* Rotas Públicas (sem mudanças) */}
             <Route path="/" element={<HomePage isAuthenticated={isAuthenticated} />} />
             <Route path="/sobremim" element={<SobreMimPage />} />
             <Route path="/curriculo" element={<CurriculumPage />} />
             <Route path="/ranking" element={<RankingPage />} />
             <Route path="/contact" element={<ContactPage />} />
             
-            {/* Passa o status e a função de login para a AdminPage */}
+            {/* Rota de Admin (sem mudanças) */}
             <Route 
               path="/admin" 
               element={<AdminPage 
@@ -92,7 +90,7 @@ function App() {
               />} 
             />
             
-            {/* Novas rotas protegidas */}
+            {/* Rotas Protegidas de Projetos (sem mudanças) */}
             <Route 
               path="/admin/add-project" 
               element={<AddProjectPage isAuthenticated={isAuthenticated} />} 
@@ -102,7 +100,20 @@ function App() {
               element={<EditProjectPage isAuthenticated={isAuthenticated} />} 
             />
             
-            {/* Rota de Logout */}
+            {/* Rotas Protegidas de Hobbies */}
+            <Route 
+              path="/admin/edit-hobby/:id" 
+              element={<EditHobbyPage isAuthenticated={isAuthenticated} />} 
+            />
+            {/* ================================== */}
+            {/* === NOVA ROTA PARA ADICIONAR === */}
+            {/* ================================== */}
+            <Route 
+              path="/admin/add-hobby" 
+              element={<AddHobbyPage isAuthenticated={isAuthenticated} />} 
+            />
+            
+            {/* Rota de Logout (sem mudanças) */}
             <Route path="/logout" element={<LogoutHandler handleLogout={handleLogout} />} />
 
           </Routes>
