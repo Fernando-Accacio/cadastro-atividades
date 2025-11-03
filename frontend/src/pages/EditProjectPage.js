@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/axiosConfig';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 
-// Recebe 'isAuthenticated'
 function EditProjectPage({ isAuthenticated }) {
   const [formData, setFormData] = useState({
     name: '',
@@ -15,38 +14,35 @@ function EditProjectPage({ isAuthenticated }) {
   });
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  
-  const { id } = useParams(); // Pega o ID da URL (ex: /edit-project/12)
+  const { id } = useParams();
   const navigate = useNavigate();
 
-  // Efeito de segurança e busca de dados
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/admin');
       return;
     }
     
-    // Se estiver autenticado, busca os dados do projeto
-    axios.get(`/api/projects/${id}`)
+    setIsLoading(true);
+    api.get(`/api/projects/${id}`)
       .then(response => {
-        // Preenche o formulário com os dados do banco
+        const project = response.data;
         setFormData({
-          name: response.data.name,
-          description: response.data.description || '',
-          area_saber: response.data.area_saber,
-          materia: response.data.materia,
-          image_url: response.data.image_url || '',
-          project_link: response.data.project_link || '',
+          name: project.name || '',
+          description: project.description || '',
+          area_saber: project.area_saber || '',
+          materia: project.materia || '',
+          image_url: project.image_url || '',
+          project_link: project.project_link || '',
         });
         setIsLoading(false);
       })
       .catch(error => {
-        console.error("Erro ao buscar o projeto!", error);
+        console.error("Erro ao buscar dados do projeto!", error);
         setMessage('Erro ao carregar o projeto. Ele existe?');
         setIsLoading(false);
       });
-
-  }, [isAuthenticated, navigate, id]);
+  }, [id, isAuthenticated, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -58,21 +54,16 @@ function EditProjectPage({ isAuthenticated }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setMessage(''); 
+    setMessage('');
 
     if (!formData.name || !formData.area_saber || !formData.materia) {
       setMessage('Nome, Área de Saber e Matéria são obrigatórios.');
       return;
     }
 
-    // Envia os dados para a rota PUT (Update)
-    axios.put(`/api/projects/${id}`, formData)
+    api.put(`/api/projects/${id}`, formData)
       .then(response => {
         setMessage('Projeto atualizado com sucesso!');
-        // Redireciona de volta para o painel admin após 2s
-        setTimeout(() => {
-          navigate('/admin');
-        }, 2000);
       })
       .catch(error => {
         setMessage('Erro ao atualizar o projeto. Tente novamente.');
@@ -80,14 +71,12 @@ function EditProjectPage({ isAuthenticated }) {
       });
   };
 
-  // Se não estiver logado, não renderiza
   if (!isAuthenticated) {
     return null;
   }
   
-  // Mostra um loading enquanto busca os dados
   if (isLoading) {
-    return <div className="container"><p>Carregando dados do projeto...</p></div>
+    return <div className="container"><h1 className="page-title">Carregando dados...</h1></div>;
   }
 
   return (
@@ -99,6 +88,8 @@ function EditProjectPage({ isAuthenticated }) {
       </Link>
 
       <form onSubmit={handleSubmit} className="contact-form">
+        
+        {/* CORREÇÃO: Adicionando os 'onChange' */}
         <div className="form-group">
           <label htmlFor="name">Nome do Projeto *</label>
           <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required />

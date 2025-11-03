@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/axiosConfig';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 
-// 1. Receber 'isAuthenticated' como prop
 function AddProjectPage({ isAuthenticated }) {
   const [formData, setFormData] = useState({
     name: '',
@@ -14,10 +13,8 @@ function AddProjectPage({ isAuthenticated }) {
     project_link: '',
   });
   const [message, setMessage] = useState('');
-  const navigate = useNavigate(); // Hook para navegar
+  const navigate = useNavigate();
 
-  // 2. Efeito de segurança:
-  // Se 'isAuthenticated' for falso, redireciona para /admin
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/admin');
@@ -34,14 +31,14 @@ function AddProjectPage({ isAuthenticated }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setMessage(''); 
+    setMessage('');
 
     if (!formData.name || !formData.area_saber || !formData.materia) {
       setMessage('Nome, Área de Saber e Matéria são obrigatórios.');
       return;
     }
 
-    axios.post('/api/projects', formData)
+    api.post('/api/projects', formData)
       .then(response => {
         setMessage('Projeto adicionado com sucesso!');
         setFormData({
@@ -54,17 +51,15 @@ function AddProjectPage({ isAuthenticated }) {
         });
       })
       .catch(error => {
-        setMessage('Erro ao adicionar o projeto. Verifique o console e tente novamente.');
+        setMessage('Erro ao adicionar o projeto. Tente novamente.');
         console.error("Erro no POST do projeto!", error);
       });
   };
-
-  // 3. Se não estiver autenticado, não renderiza nada (pois será redirecionado)
+  
   if (!isAuthenticated) {
-    return null;
+    return null; 
   }
 
-  // 4. Renderiza o formulário
   return (
     <div className="container" style={{ maxWidth: '600px' }}>
       <h1 className="page-title">Adicionar Novo Trabalho</h1>
@@ -74,6 +69,8 @@ function AddProjectPage({ isAuthenticated }) {
       </Link>
 
       <form onSubmit={handleSubmit} className="contact-form">
+        
+        {/* CORREÇÃO: Adicionando os 'onChange' */}
         <div className="form-group">
           <label htmlFor="name">Nome do Projeto *</label>
           <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required />

@@ -8,7 +8,7 @@ build/
 # PYTHON / BACKEND
 # ===============================
 venv/
-backend/venv/
+api/venv/
 __pycache__/
 
 # ===============================

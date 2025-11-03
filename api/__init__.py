@@ -1,33 +1,40 @@
+# api/__init__.py
+
 from flask import Flask
 from flask_cors import CORS
-from dotenv import load_dotenv # Para carregar variáveis do .env
+from dotenv import load_dotenv # Importado primeiro
 import os
 
-# Carrega as variáveis do arquivo .env (importante para rodar localmente)
+# Carrega as variáveis de ambiente ANTES de qualquer outra coisa
 load_dotenv() 
 
 def create_app():
     app = Flask(__name__)
     
-    # Configuração de CORS explícita para permitir PUT
+    # Configuração de CORS atualizada
     CORS(app, resources={
         r"/api/*": {
-            "origins": "*", # Em produção, troque "*" por "https://seu-site.vercel.app"
-            "methods": ["GET", "POST", "DELETE", "PUT", "OPTIONS"], # <-- 'PUT' ADICIONADO
-            "allow_headers": ["Content-Type"]
+            "origins": "*", 
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"]
         }
     })
 
-    # Configura a URL do banco a partir da variável de ambiente
+    # Carrega a URL do banco
     database_url = os.environ.get('DATABASE_URL')
     if not database_url:
         raise RuntimeError("DATABASE_URL não está configurada!")
     
-    # Importa e registra o módulo do banco de dados
+    # Carrega a nova chave secreta do JWT (agora deve funcionar)
+    jwt_secret = os.environ.get('JWT_SECRET_KEY')
+    if not jwt_secret:
+        raise RuntimeError("JWT_SECRET_KEY não está configurada!")
+    
+    app.config['JWT_SECRET_KEY'] = jwt_secret
+
     from . import database
     database.init_app(app)
 
-    # Importa e registra o módulo de rotas
     from . import routes
     routes.init_routes(app)
 

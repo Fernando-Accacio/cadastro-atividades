@@ -95,7 +95,7 @@ main {
 }
 
 /* =============================================== */
-/* HEADER STYLES (RESPONSIVO)                      */
+/* HEADER STYLES (RESPONSIVO)                       */
 /* =============================================== */
 .app-header {
   background-color: rgba(255, 255, 255, 0.85);
@@ -195,7 +195,7 @@ main {
   border-radius: var(--radius-main);
   margin-bottom: 40px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
-              0 2px 8px rgba(0, 0, 0, 0.04);
+        0 2px 8px rgba(0, 0, 0, 0.04);
   text-align: center;
 }
 
@@ -221,7 +221,7 @@ main {
 .about-section img:hover {
   transform: translateY(-4px) scale(1.02);
   box-shadow: 0 16px 48px rgba(0,0,0,0.18),
-              0 8px 16px rgba(0,0,0,0.12);
+        0 8px 16px rgba(0,0,0,0.12);
 }
 
 .about-section p {
@@ -284,7 +284,7 @@ main {
   border-radius: var(--radius-main);
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
-              0 2px 8px rgba(0, 0, 0, 0.04);
+        0 2px 8px rgba(0, 0, 0, 0.04);
   transition: transform 0.3s, box-shadow 0.3s;
   display: flex;
   flex-direction: column;
@@ -295,7 +295,7 @@ main {
 .project-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12),
-              0 4px 12px rgba(0, 0, 0, 0.06);
+        0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .project-card img {
@@ -403,7 +403,7 @@ main {
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: var(--radius-main);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
-              0 2px 8px rgba(0, 0, 0, 0.04);
+        0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .form-group {
@@ -523,7 +523,7 @@ main {
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.5);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
-              0 2px 8px rgba(0, 0, 0, 0.04);
+        0 2px 8px rgba(0, 0, 0, 0.04);
   border-radius: var(--radius-main);
   overflow: hidden;
 }
@@ -591,7 +591,7 @@ main {
   padding: 30px;
   border-radius: var(--radius-main);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
-              0 2px 8px rgba(0, 0, 0, 0.04);
+        0 2px 8px rgba(0, 0, 0, 0.04);
   text-align: center;
   margin-bottom: 40px;
   font-size: 1.1em;
@@ -612,7 +612,7 @@ main {
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: var(--radius-main);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
-              0 2px 8px rgba(0, 0, 0, 0.04);
+        0 2px 8px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -622,7 +622,7 @@ main {
 .hobby-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12),
-              0 4px 12px rgba(0, 0, 0, 0.06);
+        0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .hobby-content {
@@ -677,7 +677,7 @@ main {
   padding: 30px;
   border-radius: var(--radius-main);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
-              0 2px 8px rgba(0, 0, 0, 0.04);
+        0 2px 8px rgba(0, 0, 0, 0.04);
   margin-bottom: 40px;
 }
 
@@ -917,7 +917,7 @@ main .container > *:last-child {
     border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: var(--radius-main);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
-                0 2px 8px rgba(0, 0, 0, 0.04);
+          0 2px 8px rgba(0, 0, 0, 0.04);
     overflow: hidden;
   }
 
@@ -1088,9 +1088,9 @@ main .container > *:last-child {
   
   /* Botão Adicionar na HomePage */
   .section-header {
-     flex-direction: column;
-     gap: 20px;
-     margin-bottom: 30px;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 30px;
   }
   
   .add-project-button {
@@ -1182,4 +1182,106 @@ main .container > *:last-child {
   .admin-actions-cell {
     flex-direction: column;
   }
+}
+
+/* ================================================= */
+/* === INÍCIO DO NOVO CÓDIGO (MINHA CORREÇÃO)    === */
+/* ================================================= */
+
+/* Este formulário vai usar os mesmos estilos '.contact-form',
+  mas com 'margin-top' 0 para se encaixar melhor no '.admin-section'.
+*/
+.admin-credentials-form {
+  max-width: 600px;
+  margin: 0 auto; /* Remove a margem superior que o .contact-form tem */
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 8px; /* Usei 8px para ser consistente */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
+        0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* Divisor dentro do formulário */
+.form-divider {
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.08); /* Cor.area-saber-titulo */
+  margin: 25px 0;
+}
+
+/* Ícone de olho no campo de senha */
+.password-toggle-icon {
+  position: absolute; 
+  right: 14px; 
+  top: 55%; 
+  transform: translateY(-50%); 
+  cursor: pointer; 
+  user-select: none;
+  color: #555; /* Cor .social-links */
+}
+
+/* Mensagens de sucesso ou erro (cores concretas) */
+.form-message {
+  text-align: center;
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 5px;
+  font-weight: 500;
+}
+.form-message.error {
+  color: #c02020;
+  background-color: #fdd;
+  border: 1px solid #c02020;
+}
+.form-message.success {
+  color: #006400;
+  background-color: #dfd;
+  border: 1px solid #006400;
+}
+
+/* ================================================= */
+/* === ESTILO DO BOTÃO SAIR (LOGOUT)             === */
+/* ================================================= */
+
+.logout-button {
+  background-color: #d9534f; /* Cor vermelha (danger) */
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1em; /* Tamanho da fonte do menu */
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  transition: background-color 0.3s, box-shadow 0.2s, transform 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Espaço entre o ícone e o texto */
+  font-family: inherit;
+  margin-left: 10px; /* Separa dos links de navegação */
+}
+
+.logout-button:hover {
+  background-color: #c9302c; /* Vermelho mais escuro no hover */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+  transform: translateY(-1px);
+}
+
+/* Ajuste para o menu mobile */
+@media screen and (max-width: 960px) {
+  .logout-button {
+    font-size: 1.2rem; /* Aumenta no mobile */
+    padding: 12px 20px;
+    margin-left: 0;
+    width: auto; 
+  }
+}
+
+.password-input-wrapper input {
+  /* Adiciona espaço à DIREITA para o ícone não sobrepor o texto */
+  padding-right: 45px !important; 
+  /* Garante que o padding não quebre o layout de largura */
+  box-sizing: border-box; 
 }
