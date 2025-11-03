@@ -183,7 +183,6 @@ Terminal 1 - Backend (Flask)
 cd cadastro-atividades
 # Windows
 .\venv\Scripts\activate
-$env:FLASK_APP="api"
 # source venv/bin/activate # Linux/Mac
 
 # Rodar o backend

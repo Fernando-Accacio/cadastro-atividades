@@ -3,16 +3,31 @@ import api from '../api/axiosConfig';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 
+// Estilo para os radio buttons (opcional, mas fica melhor)
+const radioStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  marginRight: '20px',
+  cursor: 'pointer',
+};
+
 function AddProjectPage({ isAuthenticated }) {
-  const [formData, setFormData] = useState({
+  const [projectData, setProjectData] = useState({
     name: '',
     description: '',
     area_saber: '',
     materia: '',
-    image_url: '',
     project_link: '',
+    image_url: '', // <-- Adicionamos o campo de URL de volta
   });
+  
+  const [imageFile, setImageFile] = useState(null);
+  
+  // NOVO ESTADO: para controlar a escolha (file ou url)
+  const [uploadType, setUploadType] = useState('file'); // 'file' ou 'url'
+  
   const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,44 +36,85 @@ function AddProjectPage({ isAuthenticated }) {
     }
   }, [isAuthenticated, navigate]);
 
+  // Handler para campos de TEXTO
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({
+    setProjectData(prevData => ({
       ...prevData,
       [name]: value
     }));
+  };
+  
+  // Handler para campo de ARQUIVO
+  const handleImageChange = (e) => {
+    if (e.target.files[0]) {
+      setImageFile(e.target.files[0]);
+    } else {
+      setImageFile(null);
+    }
+  };
+
+  // Handler para os RADIO BUTTONS
+  const handleUploadTypeChange = (e) => {
+    setUploadType(e.target.value);
+    // Limpa os campos ao trocar, para evitar confusão
+    setImageFile(null);
+    setProjectData(prev => ({ ...prev, image_url: '' }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setMessage('');
 
-    if (!formData.name || !formData.area_saber || !formData.materia) {
+    if (!projectData.name || !projectData.area_saber || !projectData.materia) {
       setMessage('Nome, Área de Saber e Matéria são obrigatórios.');
       return;
+    }
+    
+    setIsLoading(true);
+    const formData = new FormData();
+    
+    // Adiciona os campos de texto
+    formData.append('name', projectData.name);
+    formData.append('description', projectData.description);
+    formData.append('area_saber', projectData.area_saber);
+    formData.append('materia', projectData.materia);
+    formData.append('project_link', projectData.project_link);
+    
+    // LÓGICA CONDICIONAL: Adiciona ARQUIVO ou URL
+    if (uploadType === 'file' && imageFile) {
+      // Renomeado para 'image_file' para não conflitar com o campo 'image_url'
+      formData.append('image_file', imageFile); 
+    } 
+    else if (uploadType === 'url' && projectData.image_url) {
+      formData.append('image_url', projectData.image_url);
     }
 
     api.post('/api/projects', formData)
       .then(response => {
+        setIsLoading(false);
         setMessage('Projeto adicionado com sucesso!');
-        setFormData({
+        // Limpa o formulário
+        setProjectData({
           name: '',
           description: '',
           area_saber: '',
           materia: '',
-          image_url: '',
           project_link: '',
+          image_url: '',
         });
+        setImageFile(null);
+        e.target.reset(); // Limpa o input de arquivo
       })
       .catch(error => {
-        setMessage('Erro ao adicionar o projeto. Tente novamente.');
+        setIsLoading(false);
+        const errorMsg = error.response?.data?.error || 'Erro ao adicionar o projeto.';
+        setMessage(errorMsg);
         console.error("Erro no POST do projeto!", error);
       });
   };
   
-  if (!isAuthenticated) {
-    return null; 
-  }
+  if (!isAuthenticated) return null; 
 
   return (
     <div className="container" style={{ maxWidth: '600px' }}>
@@ -70,40 +126,89 @@ function AddProjectPage({ isAuthenticated }) {
 
       <form onSubmit={handleSubmit} className="contact-form">
         
-        {/* CORREÇÃO: Adicionando os 'onChange' */}
+        {/* Campos de Texto (sem mudança) */}
         <div className="form-group">
           <label htmlFor="name">Nome do Projeto *</label>
-          <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required />
+          <input type="text" id="name" name="name" value={projectData.name} onChange={handleChange} required />
         </div>
-
         <div className="form-group">
           <label htmlFor="description">Descrição</label>
-          <textarea id="description" name="description" rows="4" value={formData.description} onChange={handleChange}></textarea>
+          <textarea id="description" name="description" rows="4" value={projectData.description} onChange={handleChange}></textarea>
         </div>
-
         <div className="form-group">
           <label htmlFor="area_saber">Área de Saber *</label>
-          <input type="text" id="area_saber" name="area_saber" value={formData.area_saber} onChange={handleChange} required />
+          <input type="text" id="area_saber" name="area_saber" value={projectData.area_saber} onChange={handleChange} required />
         </div>
-
         <div className="form-group">
           <label htmlFor="materia">Matéria *</label>
-          <input type="text" id="materia" name="materia" value={formData.materia} onChange={handleChange} required />
+          <input type="text" id="materia" name="materia" value={projectData.materia} onChange={handleChange} required />
         </div>
         
+        {/* ======================================== */}
+        {/* === NOVA SELEÇÃO (UPLOAD vs URL) ===== */}
+        {/* ======================================== */}
         <div className="form-group">
-          <label htmlFor="image_url">URL da Imagem</label>
-          <input type="text" id="image_url" name="image_url" value={formData.image_url} onChange={handleChange} placeholder="Ex: /images/meu-projeto.jpg ou https://..." />
+          <label>Imagem do Projeto</label>
+          <div style={{ display: 'flex', marginBottom: '10px' }}>
+            <label style={radioStyle}>
+              <input 
+                type="radio" 
+                name="uploadType" 
+                value="file" 
+                checked={uploadType === 'file'} 
+                onChange={handleUploadTypeChange}
+              />
+              <span style={{ marginLeft: '5px' }}>Fazer Upload</span>
+            </label>
+            <label style={radioStyle}>
+              <input 
+                type="radio" 
+                name="uploadType" 
+                value="url" 
+                checked={uploadType === 'url'} 
+                onChange={handleUploadTypeChange}
+              />
+              <span style={{ marginLeft: '5px' }}>Usar Link (URL)</span>
+            </label>
+          </div>
+
+          {/* Renderização Condicional */}
+          {uploadType === 'file' ? (
+            <div>
+              <input 
+                type="file" 
+                id="image_file" // Nomeado 'image_file'
+                name="image_file"
+                accept="image/png, image/jpeg, image/gif, image/webp"
+                onChange={handleImageChange}
+              />
+              {imageFile && <small>Arquivo selecionado: {imageFile.name}</small>}
+            </div>
+          ) : (
+            <div>
+              <input 
+                type="text" 
+                id="image_url" 
+                name="image_url" // Nomeado 'image_url'
+                value={projectData.image_url} 
+                onChange={handleChange} 
+                placeholder="Ex: https://meusite.com/imagem.png" 
+              />
+            </div>
+          )}
         </div>
+        {/* ======================================== */}
 
         <div className="form-group">
           <label htmlFor="project_link">Link do Projeto</label>
-          <input type="text" id="project_link" name="project_link" value={formData.project_link} onChange={handleChange} placeholder="Ex: https://github.com/..." />
+          <input type="text" id="project_link" name="project_link" value={projectData.project_link} onChange={handleChange} placeholder="Ex: https://github.com/..." />
         </div>
 
-        <button type="submit" className="add-button">Adicionar Projeto</button>
+        <button type="submit" className="add-button" disabled={isLoading}>
+          {isLoading ? 'Enviando...' : 'Adicionar Projeto'}
+        </button>
         
-        {message && <p style={{ textAlign: 'center', marginTop: '15px' }}>{message}</p>}
+        {message && <p className={message.startsWith('Erro') ? 'form-message error' : 'form-message success'} style={{ textAlign: 'center', marginTop: '15px' }}>{message}</p>}
       </form>
     </div>
   );

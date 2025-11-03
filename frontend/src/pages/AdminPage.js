@@ -37,10 +37,15 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   }, [onLogout]);
 
   const fetchProjects = useCallback(() => {
-    api.get('/api/projects')
+    // Usar a rota pública /api/projects, que já usamos na HomePage
+    api.get('/api/projects') 
       .then(response => {
+        // A rota /api/projects retorna um objeto agrupado. 
+        // Precisamos "achatar" ele para a tabela do admin.
         const flatProjects = Object.values(response.data).flat();
-        flatProjects.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+        
+        // Ordenar por ID para consistência
+        flatProjects.sort((a, b) => parseInt(a.id) - parseInt(b.id)); 
         setProjects(flatProjects);
       })
       .catch(error => {
@@ -75,18 +80,20 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   const handleResetVotes = () => {
     const hasVotes = projects.some(p => p.votes > 0);
     if (!hasVotes) {
-      alert('Não há nenhum voto registrado para resetar.');
+      // Usar uma div de mensagem em vez de alert
+      setCredError('Não há nenhum voto registrado para resetar.'); 
       return;
     }
 
+    // Usar um modal customizado no futuro, mas por agora window.confirm
     if (window.confirm("Você tem CERTEZA que deseja resetar TODOS os votos? Esta ação não pode ser desfeita.")) {
       api.post('/api/admin/reset-votes')
         .then(() => {
-          alert('Votos resetados com sucesso!');
+          setCredMessage('Votos resetados com sucesso!');
           fetchProjects();
         })
         .catch(err => {
-          alert('Ocorreu um erro ao resetar os votos.');
+          setCredError('Ocorreu um erro ao resetar os votos.');
           console.error(err);
         });
     }
@@ -94,18 +101,18 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
 
   const handleResetMessages = () => {
     if (messages.length === 0) {
-      alert('Não há nenhuma mensagem para apagar.');
+      setCredError('Não há nenhuma mensagem para apagar.');
       return;
     }
 
     if (window.confirm("Você tem CERTEZA que deseja apagar TODAS as mensagens? Esta ação não pode ser desfeita.")) {
       api.post('/api/admin/reset-messages')
         .then(() => {
-          alert('Mensagens apagadas com sucesso!');
+          setCredMessage('Mensagens apagadas com sucesso!');
           fetchMessages();
         })
         .catch(err => {
-          alert('Ocorreu um erro ao apagar as mensagens.');
+          setCredError('Ocorreu um erro ao apagar as mensagens.');
           console.error(err);
         });
     }
@@ -115,11 +122,11 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
     if (window.confirm(`Você tem CERTEZA que deseja apagar o projeto "${projectName}" (ID: ${projectId})? Esta ação não pode ser desfeita.`)) {
       api.delete(`/api/projects/${projectId}`)
         .then(() => {
-          alert('Projeto apagado com sucesso!');
-          fetchProjects();
+          setCredMessage('Projeto apagado com sucesso!');
+          fetchProjects(); // Re-busca os projetos para atualizar a lista
         })
         .catch(err => {
-          alert('Ocorreu um erro ao apagar o projeto.');
+          setCredError('Ocorreu um erro ao apagar o projeto.');
           console.error(err);
         });
     }
@@ -156,13 +163,16 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
 
     api.put('/api/admin/credentials', payload)
       .then(response => {
-        alert(response.data.message);
+        setCredMessage(response.data.message + ' Você será deslogado.');
         setCredData({
           currentPassword: '',
           newUsername: '',
           newPassword: '',
         });
-        if (onLogout) onLogout();
+        // Desloga o usuário após 3 segundos
+        setTimeout(() => {
+            if (onLogout) onLogout();
+        }, 3000);
       })
       .catch(error => {
         console.error('Erro ao atualizar credenciais:', error.response);
@@ -204,15 +214,6 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
               />
               <span
                 className="password-toggle-icon"
-                style={{
-                  position: 'absolute',
-                  right: '14px',
-                  top: '55%',
-                  transform: 'translateY(-50%)',
-                  cursor: 'pointer',
-                  userSelect: 'none',
-                  color: 'var(--text-secondary)'
-                }}
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
@@ -220,7 +221,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
             </div>
           </div>
           <button type="submit">Entrar</button>
-          {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
+          {error && <p className="form-message error" style={{ marginTop: '10px' }}>{error}</p>}
         </form>
       </div>
     );
@@ -234,6 +235,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
     <div className="container">
       <h1 className="page-title">Painel do Administrador</h1>
 
+      {/* Seção 1: Adicionar Trabalho */}
       <div className="admin-section">
         <h2>Adicionar Trabalho</h2>
         <p>Adicionar um novo projeto ao portfólio.</p>
@@ -244,6 +246,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
         </div>
       </div>
 
+      {/* Seção 2: Alterar Credenciais */}
       <div className="admin-section">
         <h2>Alterar Credenciais</h2>
         <p>Mude seu nome de usuário ou senha. Você será deslogado após a alteração.</p>
@@ -309,12 +312,14 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
               <FaSave /> Salvar Alterações
             </button>
           </div>
-
+          
+          {/* Mensagens de feedback */}
           {credError && <p className="form-message error">{credError}</p>}
           {credMessage && <p className="form-message success">{credMessage}</p>}
         </form>
       </div>
 
+      {/* Seção 3: Gerenciar Trabalhos (A QUE SUMIU) */}
       <div className="admin-section">
         <h2>Gerenciar Trabalhos</h2>
         {!hasProjects ? (
@@ -355,6 +360,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
         )}
       </div>
 
+      {/* Seção 4: Manutenção */}
       <div className="admin-section">
         <h2>Manutenção</h2>
         <p>Ações perigosas que afetam o banco de dados. Use com cuidado.</p>
@@ -363,7 +369,6 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
             onClick={handleResetVotes}
             className="danger-button"
             disabled={!hasVotes}
-            style={{ opacity: !hasVotes ? 0.5 : 1, cursor: !hasVotes ? 'not-allowed' : 'pointer' }}
           >
             Resetar Votos de Todos os Projetos
           </button>
@@ -372,13 +377,13 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
             onClick={handleResetMessages}
             className="danger-button"
             disabled={!hasMessages}
-            style={{ opacity: !hasMessages ? 0.5 : 1, cursor: !hasMessages ? 'not-allowed' : 'pointer' }}
           >
             Apagar Todas as Mensagens
           </button>
         </div>
       </div>
 
+      {/* Seção 5: Resumo de Votos */}
       <div className="admin-section">
         <h2>Resumo de Votos</h2>
         {!hasVotes ? (
@@ -396,9 +401,14 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
                 .filter(p => p.votes > 0)
                 .sort((a, b) => b.votes - a.votes)
                 .map(p => (
-                  <tr key={p.id}>
-                    <td>{p.name}</td>
-                    <td>{p.votes}</td>
+                  <tr key={p.id} className={
+                    projects.filter(p => p.votes > 0).sort((a, b) => b.votes - a.votes).indexOf(p) === 0 ? "top-rank-1" :
+                    projects.filter(p => p.votes > 0).sort((a, b) => b.votes - a.votes).indexOf(p) === 1 ? "top-rank-2" :
+                    projects.filter(p => p.votes > 0).sort((a, b) => b.votes - a.votes).indexOf(p) === 2 ? "top-rank-3" :
+                    ""
+                  }>
+                    <td data-label="Projeto">{p.name}</td>
+                    <td data-label="Total de Votos">{p.votes}</td>
                   </tr>
                 ))}
             </tbody>
@@ -406,6 +416,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
         )}
       </div>
 
+      {/* Seção 6: Mensagens Recebidas */}
       <div className="admin-section">
         <h2>Mensagens Recebidas</h2>
         {!hasMessages ? (
@@ -423,7 +434,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
             <tbody>
               {messages.map((msg) => (
                 <tr key={msg.id}>
-                  <td data-label="Data">{msg.timestamp ? new Date(msg.TOC).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : 'Sem data'}</td>
+                  <td data-label="Data">{msg.timestamp ? new Date(msg.timestamp).toLocaleString('pt-BR') : 'Sem data'}</td>
                   <td data-label="Nome">{msg.name}</td>
                   <td data-label="Email">{msg.email}</td>
                   <td data-label="Mensagem">{msg.message}</td>
