@@ -118,28 +118,26 @@ function HomePage() {
     // Imagem carregada (ou fallback)
     return <img src={profilePicUrl} alt="Foto do Aluno" />;
   };
-
-  const renderContent = () => {
-    if (isLoading) {
-      return (
-        <p style={{ textAlign: 'center' }}>
-          {/* Duas linhas de placeholder para o texto */}
-          <div style={{ width: '80%', height: '18px', backgroundColor: '#f0f0f0', borderRadius: '4px', margin: '5px auto' }}></div>
-          <div style={{ width: '60%', height: '18px', backgroundColor: '#f0f0f0', borderRadius: '4px', margin: '5px auto' }}></div>
-        </p>
-      );
-    }
-
+const renderContent = () => {
+  if (isLoading) {
     return (
-      <p>
-        {objectiveText}
-        {' '}
-        Venha conhecer um pouco mais{' '}
-        <Link to="/sobremim" className="link-effect">
-          sobre mim!
-        </Link>
-      </p>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ width: '80%', height: '18px', backgroundColor: '#f0f0f0', borderRadius: '4px', margin: '5px auto' }}></div>
+        <div style={{ width: '60%', height: '18px', backgroundColor: '#f0f0f0', borderRadius: '4px', margin: '5px auto' }}></div>
+      </div>
     );
+  }
+
+  return (
+    <p>
+      {objectiveText}{' '}
+      Venha conhecer um pouco mais{' '}
+      <Link to="/sobremim" className="link-effect">
+        sobre mim!
+      </Link>
+    </p>
+  );
+
   };
 
   return (

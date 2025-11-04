@@ -6,7 +6,7 @@ import { FaDownload } from 'react-icons/fa';
 const curriculumStyle = {
     background: 'rgba(255, 255, 255, 0.7)',
     backdropFilter: 'blur(20px) saturate(180%)',
-    webkitBackdropFilter: 'blur(20px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(20px) saturate(180%)', // <-- aqui
     border: '1px solid rgba(255, 255, 255, 0.5)',
     padding: '40px',
     borderRadius: '8px',
@@ -36,10 +36,10 @@ const personalInfoStyle = {
 
 // CONSTANTES PADRÃO (FALLBACKS)
 const DEFAULT_CONSTS = {
-    NAME: "Marcelo Antony Accacio Olhier",
-    CONTACT_INFO: "Telefone: (11) 95314-1962 | E-mail: marceloaccacio9@gmail.com",
-    ADDRESS: "Endereço: Rua Soldado PM Gilberto Augustinho, 237",
-    RESPONSIBLE: "Responsável: (11) 99997-6992 (Mãe)",
+    NAME: "Seu Nome",
+    CONTACT_INFO: "Telefone: (11) 9XXXX-XXXX | E-mail: seuemail@gmail.com",
+    ADDRESS: "Endereço: Seu endereço",
+    RESPONSIBLE: "Responsável: (11) 9XXXX-XXXX (Mãe)",
     OBJECTIVE: "Busco minha primeira oportunidade profissional. Desejo ingressar no mercado para adquirir experiência prática, colocar em uso meus conhecimentos técnicos e desenvolver novas habilidades que me ajudem a crescer profissionalmente."
 };
 
@@ -51,6 +51,7 @@ function CurriculumPage() {
     const [skills, setSkills] = useState([]);
     const [additionalInfo, setAdditionalInfo] = useState([]); 
     const [isLoading, setIsLoading] = useState(true);
+    const downloadUrl = `${api.defaults.baseURL}/api/download/curriculo`;
 
     const groupSkills = (skillsArray) => {
         const grouped = skillsArray.reduce((acc, skill) => {
@@ -239,10 +240,9 @@ function CurriculumPage() {
             </div>
 
             {/* --- BOTÃO DE DOWNLOAD (DINÂMICO) --- */}
-            {info.pdf_url ? (
+            {info.pdf_url ? ( 
                 <a 
-                    href={info.pdf_url} 
-                    target="_blank" 
+                    href={downloadUrl} // <-- MUDANÇA CRÍTICA AQUI
                     rel="noopener noreferrer" 
                     className="download-button"
                 >

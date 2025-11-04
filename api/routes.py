@@ -1,4 +1,7 @@
 from flask import request, jsonify, current_app, g
+import requests
+from flask import Response
+import re # Para limpar o nome do arquivo
 from sqlalchemy.orm import Session
 from collections import defaultdict
 from .models import get_db_session, Project, Contact, User, Hobby, GeneralInfo, Experience, Education, Skill, AdditionalInfo
@@ -158,6 +161,54 @@ def init_routes(app):
             db.rollback()
             print(f"Erro ao enviar mensagem: {e}")
             return jsonify({'error': 'Erro interno ao salvar a mensagem.'}), 500
+        finally:
+            db.close()
+
+            # =========================================================
+    # === ROTA DE DOWNLOAD DO CURRÍCULO (ADICIONE AQUI) ========
+    # =========================================================
+    @app.route('/api/download/curriculo', methods=['GET'])
+    def download_curriculo():
+        db: Session = next(get_db())
+        try:
+            # 1. Buscar os dados do banco
+            info = db.query(GeneralInfo).first()
+            if not info or not info.pdf_url:
+                return jsonify({'error': 'Nenhum PDF de currículo encontrado no banco.'}), 404
+
+            # 2. Gerar o nome do arquivo dinamicamente (como no React)
+            full_name = info.full_name or "Curriculo"
+            first_name = full_name.split(' ')[0]
+            last_name = full_name.split(' ').pop()
+            
+            # Limpa o nome para ser um nome de arquivo seguro
+            clean_first = re.sub(r'[^a-zA-Z0-9]', '', first_name)
+            clean_last = re.sub(r'[^a-zA-Z0-9]', '', last_name)
+            
+            pdf_filename = f"Curriculo_{clean_first}_{clean_last}.pdf".replace('__', '_')
+
+            # 3. Baixar o arquivo do Cloudinary (Server-side)
+            cloudinary_url = info.pdf_url
+            r = requests.get(cloudinary_url, stream=True)
+
+            # Verificar se o request ao Cloudinary falhou
+            if r.status_code != 200:
+                print(f"Erro ao buscar PDF do Cloudinary. Status: {r.status_code}")
+                return jsonify({'error': 'Não foi possível buscar o arquivo no Cloudinary.'}), r.status_code
+
+            # 4. Criar a resposta Flask, streamando o conteúdo
+            return Response(
+                r.iter_content(chunk_size=1024),
+                mimetype='application/pdf',  # <-- Define o TIPO do arquivo
+                headers={
+                    # <-- FORÇA o download e define o NOME
+                    "Content-Disposition": f"attachment; filename=\"{pdf_filename}\""
+                }
+            )
+            
+        except Exception as e:
+            print(f"Erro ao gerar download do currículo: {e}")
+            return jsonify({'error': f'Erro interno do servidor: {str(e)}'}), 500
         finally:
             db.close()
 

@@ -18,6 +18,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
     });
     const [resumeSummary, setResumeSummary] = useState(''); 
     const [pdfFile, setPdfFile] = useState(null);
+    const downloadUrl = `${api.defaults.baseURL}/api/download/curriculo`;
     
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
@@ -286,14 +287,21 @@ function CurriculumAdminPage({ isAuthenticated }) {
                     <hr className="form-divider" />
                     
                     {/* --- PDF DE DOWNLOAD --- */}
-                    <div className="form-group">
-                        <label htmlFor="pdf_file"><FaFilePdf /> Currículo para Download (PDF)</label>
-                        <input type="file" name="pdf_file" accept="application/pdf" onChange={handlePdfFileChange} />
-                        {generalInfo.pdf_url ? (
-                            <p style={{marginTop: '5px'}}>
-                                <FaDownload /> PDF atual: <a href={generalInfo.pdf_url} target="_blank" rel="noopener noreferrer">Baixar para conferir</a>
-                            </p>
-                        ) : (
+                        <div className="form-group">
+                            <label htmlFor="pdf_file"><FaFilePdf /> Currículo para Download (PDF)</label>
+                            <input type="file" name="pdf_file" accept="application/pdf" onChange={handlePdfFileChange} />
+                            {generalInfo.pdf_url ? (
+                                <p style={{marginTop: '5px'}}>
+                                    <FaDownload /> PDF atual: 
+                                    <a 
+                                        href={downloadUrl}
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                    >
+                                        Baixar para conferir
+                                    </a>
+                                </p>
+                            ) : (
                             <p style={{color: 'var(--text-danger)', marginTop: '5px'}}>Nenhum PDF cadastrado.</p>
                         )}
                         <small>{pdfFile ? `Novo PDF selecionado: ${pdfFile.name}` : 'Envie um novo PDF para substituir o atual.'}</small>
