@@ -1,9 +1,9 @@
 import click
 from flask.cli import with_appcontext
 from sqlalchemy.orm import Session
-# IMPORTAMOS O NOVO MODELO 'User'
-from .models import engine, SessionLocal, Project, Contact, User, create_tables
-import os # Importamos o OS para ler o .env
+# IMPORTAMOS O NOVO MODELO 'User' E AGORA 'Base' E 'engine'
+from .models import SessionLocal, Project, Contact, User, create_tables, Base, engine
+import os  # Importamos o OS para ler o .env
 
 # Função helper para usar a sessão nos comandos CLI
 def db_session_decorator(func):
@@ -27,12 +27,18 @@ def db_session_decorator(func):
 @click.command('init-db')
 @with_appcontext
 def init_db_command():
-    """Cria as tabelas do banco de dados se não existirem."""
+    """Apaga e recria as tabelas do banco de dados."""
     try:
+        # --- MUDANÇA AQUI ---
+        # 1. Apaga todas as tabelas existentes
+        Base.metadata.drop_all(bind=engine)
+        click.echo('Tabelas antigas apagadas com sucesso.')
+        
+        # 2. Cria as tabelas novamente (agora com a nova coluna)
         create_tables()
-        click.echo('Tabelas criadas com sucesso (se não existiam).')
+        click.echo('Tabelas novas recriadas com sucesso.')
     except Exception as e:
-        click.echo(f"Erro ao criar tabelas: {e}")
+        click.echo(f"Erro ao recriar tabelas: {e}")
 
 # =========================================================
 # === NOVO COMANDO: CRIAR O PRIMEIRO ADMIN ================
@@ -56,7 +62,7 @@ def create_admin_command(db: Session, username):
         
     # Cria o novo usuário
     new_admin = User(username=username)
-    new_admin.set_password(admin_pass) # Hasheia a senha
+    new_admin.set_password(admin_pass)  # Hasheia a senha
     db.add(new_admin)
     
     click.echo(f'Usuário admin "{username}" criado com sucesso!')
@@ -77,6 +83,6 @@ def reset_messages_command(db: Session):
 
 def init_app(app):
     app.cli.add_command(init_db_command)
-    app.cli.add_command(create_admin_command) # <-- Adicionamos o novo comando
+    app.cli.add_command(create_admin_command)  # <-- Adicionamos o novo comando
     app.cli.add_command(reset_votes_command)
     app.cli.add_command(reset_messages_command)

@@ -225,7 +225,7 @@ def init_routes(app):
                     'id': 1, 'full_name': None, 'address': None, 'phone': None, 
                     'email': None, 'responsible': None, 'profile_pic_url': None,
                     'pdf_url': None, 'objective': None, 'resume_summary': None,
-                    'main_name': None 
+                    'main_name': None, 'informal_intro': None
                 }), 200
 
             info_dict = {
@@ -233,7 +233,8 @@ def init_routes(app):
                 'phone': info.phone, 'email': info.email, 'responsible': info.responsible,
                 'profile_pic_url': info.profile_pic_url, 'pdf_url': info.pdf_url,
                 'objective': info.objective, 'resume_summary': info.resume_summary,
-                'main_name': info.main_name 
+                'main_name': info.main_name,
+                'informal_intro': info.informal_intro
             }
             return jsonify(info_dict), 200
 
@@ -351,6 +352,7 @@ def init_routes(app):
             info.responsible = data.get('responsible', info.responsible)
             info.objective = data.get('objective', info.objective)
             info.resume_summary = data.get('resume_summary', info.resume_summary)
+            info.informal_intro = data.get('informal_intro', info.informal_intro)
             
             db.commit()
             db.refresh(info)

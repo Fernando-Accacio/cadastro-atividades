@@ -198,7 +198,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
             {/* 1. INFORMAÇÕES PESSOAIS E OBJETIVO (GeneralInfo) */}
             {/* ========================================================== */}
             <div className="general-info-section">
-                <h2><FaEdit /> Informações Pessoais, Objetivo e Arquivo</h2>
+                <h2>Informações Pessoais, Objetivo e Arquivo</h2>
                 <p>Gerencie os dados de contato do currículo e o seu Objetivo Profissional.</p>
 
                 <form onSubmit={handleGeneralInfoSubmit}>

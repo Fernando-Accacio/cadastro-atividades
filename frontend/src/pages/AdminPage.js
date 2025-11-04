@@ -27,7 +27,8 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   const [homeInfo, setHomeInfo] = useState({
     objective: '',
     main_name: '', // NOVO: Nome principal na homepage
-    profile_pic_url: '' // Para pré-visualização e fallback
+    profile_pic_url: '',// Para pré-visualização e fallback
+    informal_intro: ''
   });
   const [homeMessage, setHomeMessage] = useState('');
   const [homeError, setHomeError] = useState('');
@@ -54,7 +55,8 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
         setHomeInfo({
           objective: data.objective || '',
           main_name: data.main_name || '', // Carrega o novo campo
-          profile_pic_url: data.profile_pic_url || ''
+          profile_pic_url: data.profile_pic_url || '',
+          informal_intro: data.informal_intro || ''
         });
       })
       .catch(error => console.error("Erro ao buscar General Info para Admin!", error));
@@ -193,6 +195,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
     const formData = new FormData();
     formData.append('objective', homeInfo.objective);
     formData.append('main_name', homeInfo.main_name); // NOVO CAMPO
+    formData.append('informal_intro', homeInfo.informal_intro);
     
     // Lógica de arquivo/URL (Perfil Pic)
     if (profilePicFile) {
@@ -219,7 +222,8 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       setHomeInfo({
         objective: response.data.objective,
         main_name: response.data.main_name, // ATUALIZA O NOVO CAMPO
-        profile_pic_url: response.data.profile_pic_url
+        profile_pic_url: response.data.profile_pic_url,
+        informal_intro: response.data.informal_intro
       });
       setProfilePicFile(null); // Limpa o arquivo selecionado
     })
@@ -506,6 +510,41 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
             </tbody>
           </table>
         )}
+
+        <hr className="form-divider" />
+        
+        {/* *** MODIFICAÇÃO AQUI ***
+          Formulário para a Introdução "Sobre Mim".
+          Este formulário REUTILIZA o handler 'handleHomeInfoSubmit'.
+          Ele enviará TODOS os dados da homepage (Nome, Objetivo, Intro, etc.)
+          lidos do estado 'homeInfo' para a API.
+        */}
+        <form onSubmit={handleHomeInfoSubmit}>
+            <div className="form-group">
+                <label htmlFor="informal_intro">Introdução "Sobre Mim"</label>
+                <textarea 
+                    id="informal_intro" 
+                    name="informal_intro" 
+                    rows="6" 
+                    value={homeInfo.informal_intro} 
+                    onChange={handleHomeInfoChange} 
+                    placeholder="Seu texto de introdução informal..."
+                    style={{resize: 'vertical'}}
+                />
+                <small>Este texto aparecerá no topo da página "Sobre Mim".</small>
+            </div>
+            
+            {/* --- NOVO BOTÃO DE SALVAR --- */}
+            <div className="admin-actions" style={{ justifyContent: 'flex-start', marginTop: '10px' }}>
+                <button type="submit" className="add-button" style={{backgroundColor: '#0077cc', color: 'white'}}>
+                    <FaSave /> Salvar Introdução "Sobre Mim"
+                </button>
+            </div>
+            {/* Mostra mensagens de erro/sucesso do formulário principal aqui também */}
+            {homeError && <p className="form-message error">{homeError}</p>}
+            {homeMessage && <p className="form-message success">{homeMessage}</p>}
+        </form>
+
       </div>
 
       {/* --- ORDEM 3: ALTERAR CREDENCIAIS --- */}

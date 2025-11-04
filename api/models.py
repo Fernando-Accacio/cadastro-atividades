@@ -84,6 +84,7 @@ class GeneralInfo(Base):
     pdf_url = Column(String, nullable=True)         
     objective = Column(Text, nullable=True)         # HOME: Texto principal
     resume_summary = Column(Text, nullable=True)    # CURRÍCULO: Objetivo
+    informal_intro = Column(Text, nullable=True)    # Texto introdutório informal
     
 # 2. Experiência Profissional
 class Experience(Base):
