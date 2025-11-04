@@ -260,12 +260,17 @@ def init_routes(app):
 
 
     # --- Rotas Públicas de Leitura (General Info, Lists) ---
+    
+    # =========================================================
+    # === ROTA GET /api/general-info ATUALIZADA ===
+    # =========================================================
     @app.route('/api/general-info', methods=['GET'])
     def get_general_info():
         db: Session = next(get_db())
         try:
             info = db.query(GeneralInfo).first()
             if not info:
+                # Retorna um objeto padrão com todos os campos (incluindo os novos)
                 return jsonify({
                     'id': 1, 'full_name': None, 'address': None, 'phone': None, 
                     'email': None, 'responsible': None, 'profile_pic_url': None,
@@ -274,8 +279,17 @@ def init_routes(app):
                     'experience_fallback_text': None,
                     'show_education': True,
                     'show_skills': True,
-                    'show_additional_info': True
+                    'show_additional_info': True,
+                    # --- NOVOS PADRÕES ---
+                    'linkedin_url': '',
+                    'github_url': '',
+                    'email_address': '',
+                    'show_linkedin': True,
+                    'show_github': True,
+                    'show_email': True
                 }), 200
+            
+            # Constrói o dicionário de resposta
             info_dict = {
                 'id': info.id, 'full_name': info.full_name, 'address': info.address,
                 'phone': info.phone, 'email': info.email, 'responsible': info.responsible,
@@ -286,7 +300,16 @@ def init_routes(app):
                 'experience_fallback_text': info.experience_fallback_text,
                 'show_education': info.show_education,
                 'show_skills': info.show_skills,
-                'show_additional_info': info.show_additional_info
+                'show_additional_info': info.show_additional_info,
+                
+                # --- NOVOS CAMPOS ---
+                # Usar getattr para segurança caso a migração (models.py) ainda não tenha sido executada
+                'linkedin_url': getattr(info, 'linkedin_url', ''),
+                'github_url': getattr(info, 'github_url', ''),
+                'email_address': getattr(info, 'email_address', ''),
+                'show_linkedin': getattr(info, 'show_linkedin', True),
+                'show_github': getattr(info, 'show_github', True),
+                'show_email': getattr(info, 'show_email', True)
             }
             return jsonify(info_dict), 200
         except Exception as e:
@@ -296,6 +319,9 @@ def init_routes(app):
             }), 500
         finally:
             db.close() 
+    # =========================================================
+    # === FIM DA ATUALIZAÇÃO GET /api/general-info ===
+    # =========================================================
 
     @app.route('/api/experiences', methods=['GET'])
     def get_experiences():
@@ -351,10 +377,12 @@ def init_routes(app):
     # === ROTAS PROTEGIDAS (CRUD) =============================
     # =========================================================
     
+    # =========================================================
+    # === ROTA PUT /api/general-info ATUALIZADA ===
+    # =========================================================
     @app.route('/api/general-info', methods=['PUT', 'OPTIONS'])
     @token_required
     def update_general_info():
-        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         data = request.form 
         files = request.files 
@@ -363,6 +391,7 @@ def init_routes(app):
             info = GeneralInfo(id=1)
             db.add(info)
         try:
+            # Lógica da Foto de Perfil (Sem alteração)
             profile_pic_url_to_save = info.profile_pic_url 
             if 'profile_pic_file' in files:
                 file_to_upload = files['profile_pic_file']
@@ -372,6 +401,8 @@ def init_routes(app):
             elif 'profile_pic_url' in data:
                 profile_pic_url_to_save = data.get('profile_pic_url') or None 
             info.profile_pic_url = profile_pic_url_to_save
+
+            # Lógica do PDF (Sem alteração)
             pdf_url_to_save = info.pdf_url
             if 'pdf_file' in files:
                 pdf_file_to_upload = files['pdf_file']
@@ -381,6 +412,8 @@ def init_routes(app):
             elif 'pdf_url' in data:
                 pdf_url_to_save = data.get('pdf_url') or None
             info.pdf_url = pdf_url_to_save
+
+            # Campos de Texto (Sem alteração)
             info.main_name = data.get('main_name', info.main_name)
             info.full_name = data.get('full_name', info.full_name)
             info.address = data.get('address', info.address)
@@ -391,13 +424,31 @@ def init_routes(app):
             info.resume_summary = data.get('resume_summary', info.resume_summary)
             info.informal_intro = data.get('informal_intro', info.informal_intro)
             info.experience_fallback_text = data.get('experience_fallback_text', info.experience_fallback_text)
+            
+            # Checkboxes do Currículo (Sem alteração)
             info.show_education = data.get('show_education') == 'true'
             info.show_skills = data.get('show_skills') == 'true'
             info.show_additional_info = data.get('show_additional_info') == 'true'
+            
+            # --- ATUALIZAÇÃO DOS LINKS SOCIAIS ---
+            # Lê os novos campos do formulário
+            info.linkedin_url = data.get('linkedin_url', info.linkedin_url)
+            info.github_url = data.get('github_url', info.github_url)
+            info.email_address = data.get('email_address', info.email_address)
+            
+            # Checkboxes vêm como string "true" ou "false" do FormData
+            info.show_linkedin = data.get('show_linkedin') == 'true'
+            info.show_github = data.get('show_github') == 'true'
+            info.show_email = data.get('show_email') == 'true'
+            # --- FIM DA ATUALIZAÇÃO ---
+
             db.commit()
             db.refresh(info)
+            
+            # Retorna o objeto completo atualizado (o frontend vai ler isso)
             info_dict = {c.name: getattr(info, c.name) for c in info.__table__.columns}
             return jsonify(info_dict), 200
+        
         except Exception as e:
             db.rollback()
             print(f"Erro ao atualizar General Info: {e}")
@@ -406,6 +457,9 @@ def init_routes(app):
             return jsonify({'error': f'Erro interno do servidor: {str(e)}'}), 500
         finally:
             db.close()
+    # =========================================================
+    # === FIM DA ATUALIZAÇÃO PUT /api/general-info ===
+    # =========================================================
 
 
     # === CRUD: EXPERIENCES ===

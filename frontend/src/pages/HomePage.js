@@ -10,9 +10,24 @@ function HomePage() {
   const [projectsByArea, setProjectsByArea] = useState({});
   const [sortedAreaKeys, setSortedAreaKeys] = useState([]);
   const [profilePicUrl, setProfilePicUrl] = useState(DEFAULT_PROFILE_PIC);
-  const [generalInfo, setGeneralInfo] = useState({});
+  
+  // --- ESTADO ATUALIZADO ---
+  // O generalInfo agora inclui os links e as flags de visibilidade
+  const [generalInfo, setGeneralInfo] = useState({
+    objective: '',
+    main_name: '',
+    profile_pic_url: '',
+    // Novos campos para os links
+    linkedin_url: '',
+    github_url: '',
+    email_address: '',
+    show_linkedin: false, // Inicia como falso para evitar "piscar"
+    show_github: false,
+    show_email: false,
+  });
+
   const [refreshKey, setRefreshKey] = useState(0); 
-  const [isLoading, setIsLoading] = useState(true); // Estado de carregamento
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchProjects = useCallback(() => {
     api.get('/api/projects')
@@ -40,7 +55,7 @@ function HomePage() {
       .catch(error => console.error("Houve um erro ao buscar os projetos!", error));
   }, []);
 
-  // Fetch inicial - Gerenciamento de isLoading e consistência
+  // Fetch inicial
   useEffect(() => {
     fetchProjects();
     
@@ -48,12 +63,23 @@ function HomePage() {
 
     api.get('/api/general-info')
       .then(response => {
+        const data = response.data;
+        // --- SETSTATE ATUALIZADO ---
+        // Preenche o estado com os novos dados da API
         setGeneralInfo({
-            objective: response.data.objective || '',
-            main_name: response.data.main_name || '',
-            profile_pic_url: response.data.profile_pic_url || '',
+            objective: data.objective || '',
+            main_name: data.main_name || '',
+            profile_pic_url: data.profile_pic_url || '',
+            // Preenche os novos campos
+            linkedin_url: data.linkedin_url || '',
+            github_url: data.github_url || '',
+            email_address: data.email_address || '',
+            // Garante que é um booleano
+            show_linkedin: !!data.show_linkedin, 
+            show_github: !!data.show_github,
+            show_email: !!data.show_email,
         });
-        setProfilePicUrl(response.data.profile_pic_url || DEFAULT_PROFILE_PIC);
+        setProfilePicUrl(data.profile_pic_url || DEFAULT_PROFILE_PIC);
       })
       .catch(error => console.error("Houve um erro ao buscar General Info!", error))
       .finally(() => {
@@ -61,7 +87,7 @@ function HomePage() {
       });
   }, [fetchProjects]);
 
-  // Função de voto OTIMIZADA (sem alteração)
+  // Função de voto (sem alteração)
   const handleVoteUpdate = (updatedProject) => {
     const area = updatedProject.area_saber || updatedProject.area || updatedProject.category;
 
@@ -91,10 +117,12 @@ function HomePage() {
     }, 500);
   };
 
+  
   // --- Funções de Renderização Condicional ---
   
   const defaultObjective = "Sou Marcelo, tenho 18 anos, e estudo Internet das Coisas (IoT) no Senac Nações Unidas. Tenho um grande interesse por tecnologia, inovação e segurança digital, e busco minha primeira oportunidade profissional para aplicar meus conhecimentos e evoluir na área. Sou curioso, dedicado e colaborativo, sempre em busca de aprender mais e entregar o meu melhor em cada desafio.";
-  const objectiveText = generalInfo.objective || defaultObjective;
+  // Usa o fallback defaultObjective apenas se o texto da API estiver vazio E não estiver carregando
+  const objectiveText = isLoading ? '' : (generalInfo.objective || defaultObjective);
   const mainName = generalInfo.main_name || "Marcelo Antony Accacio Olhier";
 
 
@@ -118,56 +146,81 @@ function HomePage() {
     // Imagem carregada (ou fallback)
     return <img src={profilePicUrl} alt="Foto do Aluno" />;
   };
-const renderContent = () => {
-  if (isLoading) {
+
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ width: '80%', height: '18px', backgroundColor: '#f0f0f0', borderRadius: '4px', margin: '5px auto' }}></div>
+          <div style={{ width: '60%', height: '18px', backgroundColor: '#f0f0f0', borderRadius: '4px', margin: '5px auto' }}></div>
+        </div>
+      );
+    }
+
     return (
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ width: '80%', height: '18px', backgroundColor: '#f0f0f0', borderRadius: '4px', margin: '5px auto' }}></div>
-        <div style={{ width: '60%', height: '18px', backgroundColor: '#f0f0f0', borderRadius: '4px', margin: '5px auto' }}></div>
+      <p>
+        {objectiveText}{' '}
+        Venha conhecer um pouco mais{' '}
+        <Link to="/sobremim" className="link-effect">
+          sobre mim!
+        </Link>
+      </p>
+    );
+  };
+
+  // --- RENDERIZAÇÃO DOS LINKS SOCIAIS ATUALIZADA ---
+  const renderSocialLinks = () => {
+    // Se estiver carregando, não mostre nada
+    if (isLoading) return null;
+
+    // Se nenhum link estiver habilitado, não mostre a seção
+    if (!generalInfo.show_linkedin && !generalInfo.show_github && !generalInfo.show_email) {
+      return null;
+    }
+
+    return (
+      <div className="social-links">
+        {/* 1. Renderiza LinkedIn se show_linkedin for true E a URL existir */}
+        {generalInfo.show_linkedin && generalInfo.linkedin_url && (
+          <a href={generalInfo.linkedin_url} target="_blank" rel="noopener noreferrer">
+            <FaLinkedin size={24} />
+            <span>LinkedIn</span>
+          </a>
+        )}
+        
+        {/* 2. Renderiza GitHub se show_github for true E a URL existir */}
+        {generalInfo.show_github && generalInfo.github_url && (
+          <a href={generalInfo.github_url} target="_blank" rel="noopener noreferrer">
+            <FaGithub size={24} />
+            <span>GitHub</span>
+          </a>
+        )}
+        
+        {/* 3. Renderiza Email se show_email for true E o endereço existir */}
+        {generalInfo.show_email && generalInfo.email_address && (
+          <a href={`mailto:${generalInfo.email_address}`}>
+            <FaEnvelope size={24} />
+            <span>Email</span>
+          </a>
+        )}
       </div>
     );
-  }
-
-  return (
-    <p>
-      {objectiveText}{' '}
-      Venha conhecer um pouco mais{' '}
-      <Link to="/sobremim" className="link-effect">
-        sobre mim!
-      </Link>
-    </p>
-  );
-
   };
+  
+  // --- FIM DA ATUALIZAÇÃO ---
 
   return (
     <div className="container">
       <section className="about-section">
         
-        {/* Renderiza o placeholder ou a imagem */}
         {renderImage()}
         
         <h2>{isLoading ? 'Carregando...' : mainName}</h2> 
         
-        {/* Renderiza o placeholder ou o texto */}
         {renderContent()}
         
-        <div className="social-links">
-          {/* Os links podem ser exibidos imediatamente, mas o email deve usar a URL correta */}
-          <a href="https://www.linkedin.com/in/marcelo-antony-741296363/" target="_blank" rel="noopener noreferrer">
-            <FaLinkedin size={24} />
-            <span>LinkedIn</span>
-          </a>
-          <a href="https://github.com/marceloaccacio9-netizen" target="_blank" rel="noopener noreferrer">
-            <FaGithub size={24} />
-            <span>GitHub</span>
-          </a>
-          {/* Usa o email do General Info se estiver disponível */}
-          <a href={`mailto:${generalInfo.email || 'marceloaccacio9@gmail.com'}`}>
-            <FaEnvelope size={24} />
-            <span>Email</span>
-          </a>
-        </div>
+        {renderSocialLinks()}
+        
       </section>
 
       <section id="projects">

@@ -211,9 +211,6 @@ function CurriculumAdminPage({ isAuthenticated }) {
             </Link>
             
             <hr className="form-divider" />
-            
-            {error && <p className="form-message error">{error}</p>}
-            {message && <p className="form-message success">{message}</p>}
 
             {/* --- 1. INFORMAÇÕES PESSOAIS (Formulário com alterações) --- */}
             <div className="general-info-section">
@@ -316,6 +313,9 @@ function CurriculumAdminPage({ isAuthenticated }) {
                             <FaSave /> Salvar Informações Principais
                         </button>
                     </div>
+
+                        {error && <p className="form-message error">{error}</p>}
+                        {message && <p className="form-message success">{message}</p>}
                 </form>
             </div>
 

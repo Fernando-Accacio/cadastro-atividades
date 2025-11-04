@@ -72,10 +72,10 @@ class GeneralInfo(Base):
     full_name = Column(String, nullable=True)      # Nome completo
     address = Column(String, nullable=True)        # Endereço
     phone = Column(String, nullable=True)          # Telefone
-    email = Column(String, nullable=True)          # Email 
+    email = Column(String, nullable=True)          # Email (para o currículo)
     responsible = Column(String, nullable=True)    # Contato do Responsável
     profile_pic_url = Column(String, nullable=True) 
-    pdf_url = Column(String, nullable=True)          
+    pdf_url = Column(String, nullable=True)         
     objective = Column(Text, nullable=True)        # HOME: Texto principal
     resume_summary = Column(Text, nullable=True)   # CURRÍCULO: Objetivo
     informal_intro = Column(Text, nullable=True)   # Texto introdutório informal
@@ -86,6 +86,20 @@ class GeneralInfo(Base):
     show_education = Column(Boolean, nullable=False, default=True, server_default='true')
     show_skills = Column(Boolean, nullable=False, default=True, server_default='true')
     show_additional_info = Column(Boolean, nullable=False, default=True, server_default='true')
+
+    # ================================================================
+    # === ATUALIZAÇÃO: NOVOS CAMPOS PARA LINKS SOCIAIS DA HOMEPAGE ===
+    # ================================================================
+    linkedin_url = Column(String, nullable=True)
+    github_url = Column(String, nullable=True)
+    email_address = Column(String, nullable=True) # Email para o link "social" da Home
+
+    show_linkedin = Column(Boolean, nullable=False, default=True, server_default='true')
+    show_github = Column(Boolean, nullable=False, default=True, server_default='true')
+    show_email = Column(Boolean, nullable=False, default=True, server_default='true')
+    # ================================================================
+    # === FIM DA ATUALIZAÇÃO ===
+    # ================================================================
 
     
 # 2. Experiência Profissional
