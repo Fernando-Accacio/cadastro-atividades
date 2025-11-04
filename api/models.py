@@ -72,19 +72,22 @@ class GeneralInfo(Base):
     __tablename__ = "general_info"
     id = Column(Integer, primary_key=True, index=True) 
 
-    main_name = Column(String, nullable=True)     # NOVO: Nome principal na Home
+    main_name = Column(String, nullable=True)      # NOVO: Nome principal na Home
     # === CAMPOS DE CONTATO E NOME === (JÁ ESTÃO CORRETOS)
-    full_name = Column(String, nullable=True)     # Nome completo
-    address = Column(String, nullable=True)       # Endereço
-    phone = Column(String, nullable=True)         # Telefone
-    email = Column(String, nullable=True)         # Email 
-    responsible = Column(String, nullable=True)   # Contato do Responsável
+    full_name = Column(String, nullable=True)      # Nome completo
+    address = Column(String, nullable=True)        # Endereço
+    phone = Column(String, nullable=True)          # Telefone
+    email = Column(String, nullable=True)          # Email 
+    responsible = Column(String, nullable=True)    # Contato do Responsável
     # ======================================
     profile_pic_url = Column(String, nullable=True) 
-    pdf_url = Column(String, nullable=True)         
-    objective = Column(Text, nullable=True)         # HOME: Texto principal
-    resume_summary = Column(Text, nullable=True)    # CURRÍCULO: Objetivo
-    informal_intro = Column(Text, nullable=True)    # Texto introdutório informal
+    pdf_url = Column(String, nullable=True)          
+    objective = Column(Text, nullable=True)        # HOME: Texto principal
+    resume_summary = Column(Text, nullable=True)   # CURRÍCULO: Objetivo
+    informal_intro = Column(Text, nullable=True)   # Texto introdutório informal
+    
+    # *** LINHA ADICIONADA ***
+    experience_fallback_text = Column(Text, nullable=True) # Texto p/ "Sem Experiência"
     
 # 2. Experiência Profissional
 class Experience(Base):

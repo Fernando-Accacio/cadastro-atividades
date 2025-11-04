@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { FaArrowLeft, FaSave } from 'react-icons/fa';
+import { FaArrowLeft, FaSave, FaTrash } from 'react-icons/fa'; // <-- Importei o FaTrash
 
 function EditSkillPage({ isAuthenticated }) {
   const [formData, setFormData] = useState({
@@ -25,7 +25,6 @@ function EditSkillPage({ isAuthenticated }) {
         const skill = response.data;
         setFormData({
           name: skill.name || '',
-          // Define a categoria, usando 'Técnica' como fallback se for nula
           category: skill.category || 'Técnica',
         });
         setIsLoading(false);
@@ -66,6 +65,33 @@ function EditSkillPage({ isAuthenticated }) {
         console.error("Erro no PUT da habilidade!", err);
       });
   };
+
+  // --- NOVA FUNÇÃO DE DELETAR ---
+  const handleDelete = () => {
+    const skillName = formData.name || `ID: ${id}`;
+    
+    if (window.confirm(`Tem certeza que quer deletar a habilidade "${skillName}"?`)) {
+        setMessage('');
+        setError('');
+        setIsLoading(true);
+
+        api.delete(`/api/skills/${id}`)
+            .then(() => {
+                setIsLoading(false);
+                setMessage("Habilidade deletada com sucesso! Você será redirecionado.");
+                // Redireciona de volta para a lista principal
+                setTimeout(() => {
+                    navigate('/admin/curriculum');
+                }, 2000);
+            })
+            .catch(err => {
+                setIsLoading(false);
+                const errorMsg = err.response?.data?.error || 'Erro ao deletar a habilidade.';
+                setError(errorMsg);
+                console.error("Erro no DELETE da habilidade!", err);
+            });
+    }
+  };
   
   if (!isAuthenticated) {
     return null; 
@@ -100,9 +126,27 @@ function EditSkillPage({ isAuthenticated }) {
           </select>
         </div>
 
-        <button type="submit" className="add-button" disabled={isLoading} style={{backgroundColor: '#0077cc'}}>
-          {isLoading ? 'Salvando...' : <><FaSave /> Salvar Alterações</>}
-        </button>
+        {/* --- BOTÕES ATUALIZADOS --- */}
+        <div className="admin-actions" style={{ display: 'flex', gap: '10px' }}>
+            <button 
+                type="submit" 
+                className="add-button" 
+                disabled={isLoading} 
+                style={{ backgroundColor: '#0077cc', flex: 1 }}
+            >
+                {isLoading ? 'Salvando...' : <><FaSave /> Salvar Alterações</>}
+            </button>
+            
+            <button 
+                type="button" // Importante: 'type="button"' para não enviar o formulário
+                className="danger-button"
+                disabled={isLoading}
+                onClick={handleDelete}
+                style={{ flex: 1 }} // Remove o 'marginLeft' e usa 'flex'
+            >
+                {isLoading ? '...' : <><FaTrash /> Deletar</>}
+            </button>
+        </div>
         
         {message && <p className="form-message success" style={{ marginTop: '15px' }}>{message}</p>}
         {error && <p className="form-message error" style={{ marginTop: '15px' }}>{error}</p>}

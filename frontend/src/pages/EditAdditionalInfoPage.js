@@ -1,103 +1,155 @@
 // pages/EditAdditionalInfoPage.jsx
+// (Arquivo inteiro corrigido com a função de Deletar)
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import api from '../api/axiosConfig'; 
-import { FaArrowLeft, FaSave } from 'react-icons/fa';
+import { FaArrowLeft, FaSave, FaTrash } from 'react-icons/fa'; // Importa o FaTrash
 
-function EditAdditionalInfoPage() {
-    // CORREÇÃO AQUI: Receber 'id' ao invés de 'itemId'
-    const { id } = useParams(); 
-    const navigate = useNavigate();
-    const [text, setText] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
-    const [isSaving, setIsSaving] = useState(false);
-    const [message, setMessage] = useState('');
-    const [error, setError] = useState('');
+function EditAdditionalInfoPage({ isAuthenticated }) { // Adicionei isAuthenticated
+    const { id } = useParams(); 
+    const navigate = useNavigate();
+    const [text, setText] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+    const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
 
-    useEffect(() => {
-        const fetchItem = async () => {
-            try {
-                // CORREÇÃO AQUI: Usar 'id'
-                const response = await api.get(`/api/additional-info/${id}`);
-                setText(response.data.text);
-                setIsLoading(false);
-            } catch (err) {
-                console.error("Erro ao buscar item:", err.response || err);
-                setError('Erro ao carregar o item. Item não encontrado ou erro de conexão.');
-                setIsLoading(false);
-            }
-        };
-        fetchItem();
-    // CORREÇÃO AQUI: Dependência mudou
-    }, [id]); 
+    useEffect(() => {
+        // Adiciona verificação de autenticação
+        if (!isAuthenticated) {
+            navigate('/admin');
+            return;
+        }
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setMessage('');
-        setError('');
-        setIsSaving(true);
+        const fetchItem = async () => {
+            try {
+                // A rota /api/additional-info/id é singular (correto)
+                const response = await api.get(`/api/additional-info/${id}`);
+                setText(response.data.text);
+                setIsLoading(false);
+            } catch (err) {
+                console.error("Erro ao buscar item:", err.response || err);
+                setError('Erro ao carregar o item. Item não encontrado ou erro de conexão.');
+                setIsLoading(false);
+            }
+        };
+        fetchItem();
+    }, [id, isAuthenticated, navigate]); // Adiciona dependências
 
-        if (!text.trim()) {
-            setError('O campo de texto é obrigatório.');
-            setIsSaving(false);
-            return;
-        }
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setMessage('');
+        setError('');
+        setIsSaving(true);
 
-        try {
-            // CORREÇÃO AQUI: Usar 'id'
-            await api.put(`/api/additional-info/${id}`, { text });
-            setMessage('Item atualizado com sucesso!');
-            setTimeout(() => {
-                navigate('/admin/curriculum');
-            }, 1000);
-        } catch (err) {
-            console.error("Erro ao atualizar item:", err.response || err);
-            setError(err.response?.data?.error || 'Erro ao atualizar a informação adicional.');
-        } finally {
-            setIsSaving(false);
-        }
-    };
+        if (!text.trim()) {
+            setError('O campo de texto é obrigatório.');
+            setIsSaving(false);
+            return;
+        }
 
-    if (isLoading) {
-        return <div className="container"><h1 className="page-title">Carregando Item...</h1></div>;
-    }
-    
-    if (error && !text) {
-        return <div className="container"><p className="form-message error">{error}</p></div>;
-    }
+        try {
+            // A rota /api/additional-info/id é singular (correto)
+            await api.put(`/api/additional-info/${id}`, { text });
+            setMessage('Item atualizado com sucesso!');
+            setTimeout(() => {
+                navigate('/admin/curriculum');
+            }, 1000);
+        } catch (err) {
+            console.error("Erro ao atualizar item:", err.response || err);
+            setError(err.response?.data?.error || 'Erro ao atualizar a informação adicional.');
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
-    return (
-        <div className="container">
-            {/* CORREÇÃO AQUI: Usar 'id' */}
-            <h1 className="page-title">Editar Informação Adicional (ID: {id})</h1>
-            
-            <Link to="/admin/curriculum" className="back-to-admin">
-                <FaArrowLeft /> Voltar ao Painel do Currículo
-            </Link>
-            
-            <form onSubmit={handleSubmit} className="contact-form">
-                <div className="form-group">
-                    <label htmlFor="text">Texto da Informação</label>
-                    <textarea 
-                        id="text" 
-                        rows="4" 
-                        value={text} 
-                        onChange={(e) => setText(e.target.value)} 
-                        placeholder="Ex: Disponibilidade para aprender, colaborar e crescer dentro da empresa."
-                        required 
-                        style={{resize: 'vertical'}}
-                    />
-                </div>
+    // --- FUNÇÃO DE DELETAR ADICIONADA ---
+    const handleDelete = async () => {
+        const confirmDelete = window.confirm(`Tem certeza que quer deletar este item? (ID: ${id})`);
+        
+        if (confirmDelete) {
+            setMessage('');
+            setError('');
+            setIsSaving(true);
+            
+            try {
+                // A rota /api/additional-info/id é singular (correto)
+                await api.delete(`/api/additional-info/${id}`);
+                setMessage('Item deletado com sucesso! Redirecionando...');
+                setTimeout(() => {
+                    navigate('/admin/curriculum');
+                }, 1500);
+            } catch (err) {
+                console.error("Erro ao deletar item:", err.response || err);
+                setError(err.response?.data?.error || 'Erro ao deletar a informação.');
+                setIsSaving(false);
+            }
+        }
+    };
 
-                <button type="submit" disabled={isSaving} className="add-button">
-                    {isSaving ? 'Salvando...' : <><FaSave /> Salvar Alterações</>}
-                </button>
-                
-                {error && <p className="form-message error">{error}</p>}
-                {message && <p className="form-message success">{message}</p>}
-            </form>
-        </div>
-    );
+    if (isLoading) {
+        return <div className="container"><h1 className="page-title">Carregando Item...</h1></div>;
+    }
+    
+    // Se deu erro ao carregar E não tem texto, mostra o erro
+    if (error && !text) {
+        return (
+            <div className="container">
+                <h1 className="page-title">Erro</h1>
+                <p className="form-message error">{error}</p>
+                <Link to="/admin/curriculum" className="back-to-admin" style={{marginTop: '20px'}}>
+                    <FaArrowLeft /> Voltar ao Painel do Currículo
+                </Link>
+            </div>
+        );
+    }
+
+    return (
+        <div className="container">
+            <h1 className="page-title">Editar Informação Adicional (ID: {id})</h1>
+            
+            <Link to="/admin/curriculum" className="back-to-admin">
+                <FaArrowLeft /> Voltar ao Painel do Currículo
+            </Link>
+            
+            <form onSubmit={handleSubmit} className="contact-form" style={{marginTop: '20px'}}>
+                <div className="form-group">
+                    <label htmlFor="text">Texto da Informação</label>
+                    <textarea 
+                        id="text" 
+                        rows="4" 
+                        value={text} 
+                        onChange={(e) => setText(e.target.value)} 
+                        placeholder="Ex: Disponibilidade para aprender, colaborar e crescer dentro da empresa."
+                        required 
+                        style={{resize: 'vertical'}}
+                    />
+                </div>
+
+                {/* --- BOTÕES DE AÇÃO (SALVAR E DELETAR) --- */}
+                <div className="admin-actions" style={{ display: 'flex', gap: '10px' }}>
+                    <button type="submit" disabled={isSaving} className="add-button" style={{ flex: 1 }}>
+                        {isSaving ? 'Salvando...' : <><FaSave /> Salvar Alterações</>}
+                    </button>
+                    
+                    <button 
+                        type="button" // Importante: type="button"
+                        disabled={isSaving} 
+                        className="danger-button" 
+                        onClick={handleDelete}
+                        style={{ flex: 1 }}
+                    >
+                        {isSaving ? '...' : <><FaTrash /> Deletar</>}
+                    </button>
+                </div>
+                
+                {/* Mostra erros do submit aqui */}
+                {error && <p className="form-message error">{error}</p>}
+                {message && <p className="form-message success">{message}</p>}
+            </form>
+        </div>
+    );
 }
 
 export default EditAdditionalInfoPage;

@@ -13,8 +13,8 @@ from functools import wraps
 import cloudinary.uploader
 import cloudinary
 
-# Decorador token_required (sem mudanças)
-# Decorador token_required MODIFICADO para ignorar OPTIONS
+# Decorador token_required (Correto, já ignora OPTIONS)
+# Decorador token_required CORRIGIDO
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -22,7 +22,7 @@ def token_required(f):
         # === MUDANÇA CRÍTICA AQUI ===
         # Se o método for OPTIONS, permite a passagem para o CORS lidar.
         if request.method == 'OPTIONS':
-            return f(*args, **kwargs)
+            return jsonify({'message': 'Preflight request allowed.'}), 200 # <--- ESTA É A CORREÇÃO
         # ============================
 
         token = None
@@ -52,13 +52,13 @@ def init_routes(app):
         try:
             yield db
         finally:
-            # Garante que a sessão seja fechada
             db.close() 
             next(db_session_generator, None)
 
     # Rota de Login (sem mudanças)
     @app.route('/api/login', methods=['POST'])
     def login():
+        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         data = request.get_json()
         if not data or not data.get('username') or not data.get('password'):
@@ -77,21 +77,17 @@ def init_routes(app):
         token = jwt.encode(token_payload, secret_key, algorithm="HS256")
         return jsonify({'token': token})
 
+
     # =========================================================
     # === ROTAS PÚBLICAS GERAIS ===============================
     # =========================================================
-
+    # ... (Rotas get_ranked_projects, vote_for_project, submit_contact, download_curriculo - sem mudanças) ...
     @app.route('/api/projects/ranked', methods=['GET'])
     def get_ranked_projects():
         db: Session = next(get_db())
         try:
-            # Ordena projetos por votos (desc) e depois por ID (asc)
             projects_query = db.query(Project).order_by(Project.votes.desc(), Project.id.asc()).all()
-            
-            # Verifica se há projetos com votos > 0
             has_votes = any(p.votes > 0 for p in projects_query)
-            
-            # Mapeia para dicionário (apenas os campos necessários)
             projects_list = []
             for project in projects_query:
                 projects_list.append({
@@ -100,8 +96,6 @@ def init_routes(app):
                     'description': project.description,
                     'votes': project.votes
                 })
-                
-            # Retorna todos os projetos ordenados e o status de votos.
             return jsonify({
                 'hasVotes': has_votes,
                 'projects': projects_list
@@ -109,7 +103,6 @@ def init_routes(app):
         finally:
             db.close()
 
-    # Rota pública para voto (Resolve o erro CORS/Voto)
     @app.route('/api/projects/<int:project_id>/vote', methods=['POST'])
     def vote_for_project(project_id):
         db: Session = next(get_db())
@@ -117,16 +110,11 @@ def init_routes(app):
             project = db.query(Project).filter(Project.id == project_id).first()
             if not project:
                 return jsonify({'error': 'Projeto não encontrado'}), 404
-            
-            # Incrementa o voto e salva
             project.votes += 1
             db.commit()
             db.refresh(project)
-            
-            # CORREÇÃO: Retorna o projeto completo com todos os dados
             project_dict = {c.name: getattr(project, c.name) for c in project.__table__.columns}
             return jsonify(project_dict), 200
-
         except Exception as e:
             db.rollback()
             print(f"Erro ao registrar voto: {e}")
@@ -134,29 +122,22 @@ def init_routes(app):
         finally:
             db.close()
 
-    # Rota pública de contato (Resolve o erro 404/Mensagem)
     @app.route('/api/contacts', methods=['POST'])
-    @app.route('/api/contact', methods=['POST']) # Rota singular para compatibilidade com o log
+    @app.route('/api/contact', methods=['POST']) 
     def submit_contact():
         db: Session = next(get_db())
-        
         data = request.get_json() 
-        
         name = data.get('name')
         email = data.get('email')
         message = data.get('message')
-
         if not name or not email or not message:
             return jsonify({'error': 'Nome, e-mail e mensagem são obrigatórios.'}), 400
-
         try:
             new_contact = Contact(name=name, email=email, message=message)
             db.add(new_contact)
             db.commit()
             db.refresh(new_contact)
-            
             return jsonify({'message': 'Mensagem enviada com sucesso!'}), 201
-        
         except Exception as e:
             db.rollback()
             print(f"Erro ao enviar mensagem: {e}")
@@ -164,80 +145,62 @@ def init_routes(app):
         finally:
             db.close()
 
-            # =========================================================
-    # === ROTA DE DOWNLOAD DO CURRÍCULO (ADICIONE AQUI) ========
-    # =========================================================
     @app.route('/api/download/curriculo', methods=['GET'])
     def download_curriculo():
         db: Session = next(get_db())
         try:
-            # 1. Buscar os dados do banco
             info = db.query(GeneralInfo).first()
             if not info or not info.pdf_url:
                 return jsonify({'error': 'Nenhum PDF de currículo encontrado no banco.'}), 404
-
-            # 2. Gerar o nome do arquivo dinamicamente (como no React)
             full_name = info.full_name or "Curriculo"
             first_name = full_name.split(' ')[0]
             last_name = full_name.split(' ').pop()
-            
-            # Limpa o nome para ser um nome de arquivo seguro
             clean_first = re.sub(r'[^a-zA-Z0-9]', '', first_name)
             clean_last = re.sub(r'[^a-zA-Z0-9]', '', last_name)
-            
             pdf_filename = f"Curriculo_{clean_first}_{clean_last}.pdf".replace('__', '_')
-
-            # 3. Baixar o arquivo do Cloudinary (Server-side)
             cloudinary_url = info.pdf_url
             r = requests.get(cloudinary_url, stream=True)
-
-            # Verificar se o request ao Cloudinary falhou
             if r.status_code != 200:
                 print(f"Erro ao buscar PDF do Cloudinary. Status: {r.status_code}")
                 return jsonify({'error': 'Não foi possível buscar o arquivo no Cloudinary.'}), r.status_code
-
-            # 4. Criar a resposta Flask, streamando o conteúdo
             return Response(
                 r.iter_content(chunk_size=1024),
-                mimetype='application/pdf',  # <-- Define o TIPO do arquivo
+                mimetype='application/pdf', 
                 headers={
-                    # <-- FORÇA o download e define o NOME
                     "Content-Disposition": f"attachment; filename=\"{pdf_filename}\""
                 }
             )
-            
         except Exception as e:
             print(f"Erro ao gerar download do currículo: {e}")
             return jsonify({'error': f'Erro interno do servidor: {str(e)}'}), 500
         finally:
             db.close()
 
-    # --- Rotas Públicas de Leitura (General Info, Lists) ---
 
+    # --- Rotas Públicas de Leitura (General Info, Lists) ---
     @app.route('/api/general-info', methods=['GET'])
     def get_general_info():
         db: Session = next(get_db())
         try:
             info = db.query(GeneralInfo).first()
-
             if not info:
                 return jsonify({
                     'id': 1, 'full_name': None, 'address': None, 'phone': None, 
                     'email': None, 'responsible': None, 'profile_pic_url': None,
                     'pdf_url': None, 'objective': None, 'resume_summary': None,
-                    'main_name': None, 'informal_intro': None
+                    'main_name': None, 'informal_intro': None,
+                    'experience_fallback_text': None
                 }), 200
-
             info_dict = {
                 'id': info.id, 'full_name': info.full_name, 'address': info.address,
                 'phone': info.phone, 'email': info.email, 'responsible': info.responsible,
                 'profile_pic_url': info.profile_pic_url, 'pdf_url': info.pdf_url,
                 'objective': info.objective, 'resume_summary': info.resume_summary,
                 'main_name': info.main_name,
-                'informal_intro': info.informal_intro
+                'informal_intro': info.informal_intro,
+                'experience_fallback_text': info.experience_fallback_text
             }
             return jsonify(info_dict), 200
-
         except Exception as e:
             print(f"ERRO CRÍTICO AO LER GENERAL INFO: {e}")
             return jsonify({
@@ -245,7 +208,6 @@ def init_routes(app):
             }), 500
         finally:
             db.close() 
-            
 
     @app.route('/api/experiences', methods=['GET'])
     def get_experiences():
@@ -304,34 +266,24 @@ def init_routes(app):
     @app.route('/api/general-info', methods=['PUT'])
     @token_required
     def update_general_info():
+        # ... (código sem mudanças) ...
         db: Session = next(get_db())
-        data = request.form # Campos de texto
-        files = request.files # Arquivos
-        
+        data = request.form 
+        files = request.files 
         info = db.query(GeneralInfo).first()
-        
         if not info:
             info = GeneralInfo(id=1)
             db.add(info)
-            
         try:
-            # 1. TRATAMENTO DA FOTO DE PERFIL
-            profile_pic_url_to_save = info.profile_pic_url # Padrão: URL existente
-
+            profile_pic_url_to_save = info.profile_pic_url 
             if 'profile_pic_file' in files:
                 file_to_upload = files['profile_pic_file']
                 if file_to_upload.filename != '':
-                    # Novo arquivo enviado: faz upload e usa a nova URL
                     upload_result = cloudinary.uploader.upload(file_to_upload, folder="perfil_portifolio", public_id="profile_pic")
                     profile_pic_url_to_save = upload_result.get('secure_url')
-                
             elif 'profile_pic_url' in data:
-                # Se o campo de texto foi enviado, usa o valor dele (pode ser uma nova URL ou vazio para limpar)
-                profile_pic_url_to_save = data.get('profile_pic_url') or None # Usa None se o campo for vazio/limpo
-
+                profile_pic_url_to_save = data.get('profile_pic_url') or None 
             info.profile_pic_url = profile_pic_url_to_save
-            
-            # 2. TRATAMENTO DO PDF (Lógica similar para garantir que info.pdf_url não seja perdido)
             pdf_url_to_save = info.pdf_url
             if 'pdf_file' in files:
                 pdf_file_to_upload = files['pdf_file']
@@ -340,10 +292,7 @@ def init_routes(app):
                     pdf_url_to_save = upload_result.get('secure_url')
             elif 'pdf_url' in data:
                 pdf_url_to_save = data.get('pdf_url') or None
-            
             info.pdf_url = pdf_url_to_save
-
-            # 3. ATUALIZAÇÃO DOS CAMPOS DE TEXTO
             info.main_name = data.get('main_name', info.main_name)
             info.full_name = data.get('full_name', info.full_name)
             info.address = data.get('address', info.address)
@@ -353,14 +302,11 @@ def init_routes(app):
             info.objective = data.get('objective', info.objective)
             info.resume_summary = data.get('resume_summary', info.resume_summary)
             info.informal_intro = data.get('informal_intro', info.informal_intro)
-            
+            info.experience_fallback_text = data.get('experience_fallback_text', info.experience_fallback_text)
             db.commit()
             db.refresh(info)
-            
-            # Retorna todos os dados atualizados
             info_dict = {c.name: getattr(info, c.name) for c in info.__table__.columns}
             return jsonify(info_dict), 200
-
         except Exception as e:
             db.rollback()
             print(f"Erro ao atualizar General Info: {e}")
@@ -375,6 +321,7 @@ def init_routes(app):
     @app.route('/api/experiences', methods=['POST'])
     @token_required
     def add_experience():
+        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         data = request.get_json()
         if not all(data.get(k) for k in ['title', 'company', 'start_date', 'end_date']):
@@ -395,9 +342,11 @@ def init_routes(app):
         finally:
             db.close()
 
-    @app.route('/api/experiences/<int:exp_id>', methods=['GET'])
+
+    @app.route('/api/experiences/<int:exp_id>', methods=['GET', 'OPTIONS']) # --- ADICIONADO 'OPTIONS' ---
     @token_required
     def get_experience(exp_id):
+        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         try:
             exp = db.query(Experience).filter(Experience.id == exp_id).first()
@@ -406,9 +355,11 @@ def init_routes(app):
         finally:
             db.close()
 
-    @app.route('/api/experiences/<int:exp_id>', methods=['PUT'])
+
+    @app.route('/api/experiences/<int:exp_id>', methods=['PUT', 'OPTIONS']) # --- ADICIONADO 'OPTIONS' ---
     @token_required
     def update_experience(exp_id):
+        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         data = request.get_json()
         exp = db.query(Experience).filter(Experience.id == exp_id).first()
@@ -430,7 +381,9 @@ def init_routes(app):
         finally:
             db.close()
 
-    @app.route('/api/experiences/<int:exp_id>', methods=['DELETE'])
+
+    # --- CORREÇÃO AQUI ---
+    @app.route('/api/experiences/<int:exp_id>', methods=['DELETE', 'OPTIONS'])
     @token_required
     def delete_experience(exp_id):
         db: Session = next(get_db())
@@ -450,6 +403,7 @@ def init_routes(app):
     @app.route('/api/education', methods=['POST'])
     @token_required
     def add_education():
+        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         data = request.get_json()
         if not all(data.get(k) for k in ['degree', 'institution', 'completion_date']):
@@ -469,9 +423,11 @@ def init_routes(app):
         finally:
             db.close()
 
-    @app.route('/api/education/<int:edu_id>', methods=['GET'])
+
+    @app.route('/api/education/<int:edu_id>', methods=['GET', 'OPTIONS']) # --- ADICIONADO 'OPTIONS' ---
     @token_required
     def get_education_item(edu_id):
+        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         try:
             edu = db.query(Education).filter(Education.id == edu_id).first()
@@ -480,9 +436,11 @@ def init_routes(app):
         finally:
             db.close()
 
-    @app.route('/api/education/<int:edu_id>', methods=['PUT'])
+
+    @app.route('/api/education/<int:edu_id>', methods=['PUT', 'OPTIONS']) # --- ADICIONADO 'OPTIONS' ---
     @token_required
     def update_education(edu_id):
+        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         data = request.get_json()
         edu = db.query(Education).filter(Education.id == edu_id).first()
@@ -503,7 +461,9 @@ def init_routes(app):
         finally:
             db.close()
 
-    @app.route('/api/education/<int:edu_id>', methods=['DELETE'])
+
+    # --- CORREÇÃO AQUI ---
+    @app.route('/api/education/<int:edu_id>', methods=['DELETE', 'OPTIONS'])
     @token_required
     def delete_education(edu_id):
         db: Session = next(get_db())
@@ -523,6 +483,7 @@ def init_routes(app):
     @app.route('/api/skills', methods=['POST'])
     @token_required
     def add_skill():
+        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         data = request.get_json()
         if not data.get('name'):
@@ -542,9 +503,11 @@ def init_routes(app):
         finally:
             db.close()
 
-    @app.route('/api/skills/<int:skill_id>', methods=['GET'])
+
+    @app.route('/api/skills/<int:skill_id>', methods=['GET', 'OPTIONS']) # --- ADICIONADO 'OPTIONS' ---
     @token_required
     def get_skill(skill_id):
+        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         try:
             skill = db.query(Skill).filter(Skill.id == skill_id).first()
@@ -553,9 +516,11 @@ def init_routes(app):
         finally:
             db.close()
 
-    @app.route('/api/skills/<int:skill_id>', methods=['PUT'])
+
+    @app.route('/api/skills/<int:skill_id>', methods=['PUT', 'OPTIONS']) # --- ADICIONADO 'OPTIONS' ---
     @token_required
     def update_skill(skill_id):
+        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         data = request.get_json()
         skill = db.query(Skill).filter(Skill.id == skill_id).first()
@@ -574,7 +539,9 @@ def init_routes(app):
         finally:
             db.close()
 
-    @app.route('/api/skills/<int:skill_id>', methods=['DELETE'])
+
+    # --- CORREÇÃO AQUI ---
+    @app.route('/api/skills/<int:skill_id>', methods=['DELETE', 'OPTIONS'])
     @token_required
     def delete_skill(skill_id):
         db: Session = next(get_db())
@@ -594,6 +561,7 @@ def init_routes(app):
     @app.route('/api/additional-info', methods=['POST'])
     @token_required
     def add_additional_info():
+        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         data = request.get_json()
         if not data or not data.get('text'):
@@ -610,7 +578,9 @@ def init_routes(app):
         finally:
             db.close()
 
-    @app.route('/api/additional-info/<int:item_id>', methods=['DELETE'])
+
+    # --- CORREÇÃO AQUI ---
+    @app.route('/api/additional-info/<int:item_id>', methods=['DELETE', 'OPTIONS'])
     @token_required
     def delete_additional_info(item_id):
         db: Session = next(get_db())
@@ -626,9 +596,10 @@ def init_routes(app):
         finally:
             db.close()
             
-    @app.route('/api/additional-info/<int:item_id>', methods=['GET'])
+    @app.route('/api/additional-info/<int:item_id>', methods=['GET', 'OPTIONS']) # --- ADICIONADO 'OPTIONS' ---
     @token_required
     def get_additional_info_item(item_id):
+        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         try:
             item = db.query(AdditionalInfo).filter(AdditionalInfo.id == item_id).first()
@@ -637,9 +608,10 @@ def init_routes(app):
         finally:
             db.close()
         
-    @app.route('/api/additional-info/<int:item_id>', methods=['PUT'])
+    @app.route('/api/additional-info/<int:item_id>', methods=['PUT', 'OPTIONS']) # --- ADICIONADO 'OPTIONS' ---
     @token_required
     def update_additional_info(item_id):
+        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         data = request.get_json()
         item = db.query(AdditionalInfo).filter(AdditionalInfo.id == item_id).first()
@@ -656,10 +628,11 @@ def init_routes(app):
         finally:
             db.close()
 
+
     # =========================================================
     # === ROTAS DE PROJETOS (CRUD ÚNICO) ======================
     # =========================================================
-    
+    # ... (Rotas de Projects - sem mudanças) ...
     @app.route('/api/projects', methods=['POST'])
     @token_required
     def add_project():
@@ -685,9 +658,7 @@ def init_routes(app):
             db.add(new_project)
             db.commit()
             db.refresh(new_project) 
-            # Sintaxe de resposta corrigida
             return jsonify(dict((col, getattr(new_project, col)) for col in new_project.__table__.columns.keys())), 201
-            
         except Exception as e:
             db.rollback()
             print(f"Erro ao adicionar projeto: {e}") 
@@ -696,24 +667,19 @@ def init_routes(app):
         finally:
             db.close()
 
-# A função abaixo está correta, mas garanta que ela seja a única:
     @app.route('/api/projects/<int:project_id>', methods=['GET', 'OPTIONS'])
     @token_required
     def get_project_by_id(project_id):
         if request.method == 'OPTIONS':
             return jsonify({}), 200 
-            
         db: Session = next(get_db())
         try:
             project = db.query(Project).filter(Project.id == project_id).first()
             if not project: 
                 return jsonify({'error': 'Projeto não encontrado'}), 404
-                
             project_dict = {c.name: getattr(project, c.name) for c in project.__table__.columns}
             return jsonify(project_dict), 200
-
         except Exception as e:
-            # Imprimir o erro aqui é crucial para ver o traceback no terminal do Flask
             print(f"Erro ao buscar projeto por ID: {e}") 
             return jsonify({'error': f'Erro interno do servidor: {str(e)}'}), 500
         finally:
@@ -724,22 +690,16 @@ def init_routes(app):
     def update_project(project_id):
         if request.method == 'OPTIONS':
             return jsonify({}), 200
-        
         db: Session = next(get_db())
         data = request.form 
         files = request.files 
-        
         project = db.query(Project).filter(Project.id == project_id).first()
-        
         if not project:
             return jsonify({'error': 'Projeto não encontrado'}), 404
-
         if not data or not data.get('name') or not data.get('area_saber') or not data.get('materia'):
             return jsonify({'error': 'Campos obrigatórios (nome, area_saber, materia) estão faltando.'}), 400
-            
         try:
             image_url_to_save = project.image_url 
-
             if 'image_file' in files:
                 file_to_upload = files['image_file']
                 if file_to_upload.filename != '':
@@ -747,20 +707,16 @@ def init_routes(app):
                     image_url_to_save = upload_result.get('secure_url')
             elif 'image_url' in data:
                 image_url_to_save = data.get('image_url') or None
-                
             project.name = data.get('name')
             project.description = data.get('description', project.description)
             project.area_saber = data.get('area_saber')
             project.materia = data.get('materia')
             project.project_link = data.get('project_link') or None
             project.image_url = image_url_to_save
-            
             db.commit()
             db.refresh(project)
-            
             project_dict = {c.name: getattr(project, c.name) for c in project.__table__.columns}
             return jsonify(project_dict), 200
-
         except Exception as e:
             db.rollback()
             print(f"Erro ao atualizar projeto {project_id}: {e}") 
@@ -774,18 +730,14 @@ def init_routes(app):
     def delete_project(project_id):
         if request.method == 'OPTIONS':
             return jsonify({}), 200
-        
         db: Session = next(get_db())
         try:
             project = db.query(Project).filter(Project.id == project_id).first()
             if not project: 
                 return jsonify({'error': 'Projeto não encontrado'}), 404
-                
             db.delete(project)
             db.commit()
-            
             return jsonify({'success': 'Projeto apagado com sucesso!'}), 200
-
         except Exception as e:
             db.rollback() 
             print(f"Erro ao deletar projeto {project_id}: {e}") 
@@ -794,6 +746,7 @@ def init_routes(app):
             db.close()
             
     # === CRUD: HOBBIES ===
+    # ... (Rotas de Hobbies - sem mudanças) ...
     @app.route('/api/hobbies', methods=['GET'])
     def get_hobbies():
         db: Session = next(get_db())
@@ -826,7 +779,6 @@ def init_routes(app):
                     image_url_to_save = upload_result.get('secure_url')
             elif 'image_url' in data and data.get('image_url'):
                 image_url_to_save = data.get('image_url')
-            
             new_hobby = Hobby(
                 title=data.get('title'),
                 description=data.get('description'),
@@ -835,10 +787,7 @@ def init_routes(app):
             db.add(new_hobby)
             db.commit()
             db.refresh(new_hobby)
-            
-            # Usando .keys() para garantir o mapeamento correto da resposta
             return jsonify(dict((col, getattr(new_hobby, col)) for col in new_hobby.__table__.columns.keys())), 201
-            
         except Exception as e:
             db.rollback()
             print(f"Erro ao adicionar hobby: {e}") 
@@ -848,7 +797,7 @@ def init_routes(app):
         finally:
             db.close()
 
-    @app.route('/api/hobbies/<int:hobby_id>', methods=['GET'])
+    @app.route('/api/hobbies/<int:hobby_id>', methods=['GET', 'OPTIONS']) # --- ADICIONADO 'OPTIONS' ---
     @token_required
     def get_hobby_by_id(hobby_id):
         db: Session = next(get_db())
@@ -864,7 +813,7 @@ def init_routes(app):
         finally:
             db.close()
 
-    @app.route('/api/hobbies/<int:hobby_id>', methods=['PUT'])
+    @app.route('/api/hobbies/<int:hobby_id>', methods=['PUT', 'OPTIONS']) # --- ADICIONADO 'OPTIONS' ---
     @token_required
     def update_hobby(hobby_id):
         db: Session = next(get_db())
@@ -875,7 +824,6 @@ def init_routes(app):
             hobby = db.query(Hobby).filter(Hobby.id == hobby_id).first()
             if hobby is None:
                 return jsonify({'error': 'Hobby não encontrado'}), 404
-
             image_url_to_save = hobby.image_url 
             if 'image_file' in request.files:
                 file_to_upload = request.files['image_file']
@@ -884,14 +832,11 @@ def init_routes(app):
                     image_url_to_save = upload_result.get('secure_url')
             elif 'image_url' in data:
                 image_url_to_save = data.get('image_url') or None
-            
             hobby.title = data.get('title')
             hobby.description = data.get('description')
             hobby.image_url = image_url_to_save
-            
             db.commit()
             db.refresh(hobby)
-            
             hobby_dict = {c.name: getattr(hobby, c.name) for c in hobby.__table__.columns}
             return jsonify(hobby_dict), 200
         except Exception as e:
@@ -903,7 +848,8 @@ def init_routes(app):
         finally:
             db.close()
 
-    @app.route('/api/hobbies/<int:hobby_id>', methods=['DELETE'])
+    # --- CORREÇÃO AQUI ---
+    @app.route('/api/hobbies/<int:hobby_id>', methods=['DELETE', 'OPTIONS'])
     @token_required 
     def delete_hobby(hobby_id):
         db: Session = next(get_db())
@@ -921,6 +867,8 @@ def init_routes(app):
         finally:
             db.close()
 
+    # --- Rotas de Admin (Mensagens, Votos, Credenciais) ---
+    # ... (sem mudanças) ...
     @app.route('/api/messages', methods=['GET'])
     @token_required 
     def get_messages():

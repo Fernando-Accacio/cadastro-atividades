@@ -18,7 +18,7 @@ function ContactForm() {
 
     axios.post('/api/contact', formData)
       .then(response => {
-        setStatusMessage('✅ Mensagem enviada com sucesso! Obrigado pelo contato.');
+        setStatusMessage('Mensagem enviada com sucesso! Obrigado pelo contato.');
         setMessageType('success');
         setFormData({ name: '', email: '', message: '' }); // Limpa o formulário
         

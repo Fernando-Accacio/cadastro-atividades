@@ -19,22 +19,26 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   const [credMessage, setCredMessage] = useState('');
   const [credError, setCredError] = useState('');
 
+  // --- ESTADOS DE MENSAGEM SEPARADOS ---
+  const [maintMessage, setMaintMessage] = useState('');
+  const [maintError, setMaintError] = useState('');
+
   // --- Estados para Hobbies ---
   const [hobbies, setHobbies] = useState([]);
   const [isHobbyLoading, setIsHobbyLoading] = useState(false);
 
-  // --- NOVO/MODIFICADO: Estados para General Info (Homepage) ---
+  // --- Estados para General Info (Homepage) ---
   const [homeInfo, setHomeInfo] = useState({
     objective: '',
-    main_name: '', // NOVO: Nome principal na homepage
-    profile_pic_url: '',// Para pré-visualização e fallback
+    main_name: '',
+    profile_pic_url: '',
     informal_intro: ''
   });
   const [homeMessage, setHomeMessage] = useState('');
   const [homeError, setHomeError] = useState('');
   const [profilePicFile, setProfilePicFile] = useState(null);
   
-  // --- Funções de Fetch ---
+  // --- Funções de Fetch (sem alterações) ---
   const fetchMessages = useCallback(() => {
     api.get('/api/messages')
       .then(response => setMessages(response.data))
@@ -47,14 +51,13 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       });
   }, [onLogout]);
     
-  // --- Função de Fetch para General Info (Homepage) ---
   const fetchHomeInfo = useCallback(() => {
     api.get('/api/general-info')
       .then(response => {
         const data = response.data;
         setHomeInfo({
           objective: data.objective || '',
-          main_name: data.main_name || '', // Carrega o novo campo
+          main_name: data.main_name || '',
           profile_pic_url: data.profile_pic_url || '',
           informal_intro: data.informal_intro || ''
         });
@@ -81,12 +84,12 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       })
       .catch(err => {
         console.error("Erro ao buscar hobbies:", err);
-        setCredError("Não foi possível carregar os hobbies.");
+        setMaintError("Não foi possível carregar os hobbies."); // Usando MaintError como fallback
         setIsHobbyLoading(false);
       });
   }, []);
 
-  // --- useEffect Principal ---
+  // --- useEffect Principal (sem alterações) ---
   useEffect(() => {
     if (isAuthenticated) {
       fetchMessages();
@@ -113,36 +116,54 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       });
   };
 
+  // --- CORREÇÃO AQUI: Usando setMaintMessage/setMaintError ---
   const handleResetVotes = () => {
+    // Limpa todas as outras mensagens para evitar confusão
+    setCredMessage(''); setCredError('');
+    setHomeMessage(''); setHomeError('');
+    setMaintMessage(''); setMaintError('');
+
     const hasVotes = projects.some(p => p.votes > 0);
     if (!hasVotes) {
-      setCredError('Não há nenhum voto registrado para resetar.'); 
+      setMaintError('Não há nenhum voto registrado para resetar.'); // USA NOVO ESTADO
       return;
     }
     if (window.confirm("CERTEZA?")) {
       api.post('/api/admin/reset-votes')
-        .then(() => { setCredMessage('Votos resetados!'); fetchProjects(); })
-        .catch(err => { setCredError('Erro ao resetar os votos.'); console.error(err); });
+        .then(() => { setMaintMessage('Votos resetados!'); fetchProjects(); }) // USA NOVO ESTADO
+        .catch(err => { setMaintError('Erro ao resetar os votos.'); console.error(err); }); // USA NOVO ESTADO
     }
   };
 
+  // --- CORREÇÃO AQUI: Usando setMaintMessage/setMaintError ---
   const handleResetMessages = () => {
+    // Limpa todas as outras mensagens
+    setCredMessage(''); setCredError('');
+    setHomeMessage(''); setHomeError('');
+    setMaintMessage(''); setMaintError('');
+
     if (messages.length === 0) {
-      setCredError('Não há nenhuma mensagem para apagar.');
+      setMaintError('Não há nenhuma mensagem para apagar.'); // USA NOVO ESTADO
       return;
     }
     if (window.confirm("CERTEZA?")) {
       api.post('/api/admin/reset-messages')
-        .then(() => { setCredMessage('Mensagens apagadas!'); fetchMessages(); })
-        .catch(err => { setCredError('Erro ao apagar as mensagens.'); console.error(err); });
+        .then(() => { setMaintMessage('Mensagens apagadas!'); fetchMessages(); }) // USA NOVO ESTADO
+        .catch(err => { setMaintError('Erro ao apagar as mensagens.'); console.error(err); }); // USA NOVO ESTADO
     }
   };
 
   const handleDeleteProject = (projectId, projectName) => {
+    // Limpa todas as outras mensagens
+    setCredMessage(''); setCredError('');
+    setHomeMessage(''); setHomeError('');
+    setMaintMessage(''); setMaintError('');
+
     if (window.confirm(`CERTEZA que quer apagar o projeto "${projectName}"?`)) {
       api.delete(`/api/projects/${projectId}`)
-        .then(() => { setCredMessage('Projeto apagado!'); fetchProjects(); })
-        .catch(err => { setCredError('Erro ao apagar o projeto.'); console.error(err); });
+        // Nota: Seria ideal ter um 'generalMessage' aqui, mas vamos reusar o 'maintMessage' por enquanto.
+        .then(() => { setMaintMessage('Projeto apagado!'); fetchProjects(); })
+        .catch(err => { setMaintError('Erro ao apagar o projeto.'); console.error(err); });
     }
   };
 
@@ -153,7 +174,11 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
 
   const handleCredentialsSubmit = (e) => {
     e.preventDefault();
+    // Limpa todas as outras mensagens
     setCredMessage(''); setCredError('');
+    setHomeMessage(''); setHomeError('');
+    setMaintMessage(''); setMaintError('');
+
     if (!credData.currentPassword) {
       setCredError('A Senha Atual é obrigatória.'); return;
     }
@@ -190,25 +215,22 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
 
   const handleHomeInfoSubmit = (e) => {
     e.preventDefault();
+    // Limpa todas as outras mensagens
+    setCredMessage(''); setCredError('');
     setHomeMessage(''); setHomeError('');
+    setMaintMessage(''); setMaintError('');
 
     const formData = new FormData();
     formData.append('objective', homeInfo.objective);
-    formData.append('main_name', homeInfo.main_name); // NOVO CAMPO
+    formData.append('main_name', homeInfo.main_name); 
     formData.append('informal_intro', homeInfo.informal_intro);
     
-    // Lógica de arquivo/URL (Perfil Pic)
     if (profilePicFile) {
       formData.append('profile_pic_file', profilePicFile);
-      formData.append('profile_pic_url', ''); // Limpa URL se arquivo for enviado
+      formData.append('profile_pic_url', ''); 
     } else {
-      // Envia a URL do input para manter ou limpar (se o input foi limpo)
       formData.append('profile_pic_url', homeInfo.profile_pic_url || ''); 
     }
-    
-    // NOTA: Para um PUT completo, o ideal é enviar todos os campos necessários pelo backend.
-    // Presumindo que o backend lida com os campos faltantes de contato/currículo
-    // ou que eles não serão apagados ao usar FormData.
 
     api.put('/api/general-info', formData, {
       headers: {
@@ -218,14 +240,13 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
     .then(response => {
       setHomeMessage('Informações da Homepage e Foto de Perfil atualizadas!');
       setHomeError('');
-      // Atualiza o estado com as URLs e valores retornados do backend
       setHomeInfo({
         objective: response.data.objective,
-        main_name: response.data.main_name, // ATUALIZA O NOVO CAMPO
+        main_name: response.data.main_name,
         profile_pic_url: response.data.profile_pic_url,
         informal_intro: response.data.informal_intro
       });
-      setProfilePicFile(null); // Limpa o arquivo selecionado
+      setProfilePicFile(null); 
     })
     .catch(error => {
       const errorMsg = error.response?.data?.error || 'Erro ao atualizar a Homepage.';
@@ -237,15 +258,20 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
 
   // --- Handler de Deletar Hobby ---
   const handleHobbyDelete = (hobbyId, hobbyTitle) => {
+    // Limpa todas as outras mensagens
+    setCredMessage(''); setCredError('');
+    setHomeMessage(''); setHomeError('');
+    setMaintMessage(''); setMaintError('');
+
     if (window.confirm(`Tem certeza que deseja apagar o hobby "${hobbyTitle}"?`)) {
       api.delete(`/api/hobbies/${hobbyId}`)
         .then(() => {
-          setCredMessage("Hobby apagado com sucesso."); // Reusa o state de mensagem
+          setMaintMessage("Hobby apagado com sucesso."); // Reusa o state de Maint
           fetchHobbies(); // Atualiza a lista
         })
         .catch(err => {
           const errorMsg = err.response?.data?.error || 'Erro ao apagar o hobby.';
-          setCredError(errorMsg); // Reusa o state de erro
+          setMaintError(errorMsg); // Reusa o state de Maint
           console.error("Erro ao deletar hobby:", err);
         });
     }
@@ -253,7 +279,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
 
   // --- RENDER ---
 
-  // Formulário de Login
+  // Formulário de Login (sem alterações)
   if (!isAuthenticated) {
     return (
       <div className="container" style={{ textAlign: 'center', maxWidth: '400px' }}>
@@ -280,7 +306,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
     );
   }
 
-  // Constantes de verificação
+  // Constantes de verificação (sem alterações)
   const hasMessages = messages.length > 0;
   const hasVotes = projects.some(p => p.votes > 0);
   const hasProjects = projects.length > 0;
@@ -291,13 +317,13 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
     <div className="container">
       <h1 className="page-title">Painel do Administrador</h1>
       
-      {/* --- GERENCIAR HOMEPAGE (NOME, OBJETIVO E FOTO) --- */}
+      {/* --- GERENCIAR HOMEPAGE (Sem alterações) --- */}
       <div className="admin-section">
         <h2>Gerenciar Homepage</h2>
         <p>Modifique o Nome Principal, a Descrição e a Foto de Perfil exibidas na página inicial.</p>
         
         <form onSubmit={handleHomeInfoSubmit} className="admin-credentials-form">
-          {/* NOVO CAMPO: Nome Principal */}
+          {/* Nome Principal */}
           <div className="form-group">
             <label htmlFor="main_name">Nome Principal</label>
             <input 
@@ -313,6 +339,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
           </div>
           <hr className="form-divider" />
 
+          {/* Descrição Principal */}
           <div className="form-group">
             <label htmlFor="objective">Descrição Principal (Objetivo)</label>
             <textarea 
@@ -329,6 +356,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
 
           <hr className="form-divider" />
 
+          {/* Imagem de Perfil */}
           <div className="form-group">
             <label htmlFor="profile_pic_url">URL da Imagem de Perfil (Atual)</label>
             <input 
@@ -383,7 +411,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
 
       <hr className="form-divider" />
       
-      {/* --- LINK: GERENCIAR CURRÍCULO --- */}
+      {/* --- LINK: GERENCIAR CURRÍCULO (Sem alterações) --- */}
       <div className="admin-section">
         <h2>Áreas de Conteúdo</h2>
         <p>Acesse o painel dedicado para gerenciar os dados do seu currículo.</p>
@@ -398,7 +426,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
         </div>
       </div>
 
-      {/* --- ORDEM 1: GERENCIAR TRABALHOS --- */}
+      {/* --- ORDEM 1: GERENCIAR TRABALHOS (Sem alterações) --- */}
       <div className="admin-section">
         <h2>Gerenciar Trabalhos</h2>
         <p>Adicionar um novo projeto ao portfólio ou editar/deletar projetos existentes.</p>
@@ -446,7 +474,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
         )}
       </div>
 
-      {/* --- ORDEM 2: GERENCIAR HOBBIES --- */}
+      {/* --- ORDEM 2: GERENCIAR HOBBIES (Sem alterações) --- */}
       <div className="admin-section">
         <h2>Gerenciar Hobbies</h2>
         <p>Adicionar, editar ou remover hobbies da página "Sobre Mim".</p>
@@ -513,12 +541,6 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
 
         <hr className="form-divider" />
         
-        {/* *** MODIFICAÇÃO AQUI ***
-          Formulário para a Introdução "Sobre Mim".
-          Este formulário REUTILIZA o handler 'handleHomeInfoSubmit'.
-          Ele enviará TODOS os dados da homepage (Nome, Objetivo, Intro, etc.)
-          lidos do estado 'homeInfo' para a API.
-        */}
         <form onSubmit={handleHomeInfoSubmit}>
             <div className="form-group">
                 <label htmlFor="informal_intro">Introdução "Sobre Mim"</label>
@@ -534,20 +556,18 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
                 <small>Este texto aparecerá no topo da página "Sobre Mim".</small>
             </div>
             
-            {/* --- NOVO BOTÃO DE SALVAR --- */}
             <div className="admin-actions" style={{ justifyContent: 'flex-start', marginTop: '10px' }}>
                 <button type="submit" className="add-button" style={{backgroundColor: '#0077cc', color: 'white'}}>
                     <FaSave /> Salvar Introdução "Sobre Mim"
                 </button>
             </div>
-            {/* Mostra mensagens de erro/sucesso do formulário principal aqui também */}
             {homeError && <p className="form-message error">{homeError}</p>}
             {homeMessage && <p className="form-message success">{homeMessage}</p>}
         </form>
 
       </div>
 
-      {/* --- ORDEM 3: ALTERAR CREDENCIAIS --- */}
+      {/* --- ORDEM 3: ALTERAR CREDENCIAIS (Sem alterações no JSX) --- */}
       <div className="admin-section">
         <h2>Alterar Credenciais</h2>
         <p>Mude seu nome de usuário ou senha. Você será deslogado após a alteração.</p>
@@ -581,6 +601,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
               <FaSave /> Salvar Alterações
             </button>
           </div>
+          {/* Estas mensagens SÓ APARECEM para ações de credenciais agora */}
           {credError && <p className="form-message error">{credError}</p>}
           {credMessage && <p className="form-message success">{credMessage}</p>}
         </form>
@@ -598,9 +619,13 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
             Apagar Todas as Mensagens
           </button>
         </div>
+        
+        {/* --- CORREÇÃO AQUI: Mensagens renderizadas no card correto --- */}
+        {maintError && <p className="form-message error">{maintError}</p>}
+        {maintMessage && <p className="form-message success">{maintMessage}</p>}
       </div>
 
-      {/* --- ORDEM 5: RESUMO DE VOTOS --- */}
+      {/* --- ORDEM 5: RESUMO DE VOTOS (Sem alterações) --- */}
       <div className="admin-section">
         <h2>Resumo de Votos</h2>
         {!hasVotes ? (
@@ -628,7 +653,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
         )}
       </div>
 
-      {/* --- ORDEM 6: MENSAGENS RECEBIDAS --- */}
+      {/* --- ORDEM 6: MENSAGENS RECEBIDAS (Sem alterações) --- */}
       <div className="admin-section">
         <h2>Mensagens Recebidas</h2>
         {!hasMessages ? (

@@ -6,31 +6,25 @@ import { FaArrowLeft, FaPlus, FaSave, FaTrash, FaPencilAlt, FaDownload, FaFilePd
 function CurriculumAdminPage({ isAuthenticated }) {
     const navigate = useNavigate();
     
-    // --- Estados para General Info (Objetivo, PDF, Pessoais) ---
+    // --- Estados (sem alterações) ---
     const [generalInfo, setGeneralInfo] = useState({
-        full_name: '',
-        address: '',
-        phone: '',
-        email: '',
-        responsible: '',
-        resume_summary: '', // Objetivo do currículo
-        pdf_url: '', // URL do PDF atual
+        full_name: '', address: '', phone: '', email: '',
+        responsible: '', resume_summary: '', pdf_url: '',
+        experience_fallback_text: '', 
     });
     const [resumeSummary, setResumeSummary] = useState(''); 
     const [pdfFile, setPdfFile] = useState(null);
     const downloadUrl = `${api.defaults.baseURL}/api/download/curriculo`;
-    
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(true);
-
-    // --- Estados para Dados Estruturados (Listas) ---
+    const [showNoExperienceInput, setShowNoExperienceInput] = useState(false);
     const [experiences, setExperiences] = useState([]);
     const [education, setEducation] = useState([]);
     const [skills, setSkills] = useState([]);
     const [additionalInfo, setAdditionalInfo] = useState([]); 
     
-    // --- Funções de Fetch ---
+    // --- Funções de Fetch (sem alterações) ---
     const fetchAllCurriculumData = useCallback(async () => {
         if (!isAuthenticated) return;
         setIsLoading(true);
@@ -43,23 +37,21 @@ function CurriculumAdminPage({ isAuthenticated }) {
                 api.get('/api/additional-info'), 
             ]);
             
-            // CORREÇÃO DO ALERTA: Garante que todos os campos sejam strings ('')
             setGeneralInfo({
                 full_name: infoRes.data.full_name || '',
                 address: infoRes.data.address || '',
-                phone: infoRes.data.phone || '', // TRATAMENTO AQUI
+                phone: infoRes.data.phone || '',
                 email: infoRes.data.email || '',
-                responsible: infoRes.data.responsible || '', // TRATAMENTO AQUI
+                responsible: infoRes.data.responsible || '',
                 resume_summary: infoRes.data.resume_summary || '',
                 pdf_url: infoRes.data.pdf_url || '',
+                experience_fallback_text: infoRes.data.experience_fallback_text || '',
             });
             setResumeSummary(infoRes.data.resume_summary || ''); 
-            
             setExperiences(expRes.data);
             setEducation(eduRes.data);
             setSkills(skillRes.data);
             setAdditionalInfo(addInfoRes.data); 
-            
             setError('');
         } catch (err) {
             console.error("Erro ao carregar dados do currículo:", err.response || err);
@@ -70,6 +62,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
         }
     }, [isAuthenticated]);
     
+    // --- useEffect (sem alterações) ---
     useEffect(() => {
         if (!isAuthenticated) {
             navigate('/admin'); 
@@ -78,44 +71,30 @@ function CurriculumAdminPage({ isAuthenticated }) {
         }
     }, [isAuthenticated, navigate, fetchAllCurriculumData]);
 
-    // --- Handlers de Upload/General Info ---
-
-    // Handler MODIFICADO para garantir APENAS dígitos no telefone
+    // --- Handlers de Submit e Change (sem alterações) ---
     const handleInfoChange = (e) => {
         let { name, value } = e.target;
-        
-        // Se o campo for telefone ou responsible, remove tudo que não for dígito
         if (name === 'phone' || name === 'responsible') {
             value = value.replace(/\D/g, '');
         }
-
         setGeneralInfo(prev => ({ ...prev, [name]: value }));
     };
-    // ... O restante dos handlers (handlePdfFileChange, handleGeneralInfoSubmit) permanece o mesmo ...
     const handlePdfFileChange = (e) => {
         setPdfFile(e.target.files[0]);
     };
-
     const handleGeneralInfoSubmit = async (e) => {
         e.preventDefault();
-        setMessage('');
-        setError('');
-        setIsLoading(true);
-
+        setMessage(''); setError(''); setIsLoading(true);
         const formData = new FormData();
         
-        // CORREÇÃO CRÍTICA: Envio dos CAMPOS PESSOAIS
         formData.append('full_name', generalInfo.full_name || '');
         formData.append('address', generalInfo.address || '');
-        // Garantindo que os campos de telefone sejam enviados, mesmo que apenas com dígitos
         formData.append('phone', generalInfo.phone || ''); 
         formData.append('email', generalInfo.email || '');
         formData.append('responsible', generalInfo.responsible || '');
-        
-        // OBJETIVO (APENAS CURRÍCULO) - Usa 'resume_summary'
         formData.append('resume_summary', resumeSummary);
-        
-        // PDF
+        formData.append('experience_fallback_text', generalInfo.experience_fallback_text || '');
+
         if (pdfFile) {
             formData.append('pdf_file', pdfFile);
         } else {
@@ -125,12 +104,12 @@ function CurriculumAdminPage({ isAuthenticated }) {
         try {
             const response = await api.put('/api/general-info', formData);
             setGeneralInfo(prev => ({ 
-                ...prev, 
-                ...response.data, 
-                pdf_url: response.data.pdf_url || '', // Garante string
-                resume_summary: response.data.resume_summary || '', // Garante string
+                ...prev, ...response.data, 
+                pdf_url: response.data.pdf_url || '',
+                resume_summary: response.data.resume_summary || '',
                 phone: response.data.phone || '',
                 responsible: response.data.responsible || '',
+                experience_fallback_text: response.data.experience_fallback_text || '',
             }));
             setResumeSummary(response.data.resume_summary || '');
             setPdfFile(null); 
@@ -144,16 +123,32 @@ function CurriculumAdminPage({ isAuthenticated }) {
         }
     };
 
-    // --- Handlers de Delete para Listas (mantidos) ---
+    // --- handleDelete (Está correto, sem alterações) ---
     const handleDelete = (endpoint, id, name) => {
+        
+        // O 'endpoint' que vem do renderActionCell está no singular (ex: 'skill')
+        // mas a API espera o plural (ex: 'skills').
+        let apiPath = endpoint;
+
+        if (endpoint === 'experience') {
+            apiPath = 'experiences'; // Corrige para o plural
+        } else if (endpoint === 'skill') {
+            apiPath = 'skills'; // Corrige para o plural
+        }
+        // 'education' e 'additional-info' já estão corretos e não precisam de 's'
+        // (Baseado no seu routes.py, 'education' e 'additional-info' são singulares)
+
         if (window.confirm(`Tem certeza que deseja apagar "${name}" (ID: ${id})? Esta ação não pode ser desfeita.`)) {
-            api.delete(`/api/${endpoint}/${id}`)
+            
+            // Usamos o apiPath corrigido
+            api.delete(`/api/${apiPath}/${id}`)
                 .then(() => {
                     setMessage(`${name} apagado com sucesso!`);
                     fetchAllCurriculumData(); 
                 })
                 .catch(err => {
-                    setError(`Erro ao apagar ${name}.`);
+                    // Este log de erro é o que vimos
+                    setError(`Erro ao apagar ${name}. Verifique o console (F12).`);
                     console.error("Erro ao deletar:", err);
                 });
         }
@@ -163,7 +158,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
         return <div className="container"><h1 className="page-title">Carregando Painel do Currículo...</h1></div>;
     }
 
-    // Função auxiliar para renderizar botões de delete/edit (mantida)
+    // --- renderActionCell (Está correto, sem alterações) ---
     const renderActionCell = (item, endpoint) => (
         <td data-label="Ações" className="admin-actions-cell">
             <Link 
@@ -194,120 +189,56 @@ function CurriculumAdminPage({ isAuthenticated }) {
             {error && <p className="form-message error">{error}</p>}
             {message && <p className="form-message success">{message}</p>}
 
-            {/* ========================================================== */}
-            {/* 1. INFORMAÇÕES PESSOAIS E OBJETIVO (GeneralInfo) */}
-            {/* ========================================================== */}
+            {/* --- 1. INFORMAÇÕES PESSOAIS (Formulário sem alterações) --- */}
             <div className="general-info-section">
                 <h2>Informações Pessoais, Objetivo e Arquivo</h2>
                 <p>Gerencie os dados de contato do currículo e o seu Objetivo Profissional.</p>
-
                 <form onSubmit={handleGeneralInfoSubmit}>
-                    
-                    {/* --- DADOS PESSOAIS --- */}
                     <h3>Dados de Cabeçalho do Currículo</h3>
-
                     <div className="form-group">
                         <label htmlFor="full_name"><FaUser /> Nome Completo</label>
-                        <input 
-                            type="text" 
-                            id="full_name" 
-                            name="full_name" 
-                            value={generalInfo.full_name || ''} 
-                            onChange={handleInfoChange} 
-                            placeholder="Marcelo Antony Accacio Olhier"
-                        />
+                        <input type="text" id="full_name" name="full_name" value={generalInfo.full_name || ''} onChange={handleInfoChange} placeholder="Seu nome"/>
                     </div>
-                    
                     <div className="form-group">
                         <label htmlFor="address"><FaMapMarkerAlt /> Endereço</label>
-                        <input 
-                            type="text" 
-                            id="address" 
-                            name="address" 
-                            value={generalInfo.address || ''} 
-                            onChange={handleInfoChange} 
-                            placeholder="Rua Soldado PM Gilberto Augustinho, 237"
-                        />
+                        <input type="text" id="address" name="address" value={generalInfo.address || ''} onChange={handleInfoChange} placeholder="Rua XXX, número XXX"/>
                     </div>
-
                     <div className="form-group-inline">
                         <div className="form-group" style={{ flex: 1, marginRight: '10px' }}>
                             <label htmlFor="phone"><FaPhone /> Telefone (Apenas dígitos)</label>
-                            <input 
-                                type="tel" 
-                                id="phone" 
-                                name="phone" 
-                                value={generalInfo.phone || ''} 
-                                onChange={handleInfoChange} 
-                                placeholder="11 99999-9999"
-                            />
+                            <input type="tel" id="phone" name="phone" value={generalInfo.phone || ''} onChange={handleInfoChange} placeholder="11 99999-9999"/>
                         </div>
                         <div className="form-group" style={{ flex: 1 }}>
                             <label htmlFor="email"><FaEnvelope /> E-mail</label>
-                            <input 
-                                type="email" 
-                                id="email" 
-                                name="email" 
-                                value={generalInfo.email || ''} 
-                                onChange={handleInfoChange} 
-                                placeholder="marceloaccacio9@gmail.com"
-                            />
+                            <input type="email" id="email" name="email" value={generalInfo.email || ''} onChange={handleInfoChange} placeholder="seuemail@gmail.com"/>
                         </div>
                     </div>
-                    
                     <div className="form-group">
                         <label htmlFor="responsible"><FaUsers /> Contato Responsável (Apenas dígitos)</label>
-                        <input 
-                            type="tel" 
-                            id="responsible" 
-                            name="responsible" 
-                            value={generalInfo.responsible || ''} 
-                            onChange={handleInfoChange} 
-                            placeholder="11 99999-9999"
-                        />
+                        <input type="tel" id="responsible" name="responsible" value={generalInfo.responsible || ''} onChange={handleInfoChange} placeholder="11 99999-9999"/>
                     </div>
-
                     <hr className="form-divider" />
-                    
-                    {/* --- OBJETIVO DO CURRÍCULO --- */}
                     <div className="form-group">
                         <label htmlFor="resumeSummary">Objetivo Profissional (Texto do Currículo)</label>
-                        <textarea 
-                            id="resumeSummary" 
-                            name="resumeSummary" 
-                            rows="5"
-                            value={resumeSummary || ''} // Corrigido para garantir string
-                            onChange={(e) => setResumeSummary(e.target.value)} 
-                            placeholder="Seu resumo ou objetivo profissional detalhado para o currículo."
-                            style={{resize: 'vertical'}}
-                        />
+                        <textarea id="resumeSummary" name="resumeSummary" rows="5" value={resumeSummary || ''} onChange={(e) => setResumeSummary(e.target.value)} placeholder="Seu resumo ou objetivo profissional detalhado para o currículo." style={{resize: 'vertical'}}/>
                         <small>Este texto é exclusivo para o currículo. O texto principal da Home é editado no painel Admin principal.</small>
                     </div>
-                    
                     <hr className="form-divider" />
-                    
-                    {/* --- PDF DE DOWNLOAD --- */}
-                        <div className="form-group">
-                            <label htmlFor="pdf_file"><FaFilePdf /> Currículo para Download (PDF)</label>
-                            <input type="file" name="pdf_file" accept="application/pdf" onChange={handlePdfFileChange} />
-                            {generalInfo.pdf_url ? (
-                                <p style={{marginTop: '5px'}}>
-                                    <FaDownload /> PDF atual: 
-                                    <a 
-                                        href={downloadUrl}
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                    >
-                                        Baixar para conferir
-                                    </a>
-                                </p>
-                            ) : (
+                    <div className="form-group">
+                        <label htmlFor="pdf_file"><FaFilePdf /> Currículo para Download (PDF)</label>
+                        <input type="file" name="pdf_file" accept="application/pdf" onChange={handlePdfFileChange} />
+                        {generalInfo.pdf_url ? (
+                            <p style={{marginTop: '5px'}}>
+                                <FaDownload /> PDF atual: 
+                                <a href={downloadUrl} target="_blank" rel="noopener noreferrer">
+                                    Baixar para conferir
+                                </a>
+                            </p>
+                        ) : (
                             <p style={{color: 'var(--text-danger)', marginTop: '5px'}}>Nenhum PDF cadastrado.</p>
                         )}
                         <small>{pdfFile ? `Novo PDF selecionado: ${pdfFile.name}` : 'Envie um novo PDF para substituir o atual.'}</small>
                     </div>
-                    
-                    {/* BOTÃO DE SUBMISSÃO PRINCIPAL */}
                     <div className="admin-actions">
                         <button type="submit" className="btn-save-general" disabled={isLoading}>
                             <FaSave /> Salvar Informações Principais
@@ -318,25 +249,38 @@ function CurriculumAdminPage({ isAuthenticated }) {
 
             <hr className="form-divider" />
             
-            {/* ========================================================== */}
-            {/* 2. EXPERIÊNCIA PROFISSIONAL */}
-            {/* ========================================================== */}
+            {/* --- 2. EXPERIÊNCIA (Formulário "Sem Experiência" sem alterações) --- */}
             <div className="admin-section">
                 <h2>Experiência Profissional</h2>
                 <div className="admin-actions">
                     <Link to="/admin/curriculum/add-experience" className="add-button" style={{backgroundColor: '#28a745'}}>
                         <FaPlus /> Adicionar Experiência
                     </Link>
+                    <button type="button" onClick={() => setShowNoExperienceInput(!showNoExperienceInput)} className="add-button" style={{ backgroundColor: showNoExperienceInput ? '#dc3545' : '#ffc107', color: '#212529', marginLeft: '10px' }}>
+                        <FaEdit /> {showNoExperienceInput ? 'Cancelar Edição' : 'Editar Texto "Sem Experiência"'}
+                    </button>
                 </div>
+                {showNoExperienceInput && (
+                    <form onSubmit={handleGeneralInfoSubmit} className="admin-credentials-form" style={{marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '20px'}}>
+                        <div className="form-group">
+                            <label htmlFor="experience_fallback_text">Texto para "Sem Experiência"</label>
+                            <textarea id="experience_fallback_text" name="experience_fallback_text" rows="4" value={generalInfo.experience_fallback_text || ''} onChange={handleInfoChange} placeholder="Ex: Em busca da primeira oportunidade profissional." style={{resize: 'vertical'}}/>
+                            <small>
+                                Este texto aparecerá na seção "Experiência" SE não houver nenhuma experiência cadastrada.
+                                <br/>
+                                <strong>Para OCULTAR a seção "Experiência"</strong>, salve este campo vazio (e não cadastre nenhuma experiência).
+                            </small>
+                        </div>
+                        <div className="admin-actions">
+                            <button type="submit" className="add-button" disabled={isLoading}>
+                                <FaSave /> Salvar Texto (Salva todas Informações Principais)
+                            </button>
+                        </div>
+                    </form>
+                )}
                 <hr className="form-divider" />
                 <table className="data-table">
-                    <thead>
-                        <tr>
-                            <th>Cargo/Empresa</th>
-                            <th>Período</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Cargo/Empresa</th><th>Período</th><th>Ações</th></tr></thead>
                     <tbody>
                         {experiences.length === 0 ? (
                             <tr><td colSpan="3" style={{textAlign: 'center', fontStyle: 'italic'}}>Nenhuma experiência cadastrada.</td></tr>
@@ -345,7 +289,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
                                 <tr key={exp.id}>
                                     <td data-label="Cargo">{exp.title} na {exp.company}</td>
                                     <td data-label="Período">{exp.start_date} - {exp.end_date}</td>
-                                    {renderActionCell(exp, 'experiences')}
+                                    {renderActionCell(exp, 'experience')}
                                 </tr>
                             ))
                         )}
@@ -355,9 +299,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
 
             <hr className="form-divider" />
 
-            {/* ========================================================== */}
-            {/* 3. FORMAÇÃO ACADÊMICA */}
-            {/* ========================================================== */}
+            {/* --- 3. FORMAÇÃO ACADÊMICA --- */}
             <div className="admin-section">
                 <h2>Formação Acadêmica</h2>
                 <div className="admin-actions">
@@ -367,14 +309,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
                 </div>
                 <hr className="form-divider" />
                 <table className="data-table">
-                    <thead>
-                        <tr>
-                            <th>Formação/Curso</th>
-                            <th>Instituição</th>
-                            <th>Conclusão</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Formação/Curso</th><th>Instituição</th><th>Conclusão</th><th>Ações</th></tr></thead>
                     <tbody>
                         {education.length === 0 ? (
                             <tr><td colSpan="4" style={{textAlign: 'center', fontStyle: 'italic'}}>Nenhuma formação cadastrada.</td></tr>
@@ -394,6 +329,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
 
             <hr className="form-divider" />
             
+            {/* --- 4. HABILIDADES (SKILLS) --- */}
             <div className="admin-section">
                 <h2>Habilidades (Skills)</h2>
                 <div className="admin-actions">
@@ -418,7 +354,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
                                 <tr key={skill.id}>
                                     <td data-label="Habilidade">{skill.name}</td>
                                     <td data-label="Categoria">{skill.category}</td>
-                                    {renderActionCell(skill, 'skills')}
+                                    {renderActionCell(skill, 'skill')}
                                 </tr>
                             ))
                         )}
@@ -428,9 +364,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
 
             <hr className="form-divider" />
 
-            {/* ========================================================== */}
-            {/* 5. INFORMAÇÕES ADICIONAIS */}
-            {/* ========================================================== */}
+            {/* --- 5. INFORMAÇÕES ADICIONAIS --- */}
             <div className="admin-section">
                 <h2><FaInfoCircle /> Informações Adicionais</h2>
                 <div className="admin-actions">
@@ -440,13 +374,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
                 </div>
                 <hr className="form-divider" />
                 <table className="data-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Texto da Informação</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>ID</th><th>Texto da Informação</th><th>Ações</th></tr></thead>
                     <tbody>
                         {additionalInfo.length === 0 ? (
                             <tr><td colSpan="3" style={{textAlign: 'center', fontStyle: 'italic'}}>Nenhuma informação adicional cadastrada.</td></tr>
