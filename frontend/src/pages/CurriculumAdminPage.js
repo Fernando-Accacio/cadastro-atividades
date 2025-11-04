@@ -7,7 +7,6 @@ function CurriculumAdminPage({ isAuthenticated }) {
     const navigate = useNavigate();
     
     // --- Estados para General Info (Objetivo, PDF, Pessoais) ---
-    // Adicionado full_name, address, phone, email, responsible
     const [generalInfo, setGeneralInfo] = useState({
         full_name: '',
         address: '',
@@ -43,16 +42,15 @@ function CurriculumAdminPage({ isAuthenticated }) {
                 api.get('/api/additional-info'), 
             ]);
             
-            // Popula o estado com os campos pessoais e de currículo
+            // CORREÇÃO DO ALERTA: Garante que todos os campos sejam strings ('')
             setGeneralInfo({
                 full_name: infoRes.data.full_name || '',
                 address: infoRes.data.address || '',
-                phone: infoRes.data.phone || '',
+                phone: infoRes.data.phone || '', // TRATAMENTO AQUI
                 email: infoRes.data.email || '',
-                responsible: infoRes.data.responsible || '',
+                responsible: infoRes.data.responsible || '', // TRATAMENTO AQUI
                 resume_summary: infoRes.data.resume_summary || '',
                 pdf_url: infoRes.data.pdf_url || '',
-                // Removidos 'objective' e 'profile_pic_url' daqui
             });
             setResumeSummary(infoRes.data.resume_summary || ''); 
             
@@ -81,11 +79,18 @@ function CurriculumAdminPage({ isAuthenticated }) {
 
     // --- Handlers de Upload/General Info ---
 
+    // Handler MODIFICADO para garantir APENAS dígitos no telefone
     const handleInfoChange = (e) => {
-        const { name, value } = e.target;
+        let { name, value } = e.target;
+        
+        // Se o campo for telefone ou responsible, remove tudo que não for dígito
+        if (name === 'phone' || name === 'responsible') {
+            value = value.replace(/\D/g, '');
+        }
+
         setGeneralInfo(prev => ({ ...prev, [name]: value }));
     };
-
+    // ... O restante dos handlers (handlePdfFileChange, handleGeneralInfoSubmit) permanece o mesmo ...
     const handlePdfFileChange = (e) => {
         setPdfFile(e.target.files[0]);
     };
@@ -101,7 +106,8 @@ function CurriculumAdminPage({ isAuthenticated }) {
         // CORREÇÃO CRÍTICA: Envio dos CAMPOS PESSOAIS
         formData.append('full_name', generalInfo.full_name || '');
         formData.append('address', generalInfo.address || '');
-        formData.append('phone', generalInfo.phone || '');
+        // Garantindo que os campos de telefone sejam enviados, mesmo que apenas com dígitos
+        formData.append('phone', generalInfo.phone || ''); 
         formData.append('email', generalInfo.email || '');
         formData.append('responsible', generalInfo.responsible || '');
         
@@ -120,10 +126,12 @@ function CurriculumAdminPage({ isAuthenticated }) {
             setGeneralInfo(prev => ({ 
                 ...prev, 
                 ...response.data, 
-                pdf_url: response.data.pdf_url, 
-                resume_summary: response.data.resume_summary 
+                pdf_url: response.data.pdf_url || '', // Garante string
+                resume_summary: response.data.resume_summary || '', // Garante string
+                phone: response.data.phone || '',
+                responsible: response.data.responsible || '',
             }));
-            setResumeSummary(response.data.resume_summary);
+            setResumeSummary(response.data.resume_summary || '');
             setPdfFile(null); 
             setMessage('Informações Principais e Arquivo atualizados com sucesso!');
         } catch (err) {
@@ -136,7 +144,6 @@ function CurriculumAdminPage({ isAuthenticated }) {
     };
 
     // --- Handlers de Delete para Listas (mantidos) ---
-    
     const handleDelete = (endpoint, id, name) => {
         if (window.confirm(`Tem certeza que deseja apagar "${name}" (ID: ${id})? Esta ação não pode ser desfeita.`)) {
             api.delete(`/api/${endpoint}/${id}`)
@@ -224,14 +231,14 @@ function CurriculumAdminPage({ isAuthenticated }) {
 
                     <div className="form-group-inline">
                         <div className="form-group" style={{ flex: 1, marginRight: '10px' }}>
-                            <label htmlFor="phone"><FaPhone /> Telefone</label>
+                            <label htmlFor="phone"><FaPhone /> Telefone (Apenas dígitos)</label>
                             <input 
                                 type="tel" 
                                 id="phone" 
                                 name="phone" 
                                 value={generalInfo.phone || ''} 
                                 onChange={handleInfoChange} 
-                                placeholder="(11) 95314-1962"
+                                placeholder="11 99999-9999"
                             />
                         </div>
                         <div className="form-group" style={{ flex: 1 }}>
@@ -248,14 +255,14 @@ function CurriculumAdminPage({ isAuthenticated }) {
                     </div>
                     
                     <div className="form-group">
-                        <label htmlFor="responsible"><FaUsers /> Contato Responsável</label>
+                        <label htmlFor="responsible"><FaUsers /> Contato Responsável (Apenas dígitos)</label>
                         <input 
                             type="tel" 
                             id="responsible" 
                             name="responsible" 
                             value={generalInfo.responsible || ''} 
                             onChange={handleInfoChange} 
-                            placeholder="(11) 99997-6992 (Mãe)"
+                            placeholder="11 99999-9999"
                         />
                     </div>
 
@@ -268,7 +275,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
                             id="resumeSummary" 
                             name="resumeSummary" 
                             rows="5"
-                            value={resumeSummary} 
+                            value={resumeSummary || ''} // Corrigido para garantir string
                             onChange={(e) => setResumeSummary(e.target.value)} 
                             placeholder="Seu resumo ou objetivo profissional detalhado para o currículo."
                             style={{resize: 'vertical'}}
@@ -304,7 +311,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
             <hr className="form-divider" />
             
             {/* ========================================================== */}
-            {/* 2. EXPERIÊNCIA PROFISSIONAL (REINTRODUZIDO) */}
+            {/* 2. EXPERIÊNCIA PROFISSIONAL */}
             {/* ========================================================== */}
             <div className="admin-section">
                 <h2>Experiência Profissional</h2>
@@ -341,7 +348,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
             <hr className="form-divider" />
 
             {/* ========================================================== */}
-            {/* 3. FORMAÇÃO ACADÊMICA (REINTRODUZIDO) */}
+            {/* 3. FORMAÇÃO ACADÊMICA */}
             {/* ========================================================== */}
             <div className="admin-section">
                 <h2>Formação Acadêmica</h2>
@@ -379,9 +386,6 @@ function CurriculumAdminPage({ isAuthenticated }) {
 
             <hr className="form-divider" />
             
-            {/* ========================================================== */}
-            {/* 4. HABILIDADES (REINTRODUZIDO) */}
-            {/* ========================================================== */}
             <div className="admin-section">
                 <h2>Habilidades (Skills)</h2>
                 <div className="admin-actions">
@@ -417,7 +421,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
             <hr className="form-divider" />
 
             {/* ========================================================== */}
-            {/* 5. INFORMAÇÕES ADICIONAIS (JÁ ESTAVA) */}
+            {/* 5. INFORMAÇÕES ADICIONAIS */}
             {/* ========================================================== */}
             <div className="admin-section">
                 <h2><FaInfoCircle /> Informações Adicionais</h2>
