@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, Boolean
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.sql import func
 import os
@@ -12,11 +12,9 @@ engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,
     pool_recycle=1800,
-    # === NOVAS CONFIGURAÇÕES DE POOL ===
     pool_size=10, 
     max_overflow=20, 
     pool_timeout=5, 
-    # ===================================
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -44,7 +42,6 @@ class Contact(Base):
 
 class User(Base):
     __tablename__ = "users"
-    # CORREÇÃO DE SINTAXE: 'primary_key=True'
     id = Column(Integer, primary_key=True, index=True) 
     username = Column(String, unique=True, nullable=False)
     password_hash = Column(String, nullable=False)
@@ -57,7 +54,6 @@ class User(Base):
 
 class Hobby(Base):
     __tablename__ = "hobbies"
-    # CORREÇÃO DE SINTAXE: 'primary_key=True' e 'nullable=False'
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
     description = Column(Text, nullable=False)
@@ -73,21 +69,24 @@ class GeneralInfo(Base):
     id = Column(Integer, primary_key=True, index=True) 
 
     main_name = Column(String, nullable=True)      # NOVO: Nome principal na Home
-    # === CAMPOS DE CONTATO E NOME === (JÁ ESTÃO CORRETOS)
     full_name = Column(String, nullable=True)      # Nome completo
     address = Column(String, nullable=True)        # Endereço
     phone = Column(String, nullable=True)          # Telefone
     email = Column(String, nullable=True)          # Email 
     responsible = Column(String, nullable=True)    # Contato do Responsável
-    # ======================================
     profile_pic_url = Column(String, nullable=True) 
     pdf_url = Column(String, nullable=True)          
     objective = Column(Text, nullable=True)        # HOME: Texto principal
     resume_summary = Column(Text, nullable=True)   # CURRÍCULO: Objetivo
     informal_intro = Column(Text, nullable=True)   # Texto introdutório informal
-    
-    # *** LINHA ADICIONADA ***
     experience_fallback_text = Column(Text, nullable=True) # Texto p/ "Sem Experiência"
+    
+    # --- INTERRUPTORES PARA OCULTAR SEÇÕES ---
+    # Adicionado server_default='true' para garantir que o BD tenha o valor
+    show_education = Column(Boolean, nullable=False, default=True, server_default='true')
+    show_skills = Column(Boolean, nullable=False, default=True, server_default='true')
+    show_additional_info = Column(Boolean, nullable=False, default=True, server_default='true')
+
     
 # 2. Experiência Profissional
 class Experience(Base):
@@ -99,14 +98,15 @@ class Experience(Base):
     end_date = Column(String, nullable=True) 
     description = Column(Text, nullable=True) 
 
-# 3. Formação Acadêmica
+# 3. Formação Acadêmica (Corrigido)
 class Education(Base):
     __tablename__ = "education"
     id = Column(Integer, primary_key=True, index=True)
     degree = Column(String, nullable=False) 
     institution = Column(String, nullable=False) 
-    completion_date = Column(String, nullable=False) 
     details = Column(Text, nullable=True) 
+    start_date = Column(String, nullable=False)
+    end_date = Column(String, nullable=False)
 
 # 4. Habilidades Técnicas (Skills)
 class Skill(Base):
@@ -115,7 +115,7 @@ class Skill(Base):
     name = Column(String, nullable=False) 
     category = Column(String, nullable=True) 
 
-# 5. Informações Adicionais (Modelo criado no chat anterior)
+# 5. Informações Adicionais
 class AdditionalInfo(Base):
     __tablename__ = "additional_info"
     id = Column(Integer, primary_key=True, index=True)

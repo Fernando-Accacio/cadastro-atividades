@@ -77,6 +77,88 @@ def init_routes(app):
         token = jwt.encode(token_payload, secret_key, algorithm="HS256")
         return jsonify({'token': token})
 
+        # ... (logo após sua rota /api/login)
+
+    @app.route('/api/admin/user-exists', methods=['GET'])
+    def check_user_exists():
+        """
+        Verifica publicamente se algum usuário administrador já existe.
+        """
+        db: Session = next(get_db())
+        try:
+            user_count = db.query(User).count()
+            return jsonify({'exists': user_count > 0}), 200
+        except Exception as e:
+            print(f"Erro ao checar usuários: {e}")
+            return jsonify({'error': str(e)}), 500
+        finally:
+            db.close()
+
+    @app.route('/api/admin/create-first-user', methods=['POST'])
+    def create_first_user():
+        """
+        Cria o primeiro usuário administrador.
+        Esta rota SÓ funciona se não houver nenhum outro usuário no banco.
+        """
+        db: Session = next(get_db())
+        try:
+            user_count = db.query(User).count()
+            if user_count > 0:
+                return jsonify({'error': 'Um administrador já existe. Use a tela de login.'}), 403 # 403 Forbidden
+
+            data = request.get_json()
+            username = data.get('username')
+            password = data.get('password')
+
+            if not username or not password:
+                return jsonify({'error': 'Usuário e senha são obrigatórios.'}), 400
+
+            new_admin = User(username=username)
+            new_admin.set_password(password)
+            
+            db.add(new_admin)
+            db.commit()
+            
+            return jsonify({'message': 'Administrador criado com sucesso! Agora você pode fazer login.'}), 201
+
+        except IntegrityError: # Segurança extra caso dois tentem ao mesmo tempo
+            db.rollback()
+            return jsonify({'error': 'Esse nome de usuário já está em uso.'}), 409
+        except Exception as e:
+            db.rollback()
+            print(f"Erro ao criar primeiro admin: {e}")
+            return jsonify({'error': str(e)}), 500
+        finally:
+            db.close()
+
+            # ... (junto com as outras rotas /api/admin/...)
+
+    @app.route('/api/admin/delete-user', methods=['DELETE', 'OPTIONS'])
+    @token_required
+    def delete_current_user():
+        """
+        Apaga o usuário administrador que está logado (identificado pelo token).
+        """
+        db: Session = next(get_db())
+        user_id = g.current_user_id # Pega o ID do token
+        
+        try:
+            user = db.query(User).filter(User.id == user_id).first()
+            
+            if not user:
+                return jsonify({'error': 'Usuário não encontrado.'}), 404
+
+            db.delete(user)
+            db.commit()
+            
+            return jsonify({'message': 'Usuário administrador apagado com sucesso.'}), 200
+
+        except Exception as e:
+            db.rollback()
+            print(f"Erro ao deletar usuário: {e}")
+            return jsonify({'error': str(e)}), 500
+        finally:
+            db.close()
 
     # =========================================================
     # === ROTAS PÚBLICAS GERAIS ===============================
@@ -189,7 +271,10 @@ def init_routes(app):
                     'email': None, 'responsible': None, 'profile_pic_url': None,
                     'pdf_url': None, 'objective': None, 'resume_summary': None,
                     'main_name': None, 'informal_intro': None,
-                    'experience_fallback_text': None
+                    'experience_fallback_text': None,
+                    'show_education': True,
+                    'show_skills': True,
+                    'show_additional_info': True
                 }), 200
             info_dict = {
                 'id': info.id, 'full_name': info.full_name, 'address': info.address,
@@ -198,7 +283,10 @@ def init_routes(app):
                 'objective': info.objective, 'resume_summary': info.resume_summary,
                 'main_name': info.main_name,
                 'informal_intro': info.informal_intro,
-                'experience_fallback_text': info.experience_fallback_text
+                'experience_fallback_text': info.experience_fallback_text,
+                'show_education': info.show_education,
+                'show_skills': info.show_skills,
+                'show_additional_info': info.show_additional_info
             }
             return jsonify(info_dict), 200
         except Exception as e:
@@ -263,7 +351,7 @@ def init_routes(app):
     # === ROTAS PROTEGIDAS (CRUD) =============================
     # =========================================================
     
-    @app.route('/api/general-info', methods=['PUT'])
+    @app.route('/api/general-info', methods=['PUT', 'OPTIONS'])
     @token_required
     def update_general_info():
         # ... (código sem mudanças) ...
@@ -303,6 +391,9 @@ def init_routes(app):
             info.resume_summary = data.get('resume_summary', info.resume_summary)
             info.informal_intro = data.get('informal_intro', info.informal_intro)
             info.experience_fallback_text = data.get('experience_fallback_text', info.experience_fallback_text)
+            info.show_education = data.get('show_education') == 'true'
+            info.show_skills = data.get('show_skills') == 'true'
+            info.show_additional_info = data.get('show_additional_info') == 'true'
             db.commit()
             db.refresh(info)
             info_dict = {c.name: getattr(info, c.name) for c in info.__table__.columns}
@@ -406,12 +497,15 @@ def init_routes(app):
         # ... (código sem mudanças) ...
         db: Session = next(get_db())
         data = request.get_json()
-        if not all(data.get(k) for k in ['degree', 'institution', 'completion_date']):
+        if not all(data.get(k) for k in ['degree', 'institution', 'start_date', 'end_date']):
              return jsonify({'error': 'Campos obrigatórios faltando.'}), 400
         try:
             new_edu = Education(
-                degree=data['degree'], institution=data['institution'], 
-                completion_date=data['completion_date'], details=data.get('details', '')
+                degree=data['degree'], 
+                institution=data['institution'], 
+                start_date=data['start_date'],
+                end_date=data['end_date'],
+                details=data.get('details', '')
             )
             db.add(new_edu)
             db.commit()
@@ -437,29 +531,33 @@ def init_routes(app):
             db.close()
 
 
-    @app.route('/api/education/<int:edu_id>', methods=['PUT', 'OPTIONS']) # --- ADICIONADO 'OPTIONS' ---
+    @app.route('/api/education/<int:edu_id>', methods=['PUT', 'OPTIONS']) # <-- DEVE CONTER 'OPTIONS'
     @token_required
     def update_education(edu_id):
-        # ... (código sem mudanças) ...
-        db: Session = next(get_db())
-        data = request.get_json()
-        edu = db.query(Education).filter(Education.id == edu_id).first()
-        if not edu: return jsonify({'error': 'Formação não encontrada'}), 404
-        if not all(data.get(k) for k in ['degree', 'institution', 'completion_date']):
-             return jsonify({'error': 'Campos obrigatórios faltando.'}), 400
-        try:
-            edu.degree = data['degree']
-            edu.institution = data['institution']
-            edu.completion_date = data['completion_date']
-            edu.details = data.get('details', edu.details)
-            db.commit()
-            db.refresh(edu)
-            return jsonify(dict((col, getattr(edu, col)) for col in edu.__table__.columns.keys())), 200
-        except Exception as e:
-            db.rollback()
-            return jsonify({'error': f'Erro interno: {str(e)}'}), 500
-        finally:
-            db.close()
+            db: Session = next(get_db())
+            data = request.get_json()
+            edu = db.query(Education).filter(Education.id == edu_id).first()
+            if not edu: return jsonify({'error': 'Formação não encontrada'}), 404
+            
+            # --- Lógica correta (start_date/end_date) ---
+            if not all(data.get(k) for k in ['degree', 'institution', 'start_date', 'end_date']):
+                return jsonify({'error': 'Campos obrigatórios faltando.'}), 400
+            try:
+                edu.degree = data['degree']
+                edu.institution = data['institution']
+                edu.start_date = data['start_date'] # <-- CORRETO
+                edu.end_date = data['end_date']     # <-- CORRETO
+                edu.details = data.get('details', edu.details)
+            # --- Fim da Lógica ---
+                
+                db.commit()
+                db.refresh(edu)
+                return jsonify(dict((col, getattr(edu, col)) for col in edu.__table__.columns.keys())), 200
+            except Exception as e:
+                db.rollback()
+                return jsonify({'error': f'Erro interno: {str(e)}'}), 500
+            finally:
+                db.close()
 
 
     # --- CORREÇÃO AQUI ---
@@ -914,7 +1012,7 @@ def init_routes(app):
         finally:
             db.close()
             
-    @app.route('/api/admin/credentials', methods=['PUT'])
+    @app.route('/api/admin/credentials', methods=['PUT', 'OPTIONS'])
     @token_required
     def update_admin_credentials():
         db: Session = next(get_db())

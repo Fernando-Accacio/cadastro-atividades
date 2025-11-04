@@ -19,9 +19,20 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   const [credMessage, setCredMessage] = useState('');
   const [credError, setCredError] = useState('');
 
-  // --- ESTADOS DE MENSAGEM SEPARADOS ---
+  // --- Estados de Manutenção ---
   const [maintMessage, setMaintMessage] = useState('');
   const [maintError, setMaintError] = useState('');
+
+  // --- NOVO ESTADO PARA ZONA DE PERIGO ---
+  const [deleteUserError, setDeleteUserError] = useState('');
+
+  // --- NOVOS ESTADOS PARA REGISTRO ---
+  const [adminExists, setAdminExists] = useState(null); // null = loading
+  const [regUsername, setRegUsername] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [regConfirm, setRegConfirm] = useState('');
+  const [regError, setRegError] = useState('');
+  const [regMessage, setRegMessage] = useState('');
 
   // --- Estados para Hobbies ---
   const [hobbies, setHobbies] = useState([]);
@@ -84,20 +95,48 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       })
       .catch(err => {
         console.error("Erro ao buscar hobbies:", err);
-        setMaintError("Não foi possível carregar os hobbies."); // Usando MaintError como fallback
+        setMaintError("Não foi possível carregar os hobbies.");
         setIsHobbyLoading(false);
       });
   }, []);
 
-  // --- useEffect Principal (sem alterações) ---
+  // --- useEffect Principal (só roda se logado) ---
   useEffect(() => {
     if (isAuthenticated) {
-      fetchMessages();
-      fetchProjects();
-      fetchHobbies();
-      fetchHomeInfo(); 
+        
+        // --- CORREÇÃO DA MENSAGEM PERSISTENTE ---
+        // Limpa todas as mensagens de formulário ao carregar o painel
+        setCredMessage('');
+        setCredError('');
+        setMaintMessage('');
+        setMaintError('');
+        setHomeMessage('');
+        setHomeError('');
+        setDeleteUserError('');
+        // ----------------------------------------
+
+        fetchMessages();
+        fetchProjects();
+        fetchHobbies();
+        fetchHomeInfo(); 
     }
   }, [isAuthenticated, fetchMessages, fetchProjects, fetchHobbies, fetchHomeInfo]);
+
+  // --- useEffect (checa se admin existe) ---
+  useEffect(() => {
+    if (!isAuthenticated && adminExists === null) {
+        api.get('/api/admin/user-exists')
+            .then(response => {
+                setAdminExists(response.data.exists);
+            })
+            .catch(error => {
+                console.error("Erro ao checar se admin existe:", error);
+                setAdminExists(true); 
+                setError('Não foi possível verificar o status do servidor.');
+            });
+    }
+  }, [isAuthenticated, adminExists]);
+
 
   // --- Handlers (Login, Resets, Credenciais) ---
   
@@ -116,52 +155,85 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       });
   };
 
-  // --- CORREÇÃO AQUI: Usando setMaintMessage/setMaintError ---
+  const handleRegistrationSubmit = (e) => {
+    e.preventDefault();
+    setRegError('');
+    setRegMessage('');
+
+    if (!regUsername || !regPassword) {
+        setRegError('Usuário e Senha são obrigatórios.');
+        return;
+    }
+    if (regPassword !== regConfirm) {
+        setRegError('As senhas não coincidem.');
+        return;
+    }
+
+    api.post('/api/admin/create-first-user', {
+        username: regUsername,
+        password: regPassword
+    })
+    .then(response => {
+        setRegMessage(response.data.message);
+        setRegError('');
+        setRegUsername('');
+        setRegPassword('');
+        setRegConfirm('');
+        setAdminExists(null); 
+    })
+    .catch(error => {
+        if (error.response && error.response.data.error) {
+            setRegError(error.response.data.error);
+        } else {
+            setRegError('Erro ao criar usuário.');
+        }
+        console.error('Erro no registro:', error);
+    });
+  };
+
   const handleResetVotes = () => {
-    // Limpa todas as outras mensagens para evitar confusão
     setCredMessage(''); setCredError('');
     setHomeMessage(''); setHomeError('');
     setMaintMessage(''); setMaintError('');
+    setDeleteUserError('');
 
     const hasVotes = projects.some(p => p.votes > 0);
     if (!hasVotes) {
-      setMaintError('Não há nenhum voto registrado para resetar.'); // USA NOVO ESTADO
+      setMaintError('Não há nenhum voto registrado para resetar.'); 
       return;
     }
     if (window.confirm("CERTEZA?")) {
       api.post('/api/admin/reset-votes')
-        .then(() => { setMaintMessage('Votos resetados!'); fetchProjects(); }) // USA NOVO ESTADO
-        .catch(err => { setMaintError('Erro ao resetar os votos.'); console.error(err); }); // USA NOVO ESTADO
+        .then(() => { setMaintMessage('Votos resetados!'); fetchProjects(); })
+        .catch(err => { setMaintError('Erro ao resetar os votos.'); console.error(err); });
     }
   };
 
-  // --- CORREÇÃO AQUI: Usando setMaintMessage/setMaintError ---
   const handleResetMessages = () => {
-    // Limpa todas as outras mensagens
     setCredMessage(''); setCredError('');
     setHomeMessage(''); setHomeError('');
     setMaintMessage(''); setMaintError('');
+    setDeleteUserError('');
 
     if (messages.length === 0) {
-      setMaintError('Não há nenhuma mensagem para apagar.'); // USA NOVO ESTADO
+      setMaintError('Não há nenhuma mensagem para apagar.'); 
       return;
     }
     if (window.confirm("CERTEZA?")) {
       api.post('/api/admin/reset-messages')
-        .then(() => { setMaintMessage('Mensagens apagadas!'); fetchMessages(); }) // USA NOVO ESTADO
-        .catch(err => { setMaintError('Erro ao apagar as mensagens.'); console.error(err); }); // USA NOVO ESTADO
+        .then(() => { setMaintMessage('Mensagens apagadas!'); fetchMessages(); })
+        .catch(err => { setMaintError('Erro ao apagar as mensagens.'); console.error(err); });
     }
   };
 
   const handleDeleteProject = (projectId, projectName) => {
-    // Limpa todas as outras mensagens
     setCredMessage(''); setCredError('');
     setHomeMessage(''); setHomeError('');
     setMaintMessage(''); setMaintError('');
+    setDeleteUserError('');
 
     if (window.confirm(`CERTEZA que quer apagar o projeto "${projectName}"?`)) {
       api.delete(`/api/projects/${projectId}`)
-        // Nota: Seria ideal ter um 'generalMessage' aqui, mas vamos reusar o 'maintMessage' por enquanto.
         .then(() => { setMaintMessage('Projeto apagado!'); fetchProjects(); })
         .catch(err => { setMaintError('Erro ao apagar o projeto.'); console.error(err); });
     }
@@ -174,10 +246,10 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
 
   const handleCredentialsSubmit = (e) => {
     e.preventDefault();
-    // Limpa todas as outras mensagens
     setCredMessage(''); setCredError('');
     setHomeMessage(''); setHomeError('');
     setMaintMessage(''); setMaintError('');
+    setDeleteUserError('');
 
     if (!credData.currentPassword) {
       setCredError('A Senha Atual é obrigatória.'); return;
@@ -215,10 +287,10 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
 
   const handleHomeInfoSubmit = (e) => {
     e.preventDefault();
-    // Limpa todas as outras mensagens
     setCredMessage(''); setCredError('');
     setHomeMessage(''); setHomeError('');
     setMaintMessage(''); setMaintError('');
+    setDeleteUserError('');
 
     const formData = new FormData();
     formData.append('objective', homeInfo.objective);
@@ -258,29 +330,107 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
 
   // --- Handler de Deletar Hobby ---
   const handleHobbyDelete = (hobbyId, hobbyTitle) => {
-    // Limpa todas as outras mensagens
     setCredMessage(''); setCredError('');
     setHomeMessage(''); setHomeError('');
     setMaintMessage(''); setMaintError('');
+    setDeleteUserError('');
 
     if (window.confirm(`Tem certeza que deseja apagar o hobby "${hobbyTitle}"?`)) {
       api.delete(`/api/hobbies/${hobbyId}`)
         .then(() => {
-          setMaintMessage("Hobby apagado com sucesso."); // Reusa o state de Maint
-          fetchHobbies(); // Atualiza a lista
+          setMaintMessage("Hobby apagado com sucesso.");
+          fetchHobbies(); 
         })
         .catch(err => {
           const errorMsg = err.response?.data?.error || 'Erro ao apagar o hobby.';
-          setMaintError(errorMsg); // Reusa o state de Maint
+          setMaintError(errorMsg); 
           console.error("Erro ao deletar hobby:", err);
         });
     }
   };
 
+  // --- NOVO HANDLER PARA DELETAR USUÁRIO ---
+  const handleDeleteUser = () => {
+    // Limpa todas as outras mensagens
+    setCredMessage(''); setCredError('');
+    setHomeMessage(''); setHomeError('');
+    setMaintMessage(''); setMaintError('');
+    setDeleteUserError('');
+
+    if (window.confirm("Você tem CERTEZA que quer apagar sua conta de administrador?")) {
+        if (window.confirm("ISSO É IRREVERSÍVEL. Todo o acesso será perdido até que um novo usuário seja criado. Confirmar?")) {
+            api.delete('/api/admin/delete-user')
+                .then(() => {
+                    // Força o logout
+                    if (onLogout) onLogout();
+                    // Força a verificação de admin, que agora falhará, mostrando o registro
+                    setAdminExists(null); 
+                })
+                .catch(err => {
+                    const errorMsg = err.response?.data?.error || 'Erro ao apagar o usuário.';
+                    setDeleteUserError(errorMsg); 
+                    console.error("Erro ao deletar usuário:", err);
+                });
+        }
+    }
+  };
+
   // --- RENDER ---
 
-  // Formulário de Login (sem alterações)
+  // --- LÓGICA DE RENDER MODIFICADA ---
   if (!isAuthenticated) {
+    
+    // 1. Ainda carregando o status
+    if (adminExists === null) {
+        return (
+            <div className="container" style={{ textAlign: 'center', maxWidth: '400px' }}>
+                <h2 className="page-title">Verificando Servidor...</h2>
+                <p>Aguarde um momento...</p>
+                {/* Mostra erro de conexão se houver */}
+                {error && <p className="form-message error" style={{ marginTop: '10px' }}>{error}</p>}
+            </div>
+        );
+    }
+
+    // 2. Admin NÃO existe, mostrar formulário de REGISTRO
+    if (adminExists === false) {
+        return (
+            <div className="container" style={{ textAlign: 'center', maxWidth: '400px' }}>
+                <h2 className="page-title">Criar Administrador</h2>
+                <p>Nenhum usuário encontrado. Crie o primeiro administrador do portfólio.</p>
+                <form onSubmit={handleRegistrationSubmit} className="contact-form">
+                    <div className="form-group">
+                        <label htmlFor="regUsername">Novo Usuário</label>
+                        <input type="text" id="regUsername" value={regUsername} onChange={(e) => setRegUsername(e.target.value)} required autoFocus />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="regPassword">Nova Senha</label>
+                        <div className="password-input-wrapper" style={{ position: 'relative', width: '100%' }}>
+                            <input type={showPassword ? 'text' : 'password'} id="regPassword" value={regPassword} onChange={(e) => setRegPassword(e.target.value)} required />
+                            <span className="password-toggle-icon" onClick={() => setShowPassword(!showPassword)}>
+                                {showPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
+                            </span>
+                        </div>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="regConfirm">Confirmar Senha</label>
+                        <div className="password-input-wrapper" style={{ position: 'relative', width: '100%' }}>
+                            <input type={showNewPassword ? 'text' : 'password'} id="regConfirm" value={regConfirm} onChange={(e) => setRegConfirm(e.target.value)} required />
+                             {/* Reutilizando o state 'showNewPassword' para o segundo campo */}
+                            <span className="password-toggle-icon" onClick={() => setShowNewPassword(!showNewPassword)}>
+                                {showNewPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
+                            </span>
+                        </div>
+                    </div>
+                    <button type="submit">Criar Usuário</button>
+                    {regError && <p className="form-message error" style={{ marginTop: '10px' }}>{regError}</p>}
+                    {regMessage && <p className="form-message success" style={{ marginTop: '10px' }}>{regMessage}</p>}
+                </form>
+            </div>
+        );
+    }
+
+    // 3. Admin EXISTE, mostrar formulário de LOGIN (comportamento antigo)
     return (
       <div className="container" style={{ textAlign: 'center', maxWidth: '400px' }}>
         <h2 className="page-title">Acesso Restrito</h2>
@@ -312,7 +462,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   const hasProjects = projects.length > 0;
   const hasHobbies = hobbies.length > 0;
 
-  // Painel de Admin
+  // Painel de Admin (se estiver autenticado)
   return (
     <div className="container">
       <h1 className="page-title">Painel do Administrador</h1>
@@ -620,9 +770,8 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
           </button>
         </div>
         
-        {/* --- CORREÇÃO AQUI: Mensagens renderizadas no card correto --- */}
-        {maintError && <p className="form-message error">{maintError}</p>}
-        {maintMessage && <p className="form-message success">{maintMessage}</p>}
+        {maintError && <p className="form-message error" style={{ marginTop: '15px' }}>{maintError}</p>}
+        {maintMessage && <p className="form-message success" style={{ marginTop: '15px' }}>{maintMessage}</p>}
       </div>
 
       {/* --- ORDEM 5: RESUMO DE VOTOS (Sem alterações) --- */}
@@ -681,6 +830,20 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
           </table>
         )}
       </div>
+
+      {/* --- NOVA SEÇÃO: ZONA DE PERIGO --- */}
+      <hr className="form-divider" />
+      <div className="admin-section" style={{ borderColor: '#dc3545' }}>
+          <h2 style={{ color: '#dc3545' }}>Zona de Perigo</h2>
+          <p>Ação irreversível. Isso irá apagar sua conta de administrador e exigir um novo registro.</p>
+          <div className="admin-actions">
+              <button onClick={handleDeleteUser} className="danger-button">
+                  <FaTrash /> Apagar Minha Conta de Administrador
+              </button>
+          </div>
+          {deleteUserError && <p className="form-message error" style={{ marginTop: '15px' }}>{deleteUserError}</p>}
+      </div>
+
     </div>
   );
 }
