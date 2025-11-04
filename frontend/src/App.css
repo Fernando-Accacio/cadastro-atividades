@@ -1287,3 +1287,158 @@ main .container > *:last-child {
   /* Garante que o padding não quebre o layout de largura */
   box-sizing: border-box; 
 }
+
+/* =============================================== */
+/* ESTILOS ESPECÍFICOS: CURRICULUM ADMIN PAGE      */
+/* =============================================== */
+
+/* Estilo para a Section onde gerenciamos GeneralInfo */
+.general-info-section {
+    /* Reutiliza o estilo de painel já definido */
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 30px;
+    border-radius: var(--radius-main);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
+          0 2px 8px rgba(0, 0, 0, 0.04);
+    margin-bottom: 40px;
+}
+
+.general-info-section h2 {
+    color: var(--text-primary);
+    font-size: 1.8em;
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(0,0,0,0.08); /* Linha de separação */
+}
+
+/* Container dos Radio Buttons (Upload vs. URL) */
+.radio-options-group {
+    display: flex;
+    gap: 30px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+/* Estiliza o rótulo dos Radio Buttons */
+.radio-options-group label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.radio-options-group input[type="radio"] {
+    /* Estilo para o próprio input de rádio */
+    margin-right: 8px;
+    width: 16px;
+    height: 16px;
+    /* Customização da cor de seleção */
+    accent-color: #0077cc; /* Usa a cor de destaque primária (azul) */
+}
+
+
+/* Estilo específico para o botão de salvar principal (General Info) */
+.btn-save-general {
+  justify-content: center;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: none;
+  background-color: #0077cc;
+  color: white !important;
+  text-decoration: none;
+  text-align: center;
+  font-family: inherit;
+  font-size: 1.05em;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-save-general:hover {
+    background-color: #005fa3 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+/* Estilo para os cabeçalhos das sub-seções de Lista (Experiências, etc.) */
+.admin-section h2:not(:first-child) {
+    /* Adiciona uma margem superior para espaçamento entre as grandes seções */
+    margin-top: 50px;
+}
+
+/* Garante que os inputs dentro da General Info sigam o padrão */
+.general-info-section .form-group input[type="text"],
+.general-info-section .form-group textarea {
+    /* Mantém o estilo de input padrão */
+    width: 100%;
+}
+
+/* Adicione esta classe se você precisar de uma cor de destaque no link de voltar */
+.back-to-admin:hover {
+    color: var(--text-accent);
+    text-decoration: underline;
+}
+
+/* Ajuste Mobile para os botões do formulário */
+@media screen and (max-width: 480px) {
+    .btn-save-general {
+        width: 100%;
+        margin-top: 15px;
+    }
+}
+
+/* Correções de Cores de Ação */
+.add-button {
+    background-color: #0077cc !important; /* Azul primário (Padrão do tema) */
+}
+.add-button:hover {
+    background-color: #005fa3 !important;
+}
+
+/* Novo Botão de Salvar da Homepage - Cor Laranja */
+.btn-save-general {
+    background-color: #0077cc !important; /* Laranja (Cor contrastante) */
+    width: auto;
+    padding: 12px 25px;
+    display: inline-flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+.btn-save-general:hover {
+    background-color: #005fa3 !important; /* Laranja escuro no hover */
+}
+
+/* Garante que a Imagem de Perfil seja redonda no preview */
+.general-info-section img {
+    border-radius: 50%; 
+    object-fit: cover;
+}
+
+/* Estilo para a Section onde gerenciamos GeneralInfo */
+.general-info-section {
+    /* Mantenha o estilo do painel para consistência */
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 30px;
+    border-radius: 8px; /* Usar '8px' ou 'var(--radius-main)' */
+    margin-bottom: 40px;
+}
+/* Altere o estilo do back-to-admin para o seu padrão */
+.back-to-admin {
+    color: #0077cc; /* Azul Primário */
+    text-decoration: none;
+    font-weight: 600;
+}
+.back-to-admin:hover {
+    color: #005fa3;
+    text-decoration: underline;
+}

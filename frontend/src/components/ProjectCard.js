@@ -1,21 +1,33 @@
-import React from 'react';
-// import axios from 'axios'; // Não precisamos mais do import direto
-import api from '../api/axiosConfig'; // <-- 1. USAR O AXIOS CONFIG
+import React, { useState, useEffect } from 'react';
+import api from '../api/axiosConfig';
 
 function ProjectCard({ project, onVote }) {
+  // Estado local que atualiza quando as props mudam
+  const [currentVotes, setCurrentVotes] = useState(project.votos ?? project.votes ?? 0);
+
+  // Atualiza o estado local sempre que o project mudar
+  useEffect(() => {
+    setCurrentVotes(project.votos ?? project.votes ?? 0);
+  }, [project.votos, project.votes, project.id]);
   
   const handleVote = () => {
-    // 2. Usar a instância 'api'
+    // Atualização otimista (imediata)
+    setCurrentVotes(prev => prev + 1);
+
     api.post(`/api/projects/${project.id}/vote`)
       .then(response => {
+        // Atualiza com o valor real do servidor
+        const realVotes = response.data.votos ?? response.data.votes ?? currentVotes + 1;
+        setCurrentVotes(realVotes);
         onVote(response.data);
       })
       .catch(error => {
+        // Se der erro, volta pro valor anterior
+        setCurrentVotes(prev => prev - 1);
         console.error("Houve um erro ao votar!", error);
       });
   };
 
-  // Função para pegar as iniciais do nome
   const getInitials = (name) => {
     if (!name) return '?';
     const words = name.split(' ');
@@ -28,23 +40,17 @@ function ProjectCard({ project, onVote }) {
   return (
     <div className="project-card">
       
-      {/* ======================================== */}
-      {/* === 3. LÓGICA DA IMAGEM CORRIGIDA ==== */}
-      {/* ======================================== */}
       {project.image_url ? (
-        // Se TEM imagem, mostra a <img>
         <img 
           src={project.image_url} 
           alt={project.name} 
-          className="project-card-image" // Classe para estilizar
+          className="project-card-image"
         />
       ) : (
-        // Se NÃO TEM imagem, mostra um placeholder com as iniciais
         <div className="image-placeholder">
           <span>{getInitials(project.name)}</span>
         </div>
       )}
-      {/* ======================================== */}
       
       <div className="project-card-content">
         <h3>{project.name}</h3>
@@ -56,10 +62,9 @@ function ProjectCard({ project, onVote }) {
             className="vote-button" 
             onClick={handleVote} 
           >
-            Votar ({project.votes})
+            Votar ({currentVotes})
           </button>
           
-          {/* O "Ver Projeto" (project_link) já estava correto aqui */}
           {project.project_link && (
             <a href={project.project_link} target="_blank" rel="noopener noreferrer">
               Ver Projeto

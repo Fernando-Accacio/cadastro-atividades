@@ -4,6 +4,7 @@ import axios from 'axios';
 function ContactForm() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [statusMessage, setStatusMessage] = useState('');
+  const [messageType, setMessageType] = useState(''); // 'success', 'error', ou 'loading'
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -13,14 +14,30 @@ function ContactForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     setStatusMessage('Enviando...');
+    setMessageType('loading');
+
     axios.post('/api/contact', formData)
       .then(response => {
-        setStatusMessage(response.data.success);
+        setStatusMessage('✅ Mensagem enviada com sucesso! Obrigado pelo contato.');
+        setMessageType('success');
         setFormData({ name: '', email: '', message: '' }); // Limpa o formulário
+        
+        // Remove a mensagem após 5 segundos
+        setTimeout(() => {
+          setStatusMessage('');
+          setMessageType('');
+        }, 5000);
       })
       .catch(error => {
-        setStatusMessage('Erro ao enviar mensagem. Tente novamente.');
+        setStatusMessage('❌ Erro ao enviar mensagem. Tente novamente.');
+        setMessageType('error');
         console.error('Erro no envio do formulário!', error);
+        
+        // Remove a mensagem de erro após 5 segundos
+        setTimeout(() => {
+          setStatusMessage('');
+          setMessageType('');
+        }, 5000);
       });
   };
 
@@ -42,7 +59,23 @@ function ContactForm() {
             </div>
             <button type="submit">Enviar</button>
         </form>
-        {statusMessage && <p style={{textAlign: 'center', marginTop: '15px'}}>{statusMessage}</p>}
+        
+        {statusMessage && (
+          <p 
+            className={`form-message ${messageType}`}
+            style={{
+              textAlign: 'center', 
+              marginTop: '15px',
+              padding: '12px',
+              borderRadius: '8px',
+              color: messageType === 'success' ? '#155724' : messageType === 'error' ? '#721c24' : '#0c5460',
+              border: `1px solid ${messageType === 'success' ? '#c3e6cb' : messageType === 'error' ? '#f5c6cb' : '#bee5eb'}`,
+              fontWeight: '500'
+            }}
+          >
+            {statusMessage}
+          </p>
+        )}
     </div>
   );
 }

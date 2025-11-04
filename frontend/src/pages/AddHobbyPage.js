@@ -138,7 +138,7 @@ function AddHobbyPage({ isAuthenticated }) {
             </div>
           ) : (
             <div>
-              <input type-="text" id="image_url" name="image_url" value={formData.image_url} onChange={handleChange} placeholder="Ex: https://meusite.com/imagem.png" />
+              <input type="text" id="image_url" name="image_url" value={formData.image_url} onChange={handleChange} placeholder="Ex: https://meusite.com/imagem.png" />
             </div>
           )}
         </div>

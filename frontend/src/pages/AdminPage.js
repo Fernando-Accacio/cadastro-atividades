@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../api/axiosConfig';
-import { FaEye, FaEyeSlash, FaPlus, FaTrash, FaPencilAlt, FaSave, FaHeart } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaPlus, FaTrash, FaPencilAlt, FaSave, FaHeart, FaAddressCard, FaHome, FaFileUpload, FaUser } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 function AdminPage({ isAuthenticated, onLogin, onLogout }) {
@@ -19,11 +19,19 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   const [credMessage, setCredMessage] = useState('');
   const [credError, setCredError] = useState('');
 
-  // --- Estados para Hobbies (AGORA APENAS LISTAGEM) ---
+  // --- Estados para Hobbies ---
   const [hobbies, setHobbies] = useState([]);
   const [isHobbyLoading, setIsHobbyLoading] = useState(false);
-  // Estados de mensagem/erro de hobby foram movidos para credError/credMessage
-  // para simplificar e mostrar feedback de delete
+
+  // --- NOVO/MODIFICADO: Estados para General Info (Homepage) ---
+  const [homeInfo, setHomeInfo] = useState({
+    objective: '',
+    main_name: '', // NOVO: Nome principal na homepage
+    profile_pic_url: '' // Para pré-visualização e fallback
+  });
+  const [homeMessage, setHomeMessage] = useState('');
+  const [homeError, setHomeError] = useState('');
+  const [profilePicFile, setProfilePicFile] = useState(null);
   
   // --- Funções de Fetch ---
   const fetchMessages = useCallback(() => {
@@ -37,6 +45,20 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
         }
       });
   }, [onLogout]);
+    
+  // --- Função de Fetch para General Info (Homepage) ---
+  const fetchHomeInfo = useCallback(() => {
+    api.get('/api/general-info')
+      .then(response => {
+        const data = response.data;
+        setHomeInfo({
+          objective: data.objective || '',
+          main_name: data.main_name || '', // Carrega o novo campo
+          profile_pic_url: data.profile_pic_url || ''
+        });
+      })
+      .catch(error => console.error("Erro ao buscar General Info para Admin!", error));
+  }, []);
 
   const fetchProjects = useCallback(() => {
     api.get('/api/projects') 
@@ -68,8 +90,9 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       fetchMessages();
       fetchProjects();
       fetchHobbies();
+      fetchHomeInfo(); 
     }
-  }, [isAuthenticated, fetchMessages, fetchProjects, fetchHobbies]);
+  }, [isAuthenticated, fetchMessages, fetchProjects, fetchHobbies, fetchHomeInfo]);
 
   // --- Handlers (Login, Resets, Credenciais) ---
   
@@ -153,7 +176,62 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       });
   };
 
-  // --- Handler de Deletar Hobby (O de Adicionar foi movido) ---
+  // --- Handlers para General Info (Homepage) ---
+  const handleHomeInfoChange = (e) => {
+    const { name, value } = e.target;
+    setHomeInfo(prevData => ({ ...prevData, [name]: value }));
+  };
+
+  const handleProfilePicFileChange = (e) => {
+    setProfilePicFile(e.target.files[0]);
+  };
+
+  const handleHomeInfoSubmit = (e) => {
+    e.preventDefault();
+    setHomeMessage(''); setHomeError('');
+
+    const formData = new FormData();
+    formData.append('objective', homeInfo.objective);
+    formData.append('main_name', homeInfo.main_name); // NOVO CAMPO
+    
+    // Lógica de arquivo/URL (Perfil Pic)
+    if (profilePicFile) {
+      formData.append('profile_pic_file', profilePicFile);
+      formData.append('profile_pic_url', ''); // Limpa URL se arquivo for enviado
+    } else {
+      // Envia a URL do input para manter ou limpar (se o input foi limpo)
+      formData.append('profile_pic_url', homeInfo.profile_pic_url || ''); 
+    }
+    
+    // NOTA: Para um PUT completo, o ideal é enviar todos os campos necessários pelo backend.
+    // Presumindo que o backend lida com os campos faltantes de contato/currículo
+    // ou que eles não serão apagados ao usar FormData.
+
+    api.put('/api/general-info', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data', 
+      }
+    })
+    .then(response => {
+      setHomeMessage('Informações da Homepage e Foto de Perfil atualizadas!');
+      setHomeError('');
+      // Atualiza o estado com as URLs e valores retornados do backend
+      setHomeInfo({
+        objective: response.data.objective,
+        main_name: response.data.main_name, // ATUALIZA O NOVO CAMPO
+        profile_pic_url: response.data.profile_pic_url
+      });
+      setProfilePicFile(null); // Limpa o arquivo selecionado
+    })
+    .catch(error => {
+      const errorMsg = error.response?.data?.error || 'Erro ao atualizar a Homepage.';
+      setHomeError(errorMsg);
+      setHomeMessage('');
+      console.error("Erro ao atualizar Home Info:", error);
+    });
+  };
+
+  // --- Handler de Deletar Hobby ---
   const handleHobbyDelete = (hobbyId, hobbyTitle) => {
     if (window.confirm(`Tem certeza que deseja apagar o hobby "${hobbyTitle}"?`)) {
       api.delete(`/api/hobbies/${hobbyId}`)
@@ -171,7 +249,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
 
   // --- RENDER ---
 
-  // Formulário de Login (sem mudanças)
+  // Formulário de Login
   if (!isAuthenticated) {
     return (
       <div className="container" style={{ textAlign: 'center', maxWidth: '400px' }}>
@@ -198,16 +276,123 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
     );
   }
 
-  // Constantes de verificação (sem mudanças)
+  // Constantes de verificação
   const hasMessages = messages.length > 0;
   const hasVotes = projects.some(p => p.votes > 0);
   const hasProjects = projects.length > 0;
   const hasHobbies = hobbies.length > 0;
 
-  // Painel de Admin (REORGANIZADO)
+  // Painel de Admin
   return (
     <div className="container">
       <h1 className="page-title">Painel do Administrador</h1>
+      
+      {/* --- GERENCIAR HOMEPAGE (NOME, OBJETIVO E FOTO) --- */}
+      <div className="admin-section">
+        <h2>Gerenciar Homepage</h2>
+        <p>Modifique o Nome Principal, a Descrição e a Foto de Perfil exibidas na página inicial.</p>
+        
+        <form onSubmit={handleHomeInfoSubmit} className="admin-credentials-form">
+          {/* NOVO CAMPO: Nome Principal */}
+          <div className="form-group">
+            <label htmlFor="main_name">Nome Principal</label>
+            <input 
+              type="text" 
+              id="main_name" 
+              name="main_name" 
+              value={homeInfo.main_name} 
+              onChange={handleHomeInfoChange} 
+              placeholder="Ex: Marcelo Antony Accacio Olhier"
+              required
+            />
+            <small>Este é o nome principal exibido logo abaixo da foto na Homepage.</small>
+          </div>
+          <hr className="form-divider" />
+
+          <div className="form-group">
+            <label htmlFor="objective">Descrição Principal (Objetivo)</label>
+            <textarea 
+              id="objective" 
+              name="objective" 
+              rows="4" 
+              value={homeInfo.objective} 
+              onChange={handleHomeInfoChange} 
+              placeholder="Sua descrição principal..."
+              style={{resize: 'vertical'}}
+            />
+            <small>Este texto aparecerá na Home. O objetivo profissional do Currículo é editado no painel de Currículo.</small>
+          </div>
+
+          <hr className="form-divider" />
+
+          <div className="form-group">
+            <label htmlFor="profile_pic_url">URL da Imagem de Perfil (Atual)</label>
+            <input 
+              type="text" 
+              id="profile_pic_url" 
+              name="profile_pic_url" 
+              value={homeInfo.profile_pic_url || ''} 
+              onChange={handleHomeInfoChange} 
+              placeholder="URL de imagem externa (Opcional)"
+            />
+            {(homeInfo.profile_pic_url || profilePicFile) && (
+              <div style={{marginTop: '10px', textAlign: 'center'}}>
+              <img 
+                src={profilePicFile ? URL.createObjectURL(profilePicFile) : homeInfo.profile_pic_url}
+                alt="Pré-visualização"
+                style={{
+                  width: '100px',
+                  height: '100px',
+                  objectFit: 'cover',
+                  borderRadius: '50%',
+                  display: 'block',
+                  margin: '0 auto'
+                }}
+              />
+                <small style={{display: 'block', marginTop: '5px'}}>
+                  {profilePicFile ? 'Pré-visualização do arquivo a ser enviado' : 'Pré-visualização da Imagem Atual'}
+                </small>
+              </div>
+            )}
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="profile_pic_file"><FaFileUpload /> Ou Carregue uma Nova Imagem (Substituirá a URL)</label>
+            <input 
+              type="file" 
+              id="profile_pic_file" 
+              name="profile_pic_file" 
+              onChange={handleProfilePicFileChange} 
+              accept="image/*"
+            />
+          </div>
+          
+          <div className="admin-actions" style={{ justifyContent: 'flex-start' }}>
+            <button type="submit" className="add-button" style={{backgroundColor: '#ff5722', color: 'white'}}>
+              <FaSave /> Salvar Homepage
+            </button>
+          </div>
+          {homeError && <p className="form-message error">{homeError}</p>}
+          {homeMessage && <p className="form-message success">{homeMessage}</p>}
+        </form>
+      </div>
+
+      <hr className="form-divider" />
+      
+      {/* --- LINK: GERENCIAR CURRÍCULO --- */}
+      <div className="admin-section">
+        <h2>Áreas de Conteúdo</h2>
+        <p>Acesse o painel dedicado para gerenciar os dados do seu currículo.</p>
+        <div className="admin-actions">
+          <Link 
+            to="/admin/curriculum" 
+            className="add-button" 
+            style={{backgroundColor: '#0077cc', color: 'white'}}
+          >
+            <FaAddressCard /> Gerenciar Currículo
+          </Link>
+        </div>
+      </div>
 
       {/* --- ORDEM 1: GERENCIAR TRABALHOS --- */}
       <div className="admin-section">
@@ -260,15 +445,13 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       {/* --- ORDEM 2: GERENCIAR HOBBIES --- */}
       <div className="admin-section">
         <h2>Gerenciar Hobbies</h2>
-        <p>Adicionar um novo hobbie ao portfólio ou editar/deletar hobbies existentes.</p>
+        <p>Adicionar, editar ou remover hobbies da página "Sobre Mim".</p>
         
-        {/* === FORMULÁRIO REMOVIDO === */}
-        {/* === BOTÃO ADICIONADO === */}
         <div className="admin-actions">
           <Link 
             to="/admin/add-hobby" 
             className="add-button" 
-            style={{backgroundColor: '##0077cc', color: 'white'}}
+            style={{backgroundColor: '#0077cc', color: 'white'}}
           >
             <FaPlus /> Adicionar Novo Hobby
           </Link>
@@ -276,7 +459,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
 
         <hr className="form-divider" />
 
-        {/* Tabela de Hobbies Atuais (sem mudanças) */}
+        {/* Tabela de Hobbies Atuais */}
         <h3>Hobbies Atuais</h3>
         {isHobbyLoading && !hasHobbies ? (
           <p>Carregando hobbies...</p>
