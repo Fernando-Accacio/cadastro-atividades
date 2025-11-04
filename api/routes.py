@@ -391,7 +391,7 @@ def init_routes(app):
             info = GeneralInfo(id=1)
             db.add(info)
         try:
-            # Lógica da Foto de Perfil (Sem alteração)
+            # --- Lógica da Foto de Perfil (Sem alteração) ---
             profile_pic_url_to_save = info.profile_pic_url 
             if 'profile_pic_file' in files:
                 file_to_upload = files['profile_pic_file']
@@ -399,10 +399,14 @@ def init_routes(app):
                     upload_result = cloudinary.uploader.upload(file_to_upload, folder="perfil_portifolio", public_id="profile_pic")
                     profile_pic_url_to_save = upload_result.get('secure_url')
             elif 'profile_pic_url' in data:
+                # Permite que a URL seja enviada (ou limpa)
                 profile_pic_url_to_save = data.get('profile_pic_url') or None 
-            info.profile_pic_url = profile_pic_url_to_save
+            
+            # Só atualiza a URL se ela foi enviada no form (para não dar conflito)
+            if 'profile_pic_file' in files or 'profile_pic_url' in data:
+                 info.profile_pic_url = profile_pic_url_to_save
 
-            # Lógica do PDF (Sem alteração)
+            # --- Lógica do PDF (Sem alteração) ---
             pdf_url_to_save = info.pdf_url
             if 'pdf_file' in files:
                 pdf_file_to_upload = files['pdf_file']
@@ -411,41 +415,67 @@ def init_routes(app):
                     pdf_url_to_save = upload_result.get('secure_url')
             elif 'pdf_url' in data:
                 pdf_url_to_save = data.get('pdf_url') or None
-            info.pdf_url = pdf_url_to_save
+            
+            if 'pdf_file' in files or 'pdf_url' in data:
+                info.pdf_url = pdf_url_to_save
 
-            # Campos de Texto (Sem alteração)
-            info.main_name = data.get('main_name', info.main_name)
-            info.full_name = data.get('full_name', info.full_name)
-            info.address = data.get('address', info.address)
-            info.phone = data.get('phone', info.phone)
-            info.email = data.get('email', info.email)
-            info.responsible = data.get('responsible', info.responsible)
-            info.objective = data.get('objective', info.objective)
-            info.resume_summary = data.get('resume_summary', info.resume_summary)
-            info.informal_intro = data.get('informal_intro', info.informal_intro)
-            info.experience_fallback_text = data.get('experience_fallback_text', info.experience_fallback_text)
+            # --- ATUALIZAÇÃO INTELIGENTE DE CAMPOS ---
+            # Verifica se a chave existe no form ANTES de atualizar
+            # Isso impede que um formulário apague os dados do outro
             
-            # Checkboxes do Currículo (Sem alteração)
-            info.show_education = data.get('show_education') == 'true'
-            info.show_skills = data.get('show_skills') == 'true'
-            info.show_additional_info = data.get('show_additional_info') == 'true'
+            # Campos da AdminPage
+            if 'main_name' in data:
+                info.main_name = data.get('main_name', info.main_name)
+            if 'objective' in data:
+                 info.objective = data.get('objective', info.objective)
+            if 'informal_intro' in data:
+                 info.informal_intro = data.get('informal_intro', info.informal_intro)
+
+            # Campos do CurriculumAdminPage
+            if 'full_name' in data:
+                info.full_name = data.get('full_name', info.full_name)
+            if 'address' in data:
+                info.address = data.get('address', info.address)
+            if 'phone' in data:
+                info.phone = data.get('phone', info.phone)
+            if 'email' in data:
+                info.email = data.get('email', info.email)
+            if 'responsible' in data:
+                info.responsible = data.get('responsible', info.responsible)
+            if 'resume_summary' in data:
+                info.resume_summary = data.get('resume_summary', info.resume_summary)
+            if 'experience_fallback_text' in data:
+                info.experience_fallback_text = data.get('experience_fallback_text', info.experience_fallback_text)
+
+            # Checkboxes do Currículo
+            if 'show_education' in data:
+                info.show_education = data.get('show_education') == 'true'
+            if 'show_skills' in data:
+                info.show_skills = data.get('show_skills') == 'true'
+            if 'show_additional_info' in data:
+                info.show_additional_info = data.get('show_additional_info') == 'true'
             
-            # --- ATUALIZAÇÃO DOS LINKS SOCIAIS ---
-            # Lê os novos campos do formulário
-            info.linkedin_url = data.get('linkedin_url', info.linkedin_url)
-            info.github_url = data.get('github_url', info.github_url)
-            info.email_address = data.get('email_address', info.email_address)
+            # Links Sociais (AdminPage)
+            if 'linkedin_url' in data:
+                info.linkedin_url = data.get('linkedin_url', info.linkedin_url)
+            if 'github_url' in data:
+                info.github_url = data.get('github_url', info.github_url)
+            if 'email_address' in data:
+                info.email_address = data.get('email_address', info.email_address)
             
-            # Checkboxes vêm como string "true" ou "false" do FormData
-            info.show_linkedin = data.get('show_linkedin') == 'true'
-            info.show_github = data.get('show_github') == 'true'
-            info.show_email = data.get('show_email') == 'true'
-            # --- FIM DA ATUALIZAÇÃO ---
+            # Checkboxes dos Links Sociais (AdminPage)
+            if 'show_linkedin' in data:
+                info.show_linkedin = data.get('show_linkedin') == 'true'
+            if 'show_github' in data:
+                info.show_github = data.get('show_github') == 'true'
+            if 'show_email' in data:
+                info.show_email = data.get('show_email') == 'true'
+            # --- FIM DA ATUALIZAÇÃO INTELIGENTE ---
 
             db.commit()
             db.refresh(info)
             
-            # Retorna o objeto completo atualizado (o frontend vai ler isso)
+            # Retorna o objeto completo atualizado
             info_dict = {c.name: getattr(info, c.name) for c in info.__table__.columns}
             return jsonify(info_dict), 200
         

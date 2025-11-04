@@ -4,7 +4,7 @@ import ProjectCard from '../components/ProjectCard';
 import { FaLinkedin, FaGithub, FaEnvelope } from 'react-icons/fa';
 import { Link } from 'react-router-dom'; 
 
-const DEFAULT_PROFILE_PIC = "/images/marcelo-foto.jpg"; 
+const DEFAULT_PROFILE_PIC = "https://placehold.co/150x150/e9ecef/adb5bd?text=M";
 
 function HomePage() {
   const [projectsByArea, setProjectsByArea] = useState({});
