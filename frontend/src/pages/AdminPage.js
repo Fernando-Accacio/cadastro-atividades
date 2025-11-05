@@ -23,6 +23,13 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   const [maintMessage, setMaintMessage] = useState('');
   const [maintError, setMaintError] = useState('');
 
+  // --- *** NOVO *** ESTADOS PARA PROJETOS E HOBBIES ---
+  // (Separado de Manutenção para mensagens corretas no card)
+  const [projMessage, setProjMessage] = useState('');
+  const [projError, setProjError] = useState('');
+  const [hobbyMessage, setHobbyMessage] = useState('');
+  const [hobbyError, setHobbyError] = useState('');
+
   // --- NOVO ESTADO PARA ZONA DE PERIGO ---
   const [deleteUserError, setDeleteUserError] = useState('');
 
@@ -57,8 +64,8 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   const [homeMessage, setHomeMessage] = useState('');
   const [homeError, setHomeError] = useState('');
   const [profilePicFile, setProfilePicFile] = useState(null);
-  const [introMessage, setIntroMessage] = useState('');
-  const [introError, setIntroError] = useState('');
+  const [introMessage, setIntroMessage] = useState(''); 
+  const [introError, setIntroError] = useState(''); 
   
   // --- Funções de Fetch ---
   const fetchMessages = useCallback(() => {
@@ -124,34 +131,40 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   // useEffect Principal (sem alteração)
   useEffect(() => {
     if (isAuthenticated) {
-        setCredMessage('');
-        setCredError('');
-        setMaintMessage('');
-        setMaintError('');
-        setHomeMessage('');
-        setHomeError('');
-        setDeleteUserError('');
-        setIntroMessage(''); 
-        setIntroError(''); 
-        fetchMessages();
-        fetchProjects();
-        fetchHobbies();
-        fetchHomeInfo(); 
+      setCredMessage('');
+      setCredError('');
+      setMaintMessage('');
+      setMaintError('');
+      setHomeMessage('');
+      setHomeError('');
+      setDeleteUserError('');
+      setIntroMessage(''); 
+      setIntroError(''); 
+      // *** ADICIONADO ***
+      setProjMessage(''); 
+      setProjError('');
+      setHobbyMessage(''); 
+      setHobbyError('');
+      
+      fetchMessages();
+      fetchProjects();
+      fetchHobbies();
+      fetchHomeInfo(); 
     }
   }, [isAuthenticated, fetchMessages, fetchProjects, fetchHobbies, fetchHomeInfo]);
 
   // useEffect (checa se admin existe) (sem alteração)
   useEffect(() => {
     if (!isAuthenticated && adminExists === null) {
-        api.get('/api/admin/user-exists')
-            .then(response => {
-                setAdminExists(response.data.exists);
-            })
-            .catch(error => {
-                console.error("Erro ao checar se admin existe:", error);
-                setAdminExists(true); 
-                setError('Não foi possível verificar o status do servidor.');
-            });
+      api.get('/api/admin/user-exists')
+          .then(response => {
+              setAdminExists(response.data.exists);
+          })
+          .catch(error => {
+              console.error("Erro ao checar se admin existe:", error);
+              setAdminExists(true); 
+              setError('Não foi possível verificar o status do servidor.');
+          });
     }
   }, [isAuthenticated, adminExists]);
 
@@ -209,12 +222,16 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
     });
   };
 
+  // *** MODIFICADO ***
   const clearAllMessages = () => {
     setCredMessage(''); setCredError('');
     setHomeMessage(''); setHomeError('');
     setMaintMessage(''); setMaintError('');
     setDeleteUserError('');
     setIntroMessage(''); setIntroError('');
+    // Adicionado
+    setProjMessage(''); setProjError('');
+    setHobbyMessage(''); setHobbyError('');
   }
 
   const handleResetVotes = () => {
@@ -244,12 +261,14 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
     }
   };
 
+  // *** MODIFICADO ***
   const handleDeleteProject = (projectId, projectName) => {
     clearAllMessages();
     if (window.confirm(`CERTEZA que quer apagar o projeto "${projectName}"?`)) {
       api.delete(`/api/projects/${projectId}`)
-        .then(() => { setMaintMessage('Projeto apagado!'); fetchProjects(); })
-        .catch(err => { setMaintError('Erro ao apagar o projeto.'); console.error(err); });
+        // Usa o estado de PROJETO, não de manutenção
+        .then(() => { setProjMessage('Projeto apagado!'); fetchProjects(); })
+        .catch(err => { setProjError('Erro ao apagar o projeto.'); console.error(err); });
     }
   };
 
@@ -374,18 +393,20 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
 };
 // --- FIM DA ATUALIZAÇÃO ---
 
-  // --- Handler de Deletar Hobby (sem alteração) ---
+  // --- Handler de Deletar Hobby (MODIFICADO) ---
   const handleHobbyDelete = (hobbyId, hobbyTitle) => {
     clearAllMessages();
     if (window.confirm(`Tem certeza que deseja apagar o hobby "${hobbyTitle}"?`)) {
       api.delete(`/api/hobbies/${hobbyId}`)
         .then(() => {
-          setMaintMessage("Hobby apagado com sucesso.");
+          // Usa o estado de HOBBY, não de manutenção
+          setHobbyMessage("Hobby apagado com sucesso.");
           fetchHobbies(); 
         })
         .catch(err => {
           const errorMsg = err.response?.data?.error || 'Erro ao apagar o hobby.';
-          setMaintError(errorMsg); 
+          // Usa o estado de HOBBY, não de manutenção
+          setHobbyError(errorMsg); 
           console.error("Erro ao deletar hobby:", err);
         });
     }
@@ -660,6 +681,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
               <FaSave /> Salvar Homepage
             </button>
           </div>
+          {/* MENSAGENS DO FORM HOMEPAGE (LOCAL CORRETO) */}
           {homeError && <p className="form-message error">{homeError}</p>}
           {homeMessage && <p className="form-message success">{homeMessage}</p>}
         </form>
@@ -682,9 +704,10 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
             <FaAddressCard /> Gerenciar Currículo
           </Link>
         </div>
+        {/* SEM MENSAGENS (APENAS LINK) */}
       </div>
 
-      {/* --- GERENCIAR TRABALHOS (Sem alterações) --- */}
+      {/* --- GERENCIAR TRABALHOS (*** MODIFICADO ***) --- */}
       <div className="admin-section">
         <h2>Gerenciar Trabalhos</h2>
         <p>Adicionar um novo projeto ao portfólio ou editar/deletar projetos existentes.</p>
@@ -730,9 +753,13 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
             </tbody>
           </table>
         )}
+        
+        {/* *** ADICIONADO *** (Mensagens de Ação - Projetos) */}
+        {projError && <p className="form-message error" style={{ marginTop: '15px' }}>{projError}</p>}
+        {projMessage && <p className="form-message success" style={{ marginTop: '15px' }}>{projMessage}</p>}
       </div>
 
-      {/* --- GERENCIAR HOBBIES (Sem alterações) --- */}
+      {/* --- GERENCIAR HOBBIES (*** MODIFICADO ***) --- */}
       <div className="admin-section">
         <h2><FaHeart /> Gerenciar Hobbies</h2>
         <p>Adicionar, editar ou remover hobbies da página "Sobre Mim".</p>
@@ -796,6 +823,10 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
           </table>
         )}
 
+        {/* *** ADICIONADO *** (Mensagens de Ação - Hobbies) */}
+        {hobbyError && <p className="form-message error" style={{ marginTop: '15px' }}>{hobbyError}</p>}
+        {hobbyMessage && <p className="form-message success" style={{ marginTop: '15px' }}>{hobbyMessage}</p>}
+
         <hr className="form-divider" />
         
         <form onSubmit={(e) => handleHomeInfoSubmit(e, 'intro')}>
@@ -818,6 +849,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
                     <FaSave /> Salvar Introdução "Sobre Mim"
                 </button>
             </div>
+            {/* MENSAGENS DO FORM INTRO (LOCAL CORRETO) */}
             {introError && <p className="form-message error">{introError}</p>}
             {introMessage && <p className="form-message success">{introMessage}</p>}
         </form>
@@ -858,6 +890,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
               <FaSave /> Salvar Alterações
             </button>
           </div>
+          {/* MENSAGENS DO FORM CREDENCIAIS (LOCAL CORRETO) */}
           {credError && <p className="form-message error">{credError}</p>}
           {credMessage && <p className="form-message success">{credMessage}</p>}
         </form>
@@ -876,6 +909,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
           </button>
         </div>
         
+        {/* MENSAGENS DE MANUTENÇÃO (LOCAL CORRETO) */}
         {maintError && <p className="form-message error" style={{ marginTop: '15px' }}>{maintError}</p>}
         {maintMessage && <p className="form-message success" style={{ marginTop: '15px' }}>{maintMessage}</p>}
       </div>
@@ -906,6 +940,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
             </tbody>
           </table>
         )}
+        {/* SEM MENSAGENS (APENAS LEITURA) */}
       </div>
 
       {/* --- MENSAGENS RECEBIDAS (Sem alterações) --- */}
@@ -935,6 +970,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
             </tbody>
           </table>
         )}
+        {/* SEM MENSAGENS (APENAS LEITURA) */}
       </div>
 
       {/* --- ZONA DE PERIGO (Sem alterações) --- */}
@@ -947,6 +983,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
                   <FaTrash /> Apagar Minha Conta de Administrador
               </button>
           </div>
+          {/* MENSAGEM DE ZONA DE PERIGO (LOCAL CORRETO) */}
           {deleteUserError && <p className="form-message error" style={{ marginTop: '15px' }}>{deleteUserError}</p>}
       </div>
 

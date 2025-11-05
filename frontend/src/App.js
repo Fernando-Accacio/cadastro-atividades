@@ -31,118 +31,126 @@ import './App.css';
 
 // Componente helper para o Logout (sem mudanças)
 function LogoutHandler({ handleLogout }) {
-    const navigate = useNavigate();
-    useEffect(() => {
-        handleLogout();
-        navigate('/'); // Redireciona para a Home após o logout
-    }, [handleLogout, navigate]);
-    return null;
+    const navigate = useNavigate();
+    useEffect(() => {
+        handleLogout();
+        navigate('/'); // Redireciona para a Home após o logout
+    }, [handleLogout, navigate]);
+    return null;
 }
 
 function App() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [token, setToken] = useState(localStorage.getItem('admin_token'));
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [token, setToken] = useState(localStorage.getItem('admin_token'));
 
-    // useEffect de verificação de token (sem mudanças)
-    useEffect(() => {
-        if (token) {
-            try {
-                const decodedToken = jwtDecode(token);
-                if (decodedToken.exp * 1000 > Date.now()) {
-                    setIsAuthenticated(true);
-                } else {
-                    localStorage.removeItem('admin_token');
-                    setToken(null);
-                    setIsAuthenticated(false);
-                }
-            } catch (error) {
-                localStorage.removeItem('admin_token');
-                setToken(null);
-                setIsAuthenticated(false);
-            }
-        } else {
-            setIsAuthenticated(false);
-        }
-    }, [token]);
+    // useEffect de verificação de token (sem mudanças)
+    useEffect(() => {
+        if (token) {
+            try {
+                const decodedToken = jwtDecode(token);
+                if (decodedToken.exp * 1000 > Date.now()) {
+                    setIsAuthenticated(true);
+                } else {
+                    localStorage.removeItem('admin_token');
+                    setToken(null);
+                    setIsAuthenticated(false);
+                }
+            } catch (error) {
+                localStorage.removeItem('admin_token');
+                setToken(null);
+                setIsAuthenticated(false);
+            }
+        } else {
+            setIsAuthenticated(false);
+        }
+    }, [token]);
 
-    // handleLogin e handleLogout (sem mudanças)
-    const handleLogin = (newToken) => {
-        localStorage.setItem('admin_token', newToken);
-        setToken(newToken);
-        setIsAuthenticated(true);
-    };
-    const handleLogout = () => {
-        localStorage.removeItem('admin_token');
-        setToken(null);
-        setIsAuthenticated(false);
-    };
+    // handleLogin e handleLogout (sem mudanças)
+    const handleLogin = (newToken) => {
+        localStorage.setItem('admin_token', newToken);
+        setToken(newToken);
+        setIsAuthenticated(true);
+    };
+    const handleLogout = () => {
+        localStorage.removeItem('admin_token');
+        setToken(null);
+        setIsAuthenticated(false);
+    };
 
-    return (
-        <Router>
-            <div className="app-container">
-                <Header isAuthenticated={isAuthenticated} onLogout={handleLogout} />
-                <main>
-                    <Routes>
-                        {/* Rotas Públicas */}
-                        <Route path="/" element={<HomePage isAuthenticated={isAuthenticated} />} />
-                        <Route path="/sobremim" element={<SobreMimPage />} />
-                        <Route path="/curriculo" element={<CurriculumPage />} />
-                        <Route path="/ranking" element={<RankingPage />} />
-                        <Route path="/contact" element={<ContactPage />} />
-                        
-                        {/* Rota de Admin */}
-                        <Route 
-                            path="/admin" 
-                            element={<AdminPage 
-                                isAuthenticated={isAuthenticated} 
-                                onLogin={handleLogin} 
-                                onLogout={handleLogout}
-                            />} 
-                        />
-                        
-                        {/* ================================== */}
-                        {/* === ROTAS CRUD PROTEGIDAS === */}
-                        {/* ================================== */}
+    return (
+        <Router>
+            {/* O 'app-container' não é necessário para o sticky footer,
+              pois já estilizamos o #root, mas não tem problema manter.
+            */}
+            <div className="app-container">
+                <Header isAuthenticated={isAuthenticated} onLogout={handleLogout} />
+                
+                {/* *** A CORREÇÃO ESTÁ AQUI ***
+                  Adicione a classe 'main-content-flex-grow' na tag <main>
+                  Isso fará com que esta seção "cresça" e empurre o Footer para baixo.
+                */}
+                <main className="main-content-flex-grow">
+                    <Routes>
+                        {/* Rotas Públicas */}
+                        <Route path="/" element={<HomePage isAuthenticated={isAuthenticated} />} />
+                        <Route path="/sobremim" element={<SobreMimPage />} />
+                        <Route path="/curriculo" element={<CurriculumPage />} />
+                        <Route path="/ranking" element={<RankingPage />} />
+                        <Route path="/contact" element={<ContactPage />} />
+                        
+                        {/* Rota de Admin */}
+                        <Route 
+                            path="/admin" 
+                            element={<AdminPage 
+                                isAuthenticated={isAuthenticated} 
+                                onLogin={handleLogin} 
+                                onLogout={handleLogout}
+                            />} 
+                        />
+                        
+                        {/* ================================== */}
+                        {/* === ROTAS CRUD PROTEGIDAS === */}
+                        {/* ================================== */}
 
-                        {/* Admin Hub de Currículo */}
-                        <Route 
-                            path="/admin/curriculum" 
-                            element={<CurriculumAdminPage isAuthenticated={isAuthenticated} />} 
-                        />
-                        
-                        {/* Projetos e Hobbies */}
-                        <Route path="/admin/add-project" element={<AddProjectPage isAuthenticated={isAuthenticated} />} />
-                        <Route path="/admin/edit-project/:id" element={<EditProjectPage isAuthenticated={isAuthenticated} />} />
-                        <Route path="/admin/edit-hobby/:id" element={<EditHobbyPage isAuthenticated={isAuthenticated} />} />
-                        <Route path="/admin/add-hobby" element={<AddHobbyPage isAuthenticated={isAuthenticated} />} />
+                        {/* Admin Hub de Currículo */}
+                        <Route 
+                            path="/admin/curriculum" 
+                            element={<CurriculumAdminPage isAuthenticated={isAuthenticated} />} 
+                        />
+                        
+                        {/* Projetos e Hobbies */}
+                        <Route path="/admin/add-project" element={<AddProjectPage isAuthenticated={isAuthenticated} />} />
+                        <Route path="/admin/edit-project/:id" element={<EditProjectPage isAuthenticated={isAuthenticated} />} />
+                        <Route path="/admin/edit-hobby/:id" element={<EditHobbyPage isAuthenticated={isAuthenticated} />} />
+                        <Route path="/admin/add-hobby" element={<AddHobbyPage isAuthenticated={isAuthenticated} />} />
 
-                        {/* Experiência */}
-                        <Route path="/admin/curriculum/add-experience" element={<AddExperiencePage isAuthenticated={isAuthenticated} />} />
-                        <Route path="/admin/curriculum/edit-experience/:id" element={<EditExperiencePage isAuthenticated={isAuthenticated} />} />
-                        
-                        {/* Formação */}
-                        <Route path="/admin/curriculum/add-education" element={<AddEducationPage isAuthenticated={isAuthenticated} />} />
-                        <Route path="/admin/curriculum/edit-education/:id" element={<EditEducationPage isAuthenticated={isAuthenticated} />} />
-                        
-                        {/* Habilidades */}
-                        <Route path="/admin/curriculum/add-skill" element={<AddSkillPage isAuthenticated={isAuthenticated} />} />
-                        <Route path="/admin/curriculum/edit-skill/:id" element={<EditSkillPage isAuthenticated={isAuthenticated} />} />
-                        
-                        {/* === ROTAS NOVAS DE INFORMAÇÕES ADICIONAIS === */}
-                        <Route path="/admin/curriculum/add-additional-info" element={<AddAdditionalInfoPage isAuthenticated={isAuthenticated} />} />
-                        <Route path="/admin/curriculum/edit-additional-info/:id" element={<EditAdditionalInfoPage isAuthenticated={isAuthenticated} />} />
-                        {/* ============================================== */}
+                        {/* Experiência */}
+                        <Route path="/admin/curriculum/add-experience" element={<AddExperiencePage isAuthenticated={isAuthenticated} />} />
+                        <Route path="/admin/curriculum/edit-experience/:id" element={<EditExperiencePage isAuthenticated={isAuthenticated} />} />
+                        
+                        {/* Formação */}
+                        <Route path="/admin/curriculum/add-education" element={<AddEducationPage isAuthenticated={isAuthenticated} />} />
+                        <Route path="/admin/curriculum/edit-education/:id" element={<EditEducationPage isAuthenticated={isAuthenticated} />} />
+                        
+                        {/* Habilidades */}
+                        <Route path="/admin/curriculum/add-skill" element={<AddSkillPage isAuthenticated={isAuthenticated} />} />
+                        <Route path="/admin/curriculum/edit-skill/:id" element={<EditSkillPage isAuthenticated={isAuthenticated} />} />
+                        
+                        {/* === ROTAS NOVAS DE INFORMAÇÕES ADICIONAIS === */}
+                        <Route path="/admin/curriculum/add-additional-info" element={<AddAdditionalInfoPage isAuthenticated={isAuthenticated} />} />
+                        <Route path="/admin/curriculum/edit-additional-info/:id" element={<EditAdditionalInfoPage isAuthenticated={isAuthenticated} />} />
+                        {/* ============================================== */}
 
 
-                        {/* Rota de Logout */}
-                        <Route path="/logout" element={<LogoutHandler handleLogout={handleLogout} />} />
+                        {/* Rota de Logout */}
+                        <Route path="/logout" element={<LogoutHandler handleLogout={handleLogout} />} />
 
-                    </Routes>
-                </main>
-                <Footer />
-            </div>
-        </Router>
-    );
+                    </Routes>
+                </main>
+                <Footer />
+            </div>
+        </Router>
+    );
 }
 
 export default App;

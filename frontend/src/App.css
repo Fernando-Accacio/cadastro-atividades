@@ -11,6 +11,10 @@ body {
   -webkit-hyphens: auto;
   -ms-hyphens: auto;
   hyphens: auto;
+  min-height: 100vh; 
+  /* 2. Transforma o body em um container flexível vertical */
+  display: flex;
+  flex-direction: column;
 }
 
 body::before {
@@ -79,7 +83,10 @@ body::after {
 /* =============================================== */
 
 html {
-  overflow-x: hidden;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* <-- Sua regra foi unificada aqui */
 }
 
 .app-container {
@@ -88,10 +95,20 @@ html {
   min-height: 100vh;
 }
 
+#root {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
 main {
   flex-grow: 1;
-  padding-top: 70px;
-  padding-bottom: 60px;
+  padding-top: 70px;    /* <-- Sua regra foi unificada aqui */
+  padding-bottom: 60px; /* <-- Sua regra foi unificada aqui */
+}
+
+.main-content-flex-grow {
+  flex-grow: 1;
 }
 
 /* =============================================== */
@@ -691,6 +708,9 @@ main {
 }
 
 .app-footer {
+  /* ... seus outros estilos de footer ... */
+  flex-shrink: 0;
+  /* (O resto dos seus estilos .app-footer vão aqui) */
   text-align: center;
   padding: 30px;
   background: rgba(255, 255, 255, 0.85);
@@ -1180,6 +1200,7 @@ main .container > *:last-child {
   .app-footer {
     padding: 20px 15px;
     font-size: 0.9rem;
+    flex-shrink: 0;
   }
   
   .admin-actions-cell {

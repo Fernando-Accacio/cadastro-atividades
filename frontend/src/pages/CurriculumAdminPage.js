@@ -6,22 +6,32 @@ import { FaArrowLeft, FaPlus, FaSave, FaTrash, FaPencilAlt, FaDownload, FaFilePd
 function CurriculumAdminPage({ isAuthenticated }) {
     const navigate = useNavigate();
     
-    // --- ALTERAÇÃO 1: Adicionar os novos booleans ao estado ---
+    // Estado com os novos booleans
     const [generalInfo, setGeneralInfo] = useState({
         full_name: '', address: '', phone: '', email: '',
         responsible: '', resume_summary: '', pdf_url: '',
         experience_fallback_text: '', 
-        show_education: true, // NOVO
-        show_skills: true,    // NOVO
-        show_additional_info: true // NOVO
+        show_education: true,
+        show_skills: true,
+        show_additional_info: true
     });
-    // --- Fim da Alteração 1 ---
 
     const [resumeSummary, setResumeSummary] = useState(''); 
     const [pdfFile, setPdfFile] = useState(null);
     const downloadUrl = `${api.defaults.baseURL}/api/download/curriculo`;
+    
+    // Mensagens separadas por seção
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
+    const [expMessage, setExpMessage] = useState('');
+    const [expError, setExpError] = useState('');
+    const [eduMessage, setEduMessage] = useState('');
+    const [eduError, setEduError] = useState('');
+    const [skillMessage, setSkillMessage] = useState('');
+    const [skillError, setSkillError] = useState('');
+    const [addInfoMessage, setAddInfoMessage] = useState('');
+    const [addInfoError, setAddInfoError] = useState('');
+    
     const [isLoading, setIsLoading] = useState(true);
     const [showNoExperienceInput, setShowNoExperienceInput] = useState(false);
     const [experiences, setExperiences] = useState([]);
@@ -41,7 +51,6 @@ function CurriculumAdminPage({ isAuthenticated }) {
                 api.get('/api/additional-info'), 
             ]);
             
-            // --- ALTERAÇÃO 2: Carregar os novos booleans ---
             setGeneralInfo({
                 full_name: infoRes.data.full_name || '',
                 address: infoRes.data.address || '',
@@ -51,11 +60,10 @@ function CurriculumAdminPage({ isAuthenticated }) {
                 resume_summary: infoRes.data.resume_summary || '',
                 pdf_url: infoRes.data.pdf_url || '',
                 experience_fallback_text: infoRes.data.experience_fallback_text || '',
-                show_education: infoRes.data.show_education, // NOVO
-                show_skills: infoRes.data.show_skills,       // NOVO
-                show_additional_info: infoRes.data.show_additional_info // NOVO
+                show_education: infoRes.data.show_education,
+                show_skills: infoRes.data.show_skills,
+                show_additional_info: infoRes.data.show_additional_info
             });
-            // --- Fim da Alteração 2 ---
 
             setResumeSummary(infoRes.data.resume_summary || ''); 
             setExperiences(expRes.data);
@@ -81,32 +89,37 @@ function CurriculumAdminPage({ isAuthenticated }) {
     }, [isAuthenticated, navigate, fetchAllCurriculumData]);
 
     
-    // --- ALTERAÇÃO 3: handleInfoChange agora aceita checkboxes ---
     const handleInfoChange = (e) => {
         const { name, value, type, checked } = e.target;
         
         if (type === 'checkbox') {
-            // Se for checkbox, usa o 'checked'
             setGeneralInfo(prev => ({ ...prev, [name]: checked }));
         } else {
-            // Senão, usa o 'value' (lógica antiga)
-            let val = value;
-
-            setGeneralInfo(prev => ({ ...prev, [name]: val }));
+            setGeneralInfo(prev => ({ ...prev, [name]: value }));
         }
     };
-    // --- Fim da Alteração 3 ---
 
     const handlePdfFileChange = (e) => {
         setPdfFile(e.target.files[0]);
     };
 
-    const handleGeneralInfoSubmit = async (e) => {
+    // *** MODIFICADO ***
+    // Adicionado 'section' para direcionar as mensagens de erro/sucesso
+    const handleGeneralInfoSubmit = async (e, section = 'general') => {
         e.preventDefault();
-        setMessage(''); setError(''); setIsLoading(true);
-        const formData = new FormData();
         
-        // --- ALTERAÇÃO 4: Adicionar os booleans ao FormData ---
+        // Limpa mensagens da seção específica
+        if (section === 'general') {
+            setMessage(''); 
+            setError(''); 
+        } else if (section === 'experience') {
+            setExpMessage('');
+            setExpError('');
+        }
+        
+        setIsLoading(true);
+        
+        const formData = new FormData();
         formData.append('full_name', generalInfo.full_name || '');
         formData.append('address', generalInfo.address || '');
         formData.append('phone', generalInfo.phone || ''); 
@@ -114,12 +127,9 @@ function CurriculumAdminPage({ isAuthenticated }) {
         formData.append('responsible', generalInfo.responsible || '');
         formData.append('resume_summary', resumeSummary);
         formData.append('experience_fallback_text', generalInfo.experience_fallback_text || '');
-        
-        // Adiciona os novos booleans (eles serão convertidos para "true" ou "false" string)
         formData.append('show_education', generalInfo.show_education);
         formData.append('show_skills', generalInfo.show_skills);
         formData.append('show_additional_info', generalInfo.show_additional_info);
-        // --- Fim da Alteração 4 ---
 
         if (pdfFile) {
             formData.append('pdf_file', pdfFile);
@@ -130,7 +140,6 @@ function CurriculumAdminPage({ isAuthenticated }) {
         try {
             const response = await api.put('/api/general-info', formData);
             
-            // --- ALTERAÇÃO 5: Recarregar os booleans no estado ---
             setGeneralInfo(prev => ({ 
                 ...prev, ...response.data, 
                 pdf_url: response.data.pdf_url || '',
@@ -138,26 +147,56 @@ function CurriculumAdminPage({ isAuthenticated }) {
                 phone: response.data.phone || '',
                 responsible: response.data.responsible || '',
                 experience_fallback_text: response.data.experience_fallback_text || '',
-                show_education: response.data.show_education, // NOVO
-                show_skills: response.data.show_skills,       // NOVO
-                show_additional_info: response.data.show_additional_info // NOVO
+                show_education: response.data.show_education,
+                show_skills: response.data.show_skills,
+                show_additional_info: response.data.show_additional_info
             }));
-            // --- Fim da Alteração 5 ---
 
             setResumeSummary(response.data.resume_summary || '');
             setPdfFile(null); 
-            setMessage('Informações Principais e Arquivo atualizados com sucesso!');
+
+            // *** MODIFICADO ***: Direciona a mensagem
+            if (section === 'experience') {
+                setExpMessage('Texto "Sem Experiência" atualizado com sucesso!');
+                setTimeout(() => setExpMessage(''), 5000);
+            } else {
+                setMessage('Informações Principais e Arquivo atualizados com sucesso!');
+                setTimeout(() => setMessage(''), 5000);
+            }
+
         } catch (err) {
             console.error("Erro ao salvar General Info:", err.response || err);
-            setError(err.response?.data?.error || 'Erro ao salvar informações gerais.');
+            const errorMsg = err.response?.data?.error || 'Erro ao salvar informações gerais.';
+
+            // *** MODIFICADO ***: Direciona o erro
+            if (section === 'experience') {
+                setExpError(errorMsg);
+                setTimeout(() => setExpError(''), 5000);
+            } else {
+                setError(errorMsg);
+                setTimeout(() => setError(''), 5000);
+            }
         } finally {
             setIsLoading(false);
             fetchAllCurriculumData(); 
         }
     };
 
-    // --- handleDelete (sem alterações) ---
-    const handleDelete = (endpoint, id, name) => {
+    const handleDelete = (endpoint, id, name, section) => {
+        // Limpa mensagens da seção específica
+        if (section === 'experience') {
+            setExpMessage('');
+            setExpError('');
+        } else if (section === 'education') {
+            setEduMessage('');
+            setEduError('');
+        } else if (section === 'skill') {
+            setSkillMessage('');
+            setSkillError('');
+        } else if (section === 'additional-info') {
+            setAddInfoMessage('');
+            setAddInfoError('');
+        }
         
         let apiPath = endpoint;
         if (endpoint === 'experience') {
@@ -167,14 +206,43 @@ function CurriculumAdminPage({ isAuthenticated }) {
         }
 
         if (window.confirm(`Tem certeza que deseja apagar "${name}" (ID: ${id})? Esta ação não pode ser desfeita.`)) {
-            
             api.delete(`/api/${apiPath}/${id}`)
                 .then(() => {
-                    setMessage(`${name} apagado com sucesso!`);
+                    const successMsg = `${name} apagado com sucesso!`;
+                    
+                    if (section === 'experience') {
+                        setExpMessage(successMsg);
+                        setTimeout(() => setExpMessage(''), 5000);
+                    } else if (section === 'education') {
+                        setEduMessage(successMsg);
+                        setTimeout(() => setEduMessage(''), 5000);
+                    } else if (section === 'skill') {
+                        setSkillMessage(successMsg);
+                        setTimeout(() => setSkillMessage(''), 5000);
+                    } else if (section === 'additional-info') {
+                        setAddInfoMessage(successMsg);
+                        setTimeout(() => setAddInfoMessage(''), 5000);
+                    }
+                    
                     fetchAllCurriculumData(); 
                 })
                 .catch(err => {
-                    setError(`Erro ao apagar ${name}. Verifique o console (F12).`);
+                    const errorMsg = `Erro ao apagar ${name}. Verifique o console (F12).`;
+                    
+                    if (section === 'experience') {
+                        setExpError(errorMsg);
+                        setTimeout(() => setExpError(''), 5000);
+                    } else if (section === 'education') {
+                        setEduError(errorMsg);
+                        setTimeout(() => setEduError(''), 5000);
+                    } else if (section === 'skill') {
+                        setSkillError(errorMsg);
+                        setTimeout(() => setSkillError(''), 5000);
+                    } else if (section === 'additional-info') {
+                        setAddInfoError(errorMsg);
+                        setTimeout(() => setAddInfoError(''), 5000);
+                    }
+                    
                     console.error("Erro ao deletar:", err);
                 });
         }
@@ -184,8 +252,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
         return <div className="container"><h1 className="page-title">Carregando Painel do Currículo...</h1></div>;
     }
 
-    // --- renderActionCell (sem alterações) ---
-    const renderActionCell = (item, endpoint) => (
+    const renderActionCell = (item, endpoint, section) => (
         <td data-label="Ações" className="admin-actions-cell">
             <Link 
                 to={`/admin/curriculum/edit-${endpoint}/${item.id}`} 
@@ -195,7 +262,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
             </Link>
             <button
                 className="danger-button-small"
-                onClick={() => handleDelete(endpoint, item.id, item.title || item.name || item.degree || item.text || 'Item')}
+                onClick={() => handleDelete(endpoint, item.id, item.title || item.name || item.degree || item.text || 'Item', section)}
             >
                 <FaTrash /> Deletar
             </button>
@@ -212,12 +279,13 @@ function CurriculumAdminPage({ isAuthenticated }) {
             
             <hr className="form-divider" />
 
-            {/* --- 1. INFORMAÇÕES PESSOAIS (Formulário com alterações) --- */}
+            {/* 1. INFORMAÇÕES PESSOAIS */}
             <div className="general-info-section">
                 <h2>Informações Pessoais, Objetivo e Arquivo</h2>
                 <p>Gerencie os dados de contato do currículo e o seu Objetivo Profissional.</p>
                 
-                <form onSubmit={handleGeneralInfoSubmit}>
+                {/* *** MODIFICADO ***: Adicionado (e) => ... 'general' */}
+                <form onSubmit={(e) => handleGeneralInfoSubmit(e, 'general')}>
                     <h3>Dados de Cabeçalho do Currículo</h3>
                     <div className="form-group">
                         <label htmlFor="full_name"><FaUser /> Nome Completo</label>
@@ -253,7 +321,6 @@ function CurriculumAdminPage({ isAuthenticated }) {
 
                     <hr className="form-divider" />
 
-                    {/* --- ALTERAÇÃO 6: Adicionar Checkboxes --- */}
                     <h3>Visibilidade das Seções</h3>
                     <p>Desmarque uma seção para ocultá-la completamente do currículo público (incluindo os exemplos "default").</p>
                     <div className="form-group-checkbox">
@@ -286,8 +353,6 @@ function CurriculumAdminPage({ isAuthenticated }) {
                         />
                         <label htmlFor="show_additional_info">Exibir Seção "Informações Adicionais"</label>
                     </div>
-                    {/* --- Fim da Alteração 6 --- */}
-
 
                     <hr className="form-divider" />
                     
@@ -314,16 +379,20 @@ function CurriculumAdminPage({ isAuthenticated }) {
                         </button>
                     </div>
 
-                        {error && <p className="form-message error">{error}</p>}
-                        {message && <p className="form-message success">{message}</p>}
+                    {/* MENSAGENS DO FORM PRINCIPAL (LOCAL CORRETO) */}
+                    {error && <p className="form-message error">{error}</p>}
+                    {message && <p className="form-message success">{message}</p>}
                 </form>
             </div>
 
             <hr className="form-divider" />
             
-            {/* --- 2. EXPERIÊNCIA (sem alterações) --- */}
+            {/* 2. EXPERIÊNCIA */}
             <div className="admin-section">
                 <h2>Experiência Profissional</h2>
+                
+                {/* *** MENSAGENS MOVIDAS DAQUI *** */}
+                
                 <div className="admin-actions">
                     <Link to="/admin/curriculum/add-experience" className="add-button" style={{backgroundColor: '#28a745'}}>
                         <FaPlus /> Adicionar Experiência
@@ -333,7 +402,8 @@ function CurriculumAdminPage({ isAuthenticated }) {
                     </button>
                 </div>
                 {showNoExperienceInput && (
-                    <form onSubmit={handleGeneralInfoSubmit} className="admin-credentials-form" style={{marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '20px'}}>
+                    // *** MODIFICADO ***: Adicionado (e) => ... 'experience'
+                    <form onSubmit={(e) => handleGeneralInfoSubmit(e, 'experience')} className="admin-credentials-form" style={{marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '20px'}}>
                         <div className="form-group">
                             <label htmlFor="experience_fallback_text">Texto para "Sem Experiência"</label>
                             <textarea id="experience_fallback_text" name="experience_fallback_text" rows="4" value={generalInfo.experience_fallback_text || ''} onChange={handleInfoChange} placeholder="Ex: Em busca da primeira oportunidade profissional." style={{resize: 'vertical'}}/>
@@ -348,6 +418,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
                                 <FaSave /> Salvar Texto (Salva todas Informações Principais)
                             </button>
                         </div>
+                        {/* As mensagens deste form ('expError' e 'expMessage') aparecem no fim do card */}
                     </form>
                 )}
                 <hr className="form-divider" />
@@ -361,19 +432,26 @@ function CurriculumAdminPage({ isAuthenticated }) {
                                 <tr key={exp.id}>
                                     <td data-label="Cargo">{exp.title} na {exp.company}</td>
                                     <td data-label="Período">{exp.start_date} - {exp.end_date}</td>
-                                    {renderActionCell(exp, 'experience')}
+                                    {renderActionCell(exp, 'experience', 'experience')}
                                 </tr>
                             ))
                         )}
                     </tbody>
                 </table>
+                
+                {/* *** MOVIDO PARA CÁ *** (Abaixo do card) */}
+                {expError && <p className="form-message error" style={{marginTop: '15px'}}>{expError}</p>}
+                {expMessage && <p className="form-message success" style={{marginTop: '15px'}}>{expMessage}</p>}
             </div>
 
             <hr className="form-divider" />
 
-            {/* --- 3. FORMAÇÃO ACADÊMICA (sem alterações) --- */}
+            {/* 3. FORMAÇÃO ACADÊMICA */}
             <div className="admin-section">
                 <h2>Formação Acadêmica</h2>
+                
+                {/* *** MENSAGENS MOVIDAS DAQUI *** */}
+                
                 <div className="admin-actions">
                     <Link to="/admin/curriculum/add-education" className="add-button" style={{backgroundColor: '#28a745'}}>
                         <FaPlus /> Adicionar Formação
@@ -391,19 +469,26 @@ function CurriculumAdminPage({ isAuthenticated }) {
                                     <td data-label="Formação">{edu.degree}</td>
                                     <td data-label="Instituição">{edu.institution}</td>
                                     <td data-label="Período">{edu.start_date} - {edu.end_date}</td>
-                                    {renderActionCell(edu, 'education')}
+                                    {renderActionCell(edu, 'education', 'education')}
                                 </tr>
                             ))
                         )}
                     </tbody>
                 </table>
+                
+                {/* *** MOVIDO PARA CÁ *** (Abaixo do card) */}
+                {eduError && <p className="form-message error" style={{marginTop: '15px'}}>{eduError}</p>}
+                {eduMessage && <p className="form-message success" style={{marginTop: '15px'}}>{eduMessage}</p>}
             </div>
 
             <hr className="form-divider" />
             
-            {/* --- 4. HABILIDADES (SKILLS) (sem alterações) --- */}
+            {/* 4. HABILIDADES (SKILLS) */}
             <div className="admin-section">
                 <h2>Habilidades (Skills)</h2>
+                
+                {/* *** MENSAGENS MOVIDAS DAQUI *** */}
+                
                 <div className="admin-actions">
                     <Link to="/admin/curriculum/add-skill" className="add-button" style={{backgroundColor: '#28a745'}}>
                         <FaPlus /> Adicionar Habilidade
@@ -426,19 +511,26 @@ function CurriculumAdminPage({ isAuthenticated }) {
                                 <tr key={skill.id}>
                                     <td data-label="Habilidade">{skill.name}</td>
                                     <td data-label="Categoria">{skill.category}</td>
-                                    {renderActionCell(skill, 'skill')}
+                                    {renderActionCell(skill, 'skill', 'skill')}
                                 </tr>
                             ))
                         )}
                     </tbody>
                 </table>
+                
+                {/* *** MOVIDO PARA CÁ *** (Abaixo do card) */}
+                {skillError && <p className="form-message error" style={{marginTop: '15px'}}>{skillError}</p>}
+                {skillMessage && <p className="form-message success" style={{marginTop: '15px'}}>{skillMessage}</p>}
             </div>
 
             <hr className="form-divider" />
 
-            {/* --- 5. INFORMAÇÕES ADICIONAIS (sem alterações) --- */}
+            {/* 5. INFORMAÇÕES ADICIONAIS */}
             <div className="admin-section">
                 <h2><FaInfoCircle /> Informações Adicionais</h2>
+                
+                {/* *** MENSAGENS MOVIDAS DAQUI *** */}
+                
                 <div className="admin-actions">
                     <Link to="/admin/curriculum/add-additional-info" className="add-button" style={{backgroundColor: '#5bc0de'}}>
                         <FaPlus /> Adicionar Item
@@ -455,12 +547,16 @@ function CurriculumAdminPage({ isAuthenticated }) {
                                 <tr key={item.id}>
                                     <td data-label="ID">{item.id}</td>
                                     <td data-label="Texto">{item.text}</td>
-                                    {renderActionCell(item, 'additional-info')}
+                                    {renderActionCell(item, 'additional-info', 'additional-info')}
                                 </tr>
                             ))
                         )}
                     </tbody>
                 </table>
+                
+                {/* *** MOVIDO PARA CÁ *** (Abaixo do card) */}
+                {addInfoError && <p className="form-message error" style={{marginTop: '15px'}}>{addInfoError}</p>}
+                {addInfoMessage && <p className="form-message success" style={{marginTop: '15px'}}>{addInfoMessage}</p>}
             </div>
             
         </div>
