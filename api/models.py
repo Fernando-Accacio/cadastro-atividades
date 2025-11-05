@@ -14,7 +14,7 @@ engine = create_engine(
     pool_recycle=1800,
     pool_size=10, 
     max_overflow=20, 
-    pool_timeout=5, 
+    pool_timeout=30, 
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
