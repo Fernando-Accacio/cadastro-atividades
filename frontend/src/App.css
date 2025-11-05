@@ -16,7 +16,6 @@ body {
   -ms-hyphens: auto;
   hyphens: auto;
   min-height: 100vh;
-  /* Garante que o conteúdo fique no topo */
   display: flex;
   flex-direction: column;
 }
@@ -28,50 +27,37 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  /* Fundo principal - Z-index para ficar atrás de tudo */
   z-index: -2;
 
-  /* AJUSTE 1: Cores um pouco mais contrastantes no gradiente
-     Mantendo o tom azulado/cinzento frio, mas com mais profundidade.
-     Usando cores com mais corpo: #d3e0ea e #f0f4f8 */
   background: linear-gradient(135deg,
     #f0f4f8 0%,
     #e7edf3 25%,
-    #d3e0ea 50%, /* Ponto de maior saturação */
+    #d3e0ea 50%,
     #e7edf3 75%,
     #f0f4f8 100%
   );
 
-  background-size: 400% 400%;
-  /* AJUSTE 2: Animação um pouco mais rápida (30s) */
-  animation: gradientShift 30s ease infinite;
+  background-size: 450% 450%;
+  animation: gradientShift 22s ease-in-out infinite; /* mais rápido e perceptível */
 }
 
 body::after {
   content: '';
   position: fixed;
-  /* Cobrindo uma área maior para a animação de 'float' */
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  /* Camada de "bolhas" - Z-index entre o fundo e o conteúdo */
+  top: -60%; /* aumenta para permitir movimentos maiores */
+  left: -60%;
+  width: 220%;
+  height: 220%;
   z-index: -1;
 
   background-image:
-    /* AJUSTE 3: Aumenta a opacidade (quarto valor) de 0.12 para 0.20 (20%) */
-    radial-gradient(circle at 25% 35%, rgba(196, 214, 227, 0.20) 0%, transparent 40%),
-    /* AJUSTE 4: Aumenta a opacidade de 0.14 para 0.25 (25%) */
-    radial-gradient(circle at 75% 65%, rgba(196, 214, 227, 0.25) 0%, transparent 50%),
-    /* AJUSTE 5: Aumenta a opacidade de 0.10 para 0.15 (15%) */
-    radial-gradient(circle at 45% 85%, rgba(196, 214, 227, 0.15) 0%, transparent 35%);
+    radial-gradient(circle at 25% 35%, rgba(196, 214, 227, 0.22) 0%, transparent 42%),
+    radial-gradient(circle at 75% 65%, rgba(196, 214, 227, 0.28) 0%, transparent 52%),
+    radial-gradient(circle at 45% 85%, rgba(196, 214, 227, 0.18) 0%, transparent 38%);
 
   background-blend-mode: soft-light;
-  /* AJUSTE 6: Animação um pouco mais dinâmica (40s) */
-  animation: floatBubbles 40s ease-in-out infinite;
+  animation: floatBubbles 28s ease-in-out infinite; /* mais rápido e perceptível */
 }
-
-/* As keyframes continuam as mesmas, mas ajustamos a duração na chamada */
 
 @keyframes gradientShift {
   0%, 100% {
@@ -87,12 +73,13 @@ body::after {
     transform: translate(0, 0) rotate(0deg);
   }
   33% {
-    transform: translate(30px, -30px) rotate(100deg); /* Movimento levemente maior */
+    transform: translate(70px, -60px) rotate(140deg); /* movimento maior */
   }
   66% {
-    transform: translate(-20px, 20px) rotate(220deg); /* Movimento levemente maior */
+    transform: translate(-55px, 45px) rotate(300deg); /* movimento maior */
   }
 }
+
 
 
 /* =============================================== */
