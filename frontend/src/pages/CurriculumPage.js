@@ -310,6 +310,7 @@ function CurriculumPage() {
                     href={downloadUrl} 
                     rel="noopener noreferrer" 
                     className="download-button"
+                      style={{ whiteSpace: 'nowrap' }}
                 >
                     <FaDownload style={{marginRight: '8px'}}/> Baixar Currículo (PDF)
                 </a>

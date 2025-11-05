@@ -129,16 +129,15 @@ function EditAdditionalInfoPage({ isAuthenticated }) { // Adicionei isAuthentica
 
                 {/* --- BOTÕES DE AÇÃO (SALVAR E DELETAR) --- */}
                 <div className="admin-actions" style={{ display: 'flex', gap: '10px' }}>
-                    <button type="submit" disabled={isSaving} className="add-button" style={{ flex: 1 }}>
+                    <button type="submit" disabled={isSaving} className="add-button">
                         {isSaving ? 'Salvando...' : <><FaSave /> Salvar Alterações</>}
                     </button>
                     
                     <button 
-                        type="button" // Importante: type="button"
+                        type="button" 
                         disabled={isSaving} 
                         className="danger-button" 
                         onClick={handleDelete}
-                        style={{ flex: 1 }}
                     >
                         {isSaving ? '...' : <><FaTrash /> Deletar</>}
                     </button>

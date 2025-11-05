@@ -397,7 +397,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
                     <Link to="/admin/curriculum/add-experience" className="add-button" style={{backgroundColor: '#28a745'}}>
                         <FaPlus /> Adicionar Experiência
                     </Link>
-                    <button type="button" onClick={() => setShowNoExperienceInput(!showNoExperienceInput)} className="add-button" style={{ backgroundColor: showNoExperienceInput ? '#dc3545' : '#ffc107', color: '#212529', marginLeft: '10px' }}>
+                    <button type="button" onClick={() => setShowNoExperienceInput(!showNoExperienceInput)} className="add-button" style={{ backgroundColor: showNoExperienceInput ? '#dc3545' : '#ffc107', color: '#212529'}}>
                         <FaEdit /> {showNoExperienceInput ? 'Cancelar Edição' : 'Editar Texto "Sem Experiência"'}
                     </button>
                 </div>

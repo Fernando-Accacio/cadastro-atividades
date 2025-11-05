@@ -812,7 +812,13 @@ main .container > *:last-child {
   align-items: center;
   gap: 6px;
   font-family: inherit;
+
+  /* --- ADICIONADO ABAIXO --- */
+  width: 110px; /* Define uma largura fixa */
+  justify-content: center; /* Centraliza o ícone e o texto */
+  box-sizing: border-box; /* Garante que o padding não afete a largura */
 }
+
 
 .danger-button-small:hover {
   background-color: var(--bg-danger-hover);
@@ -836,7 +842,13 @@ main .container > *:last-child {
   align-items: center;
   gap: 6px;
   font-family: inherit;
+
+  /* --- ADICIONADO ABAIXO --- */
+  width: 110px; /* Define a MESMA largura fixa */
+  justify-content: center; /* Centraliza o ícone e o texto */
+  box-sizing: border-box; /* Garante que o padding não afete a largura */
 }
+
 
 .edit-button-small:hover {
   background-color: var(--bg-secondary-action-hover);
@@ -1011,24 +1023,44 @@ main .container > *:last-child {
   }
 
   /* Botões de Ação (Editar/Deletar) no Mobile */
-  .admin-actions-cell .danger-button-small,
-  .admin-actions-cell .edit-button-small {
-    flex: 1 1 0; /* Ocupam espaço igual */
+/* Botões de Ação (Editar/Deletar) no Mobile */
+.admin-actions .add-button,
+.admin-actions .danger-button {
+    flex: 1 1 0; /* Faz eles crescerem e ocuparem o espaço igualmente */
     justify-content: center;
-    padding: 10px;
-    font-size: 1em;
-    margin: 0;
-  }
+}
+
+/* Força o .danger-button a ter o mesmo padding/fonte do .add-button */
+.admin-actions .danger-button {
+    font-size: 1.05em;  /* Pega o font-size do .add-button */
+    padding: 12px 20px; /* Pega o padding do .add-button */
+}
 
   .admin-actions {
     flex-direction: column;
     gap: 15px;
   }
 
-  .admin-actions .danger-button {
+.admin-actions .add-button,
+.admin-actions .danger-button {
+    flex: 1 1 0;
+    justify-content: center; /* Centraliza o conteúdo */
+}
+
+.admin-actions .danger-button {
+    font-size: 1.05em;  /* Pega o font-size do .add-button */
+    padding: 12px 20px; /* Pega o padding do .add-button */
+}
+
+.admin-actions .danger-button,
+.admin-actions .add-button,
+.admin-actions .edit-button-small,
+.admin-actions .btn-save-general,
+.admin-actions a,
+.admin-actions button {
     width: 100%;
     box-sizing: border-box;
-  }
+}
 
   .admin-section .data-table td {
     padding-left: 14px;
