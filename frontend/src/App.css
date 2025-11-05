@@ -939,6 +939,18 @@ main .container > *:last-child {
     align-items: center;
   }
 
+/* LINHA 800 (Ajustes Mobile) */
+@media screen and (max-width: 960px) {
+    /* Zera o padding lateral para a logo encostar na borda */
+    .app-header {
+        padding: 0px 0px !important;
+    }
+
+    /* Zera o padding-left da logo */
+    .app-header .header-logo {
+        padding-left: 0 !important;    }
+}
+
   .nav-menu.active {
     transform: translateX(0);
   }
@@ -952,6 +964,7 @@ main .container > *:last-child {
 
   .hamburger {
     display: block;
+    padding-right: 20px;
   }
 }
 
@@ -1051,13 +1064,13 @@ main .container > *:last-child {
     display: none;
   }
 
-    .header-logo {
-        padding-left: 4px !important;
-    }
-    
-    .app-header .header-logo .logo-img {
-        min-height: 45px !important;
-        min-width: 45px !important;
+.header-logo {
+  padding-left: 16px !important; 
+  }
+    
+    .app-header .header-logo .logo-img {
+      min-height: 45px !important;
+      min-width: 45px !important;
     }
 
   /* Botões de Ação (Editar/Deletar) no Mobile */
@@ -1147,8 +1160,8 @@ main .container > *:last-child {
 /* AJUSTES PARA TELAS MUITO PEQUENAS (Ex: iPhone SE) */
 /* =============================================== */
 @media screen and (max-width: 380px) {
-    .app-header .header-logo {
-        padding-left: 2px !important;
+    .header-logo {
+        padding-left: 0 !important;
     }
     
     .app-header .header-logo .logo-img {
