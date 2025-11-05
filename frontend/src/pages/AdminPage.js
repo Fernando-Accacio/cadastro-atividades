@@ -517,7 +517,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
       
       {/* --- GERENCIAR HOMEPAGE (JSX ATUALIZADO) --- */}
       <div className="admin-section">
-        <h2><FaHome /> Gerenciar Homepage</h2>
+        <h2>Gerenciar Homepage</h2>
         <p>Modifique Nome, Descrição, Foto de Perfil e Links Sociais exibidos na página inicial.</p>
         
         <form onSubmit={handleHomeInfoSubmit} className="admin-credentials-form">
@@ -693,7 +693,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
       
       {/* --- LINK: GERENCIAR CURRÍCULO (Sem alterações) --- */}
       <div className="admin-section">
-        <h2><FaAddressCard /> Áreas de Conteúdo</h2>
+        <h2>Áreas de Conteúdo (Currículo)</h2>
         <p>Acesse o painel dedicado para gerenciar os dados do seu currículo.</p>
         <div className="admin-actions">
           <Link 
@@ -761,7 +761,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
 
       {/* --- GERENCIAR HOBBIES (*** MODIFICADO ***) --- */}
       <div className="admin-section">
-        <h2><FaHeart /> Gerenciar Hobbies</h2>
+        <h2>Gerenciar Hobbies</h2>
         <p>Adicionar, editar ou remover hobbies da página "Sobre Mim".</p>
         
         <div className="admin-actions">
@@ -858,7 +858,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
 
       {/* --- ALTERAR CREDENCIAIS (Sem alterações) --- */}
       <div className="admin-section">
-        <h2><FaUser /> Alterar Credenciais</h2>
+        <h2>Alterar Credenciais</h2>
         <p>Mude seu nome de usuário ou senha. Você será deslogado após a alteração.</p>
         <form onSubmit={handleCredentialsSubmit} className="admin-credentials-form">
           <div className="form-group">

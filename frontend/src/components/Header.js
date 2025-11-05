@@ -13,12 +13,14 @@ function Header({ isAuthenticated, onLogout }) {
 
   return (
     <header className="app-header">
+      {/* ALTERADO: Substitui <h1> por <img> para a logo */}
       <Link to="/" className="header-logo" onClick={() => setMenuActive(false)}>
-        <h1>Meu Portfólio</h1>
+        {/* Acessa a imagem na pasta public. Altere o 'src' se o nome do seu arquivo for diferente */}
+        <img src="/logo.png" alt="Logo do Meu Portfólio" className="logo-img" />
       </Link>
       
       <div className="hamburger" onClick={() => setMenuActive(!menuActive)}>
-        &#9776; {/* Ícone de Hambúrguer (pode ser substituído por um ícone de React) */}
+        &#9776;
       </div>
 
       <nav className={menuActive ? "nav-menu active" : "nav-menu"}>
