@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
-import { FaDownload } from 'react-icons/fa';
+import { FaDownload, FaPrint } from 'react-icons/fa';
 
 // Estilos (sem alterações)
 const curriculumStyle = {
@@ -99,6 +99,26 @@ function CurriculumPage() {
         }));
     };
     // --- FIM DA MUDANÇA 1 ---
+
+    // --- NOVA FUNÇÃO: Imprimir PDF ---
+    const handlePrint = async () => {
+        try {
+            const response = await fetch(downloadUrl);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = url;
+            document.body.appendChild(iframe);
+            iframe.onload = () => {
+                iframe.contentWindow.print();
+            };
+        } catch (error) {
+            console.error("Erro ao abrir PDF para impressão:", error);
+            alert("Não foi possível abrir o PDF para impressão.");
+        }
+    };
+    // --- FIM DA NOVA FUNÇÃO ---
     
     useEffect(() => {
         const fetchAllData = async () => {
@@ -304,21 +324,28 @@ function CurriculumPage() {
 
             </div>
 
-            {/* --- BOTÃO DE DOWNLOAD --- (Sem alterações) */}
-            {info.pdf_url ? ( 
-                <a 
-                    href={downloadUrl} 
-                    rel="noopener noreferrer" 
-                    className="download-button"
-                      style={{ whiteSpace: 'nowrap' }}
-                >
-                    <FaDownload style={{marginRight: '8px'}}/> Baixar Currículo (PDF)
-                </a>
-            ) : (
-                <p style={{textAlign: 'center', marginTop: '30px', color: 'var(--text-danger)'}}>
-                    O arquivo PDF do currículo ainda não foi carregado pelo administrador.
-                </p>
-            )}
+            {/* --- BOTÕES DE DOWNLOAD E IMPRESSÃO --- */}
+{info.pdf_url ? ( 
+    <div className="curriculum-buttons-container">
+        <a 
+            href={downloadUrl} 
+            rel="noopener noreferrer" 
+            className="download-button"
+        >
+            <FaDownload style={{marginRight: '8px'}}/> Baixar Currículo (PDF)
+        </a>
+        <button 
+            onClick={handlePrint}
+            className="download-button"
+        >
+            <FaPrint style={{marginRight: '8px'}}/> Imprimir Currículo
+        </button>
+    </div>
+) : (
+    <p style={{textAlign: 'center', marginTop: '30px', color: 'var(--text-danger)'}}>
+        O arquivo PDF do currículo ainda não foi carregado pelo administrador.
+    </p>
+)}
         </div>
     );
 }
