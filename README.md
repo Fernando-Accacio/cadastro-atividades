@@ -39,12 +39,12 @@ Este projeto é uma aplicação web completa, responsiva e de pilha dividida (de
 Este projeto utiliza uma arquitetura de pilha dividida (decoupled), onde o Frontend e o Backend são aplicações completamente separadas e hospedadas em plataformas otimizadas para suas respectivas tecnologias.
 
 ```
-┌───────────────────┐       ┌───────────────────┐       ┌──────────────────┐
-│     VERCEL        │       │      RENDER         │       │      NEON        │
-│   (Frontend)      │       │    (Backend)        │       │   (Database)     │
-│     React         │ ──API──>│   Python / Flask  │ ──SQL──>│   PostgreSQL     │
-│ (cadastro-...)    │ Calls   │    (gunicorn)       │ Calls   │   (Serverless)   │
-└───────────────────┘       └───────────────────┘       └──────────────────┘
+┌───────────────────┐            ┌───────────────────┐          ┌──────────────────┐
+│     VERCEL        │            │      RENDER       │          │      NEON        │
+│   (Frontend)      │            │    (Backend)      │          │   (Database)     │
+│     React         │ ──API──>   │   Python / Flask  │ ──SQL──> │   PostgreSQL     │
+│ (cadastro-...)    │ Calls      │    (gunicorn)     │ Calls    │   (Serverless)   │
+└───────────────────┘            └───────────────────┘          └──────────────────┘
 ```
 
 -----
