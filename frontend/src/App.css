@@ -507,8 +507,8 @@ main {
   cursor: pointer;
   font-size: 1em;
   font-weight: 500;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  transition: background-color 0.3s, box-shadow 0.2s, transform 0.2s, opacity 0.3s;
+  box-shadow: none; /* <-- ADICIONADO */
+transition: background-color 0.3s; /* <-- AJUSTADO */
 }
 
 .danger-button:hover {
@@ -795,6 +795,10 @@ main .container > *:last-child {
   box-shadow: 0 6px 12px rgba(0,0,0,0.4);
 }
 
+/* ================================================= */
+/* === CORREÇÃO DEFINITIVA PARA BOTÕES DE AÇÃO === */
+/* ================================================= */
+
 .danger-button-small {
   background-color: var(--text-danger);
   color: white;
@@ -804,24 +808,24 @@ main .container > *:last-child {
   cursor: pointer;
   font-size: 0.9em;
   font-weight: 500;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  transition: background-color 0.3s, box-shadow 0.2s, transform 0.2s;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-family: inherit;
+  width: 110px;
+  justify-content: center;
+  box-sizing: border-box;
 
-  /* --- ADICIONADO ABAIXO --- */
-  width: 110px; /* Define uma largura fixa */
-  justify-content: center; /* Centraliza o ícone e o texto */
-  box-sizing: border-box; /* Garante que o padding não afete a largura */
+  /* --- FORÇA A REMOÇÃO DA SOMBRA --- */
+  box-shadow: none !important;
+  transform: none !important;
+  transition: background-color 0.3s !important;
 }
-
 
 .danger-button-small:hover {
   background-color: var(--bg-danger-hover);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-  transform: translateY(-1px);
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 .edit-button-small {
@@ -834,30 +838,43 @@ main .container > *:last-child {
   cursor: pointer;
   font-size: 0.9em;
   font-weight: 500;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  transition: background-color 0.3s, box-shadow 0.2s, transform 0.2s;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-family: inherit;
+  width: 110px;
+  justify-content: center;
+  box-sizing: border-box;
 
-  /* --- ADICIONADO ABAIXO --- */
-  width: 110px; /* Define a MESMA largura fixa */
-  justify-content: center; /* Centraliza o ícone e o texto */
-  box-sizing: border-box; /* Garante que o padding não afete a largura */
+  /* --- FORÇA A REMOÇÃO DA SOMBRA --- */
+  box-shadow: none !important;
+  transform: none !important;
+  transition: background-color 0.3s !important;
 }
-
 
 .edit-button-small:hover {
   background-color: var(--bg-secondary-action-hover);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-  transform: translateY(-1px);
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 .admin-actions-cell {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
+}
+
+.admin-actions-cell a,
+.admin-actions-cell button {
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+/* Também remove a sombra/transformação do HOVER 
+*/
+.admin-actions-cell a:hover,
+.admin-actions-cell button:hover {
+    box-shadow: none !important;
+    transform: none !important;
 }
 
 .back-to-admin {
@@ -887,38 +904,22 @@ main .container > *:last-child {
     flex-direction: column;
     width: 90%;
     max-width: 400px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
     position: absolute;
     top: 85px;
-    left: 0;
     right: 0;
     max-height: 85vh;
     padding: 20px 0;
-    margin-bottom: 20px;
     overflow-y: auto;
-    box-sizing: border-box;
     background-color: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-radius: var(--radius-main);
     box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    transform: translateX(150%); 
+    transform: translateX(150%);
     transition: transform 0.5s ease;
     align-items: center;
   }
-
-/* LINHA 800 (Ajustes Mobile) */
-@media screen and (max-width: 960px) {
-    /* Zera o padding lateral para a logo encostar na borda */
-    .app-header {
-        padding: 0px 0px !important;
-    }
-
-    /* Zera o padding-left da logo */
-    .app-header .header-logo {
-        padding-left: 0 !important;    }
-}
 
   .nav-menu.active {
     transform: translateX(0);
@@ -926,7 +927,6 @@ main .container > *:last-child {
 
   .nav-menu a {
     width: fit-content;
-    box-sizing: border-box;
     padding: 15px 20px;
     font-size: 1.5rem;
   }
@@ -934,6 +934,15 @@ main .container > *:last-child {
   .hamburger {
     display: block;
     padding-right: 20px;
+  }
+
+  /* Ajustes Mobile - linha 800 */
+  .app-header {
+    padding: 0 !important;
+  }
+
+  .app-header .header-logo {
+    padding-left: 0 !important;
   }
 }
 
@@ -948,6 +957,14 @@ main .container > *:last-child {
     overflow: visible;
     overflow-x: hidden;
   }
+
+  .admin-section .data-table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: var(--radius-main);
+}
+
+.admin-section .data-table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: var(--radius-main);
+}
 
   .data-table thead {
     display: none;
@@ -988,13 +1005,23 @@ main .container > *:last-child {
     display: flex;
     flex-direction: row;
     gap: 8px;
-    align-items: center;
     padding-left: 14px !important;
   }
+
+.data-table td.admin-actions-cell > * {
+    flex: 1 1 0;      /* Diz aos itens para crescerem igualmente */
+    width: 0;         /* Força os itens a terem uma base 0 antes de crescer */
+    box-sizing: border-box; /* Garante que o padding não estrague o cálculo */
+}
 
   .data-table td:not(:first-child) {
     border-top: 1px solid var(--border-light);
   }
+
+  .data-table td:last-child {
+        border-bottom-left-radius: var(--radius-main);
+        border-bottom-right-radius: var(--radius-main);
+    }
 
   .data-table td:first-child {
     background-color: rgba(245, 247, 250, 0.9);
@@ -1124,6 +1151,15 @@ main .container > *:last-child {
     flex: 1;
   }
 }
+
+.admin-section .data-table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: var(--radius-main);
+}
+
+.admin-section .data-table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: var(--radius-main);
+}
+
 
 /* =============================================== */
 /* AJUSTES PARA TELAS MUITO PEQUENAS (Ex: iPhone SE) */

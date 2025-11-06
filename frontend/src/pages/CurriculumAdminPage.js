@@ -527,7 +527,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
 
             {/* 5. INFORMAÇÕES ADICIONAIS */}
             <div className="admin-section">
-                <h2><FaInfoCircle /> Informações Adicionais</h2>
+                <h2>Informações Adicionais</h2>
                 
                 {/* *** MENSAGENS MOVIDAS DAQUI *** */}
                 
