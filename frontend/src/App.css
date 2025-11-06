@@ -440,6 +440,10 @@ main {
         0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
+.download-button.print-button {
+  display: none;
+}
+
 .form-group {
   margin-bottom: 20px;
 }
@@ -1119,6 +1123,11 @@ main .container > *:last-child {
     padding: 40px;
     font-size: 1.15em;
   }
+
+/* Mostra o botão de imprimir no desktop (sendo mais específico) */
+.download-button.print-button {
+   display: inline-flex; 
+}
 
   .hobby-card {
     flex-direction: row;

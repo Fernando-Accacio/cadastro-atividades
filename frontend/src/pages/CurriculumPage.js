@@ -336,7 +336,7 @@ function CurriculumPage() {
         </a>
         <button 
             onClick={handlePrint}
-            className="download-button"
+            className="download-button print-button"
         >
             <FaPrint style={{marginRight: '8px'}}/> Imprimir Currículo
         </button>

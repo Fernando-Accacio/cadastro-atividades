@@ -12,7 +12,7 @@ Este projeto é uma aplicação web completa, responsiva e de pilha dividida (de
 
   * **🧑‍💻 Apresentação Pessoal:** Página inicial com biografia e links diretos para LinkedIn, GitHub e E-mail.
   * **📚 Visualização de Projetos:** Trabalhos organizados por "Áreas do Saber", com cards interativos.
-  * **📄 Página de Currículo:** Exibe o currículo e oferece um botão para download do PDF e outro botão para impressão.
+* 📄 Página de Currículo: Exibe o currículo e oferece um botão para **download do PDF** (ideal para todos os dispositivos) e um botão de **impressão** (otimizado para uso apenas em computadores).
   * **⭐ Sistema de Votação e Ranking:** Visitantes podem votar nos projetos. Uma página de ranking exibe os mais votados, com destaque para o Top 3.
   * **💬 Formulário de Contato:** Permite o envio direto de mensagens para o administrador.
   * **📱 Design Responsivo:** A interface se adapta a celulares, tablets e desktops.
