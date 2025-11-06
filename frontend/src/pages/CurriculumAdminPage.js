@@ -546,7 +546,22 @@ function CurriculumAdminPage({ isAuthenticated }) {
                             additionalInfo.map(item => (
                                 <tr key={item.id}>
                                     <td data-label="ID">{item.id}</td>
-                                    <td data-label="Texto">{item.text}</td>
+                                    
+                                    {/*
+                                    ===== A SOLUÇÃO É ADICIONAR ESTE 'style' AQUI =====
+                                    */}
+                                    <td 
+                                        data-label="Texto"
+                                        style={{
+                                            maxWidth: '200px',     // 1. Define uma largura máxima
+                                            whiteSpace: 'nowrap',    // 2. Impede o texto de quebrar a linha
+                                            overflow: 'hidden',      // 3. Esconde o texto que "vazar"
+                                            textOverflow: 'ellipsis' // 4. Adiciona "..." no final
+                                        }}
+                                    >
+                                        {item.text}
+                                    </td>
+                                    
                                     {renderActionCell(item, 'additional-info', 'additional-info')}
                                 </tr>
                             ))
@@ -554,7 +569,6 @@ function CurriculumAdminPage({ isAuthenticated }) {
                     </tbody>
                 </table>
                 
-                {/* *** MOVIDO PARA CÁ *** (Abaixo do card) */}
                 {addInfoError && <p className="form-message error" style={{marginTop: '15px'}}>{addInfoError}</p>}
                 {addInfoMessage && <p className="form-message success" style={{marginTop: '15px'}}>{addInfoMessage}</p>}
             </div>

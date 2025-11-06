@@ -958,14 +958,6 @@ main .container > *:last-child {
     overflow-x: hidden;
   }
 
-  .admin-section .data-table tbody tr:last-child td:first-child {
-    border-bottom-left-radius: var(--radius-main);
-}
-
-.admin-section .data-table tbody tr:last-child td:last-child {
-    border-bottom-right-radius: var(--radius-main);
-}
-
   .data-table thead {
     display: none;
   }
@@ -1152,14 +1144,13 @@ main .container > *:last-child {
   }
 }
 
-.admin-section .data-table tbody tr:last-child td:first-child {
-    border-bottom-left-radius: var(--radius-main);
+.data-table tbody tr:last-child td:first-child {
+   border-bottom-left-radius: var(--radius-main);
 }
 
-.admin-section .data-table tbody tr:last-child td:last-child {
+.data-table tbody tr:last-child td:last-child {
     border-bottom-right-radius: var(--radius-main);
 }
-
 
 /* =============================================== */
 /* AJUSTES PARA TELAS MUITO PEQUENAS (Ex: iPhone SE) */
@@ -1169,10 +1160,25 @@ main .container > *:last-child {
         padding-left: 0 !important;
     }
     
-    .app-header .header-logo .logo-img {
-        min-height: 40px !important;
-        min-width: 40px !important;
-    }
+  .data-table {
+    margin: 0 auto !important;         /* Centraliza o bloco */
+    width: 100% !important;            /* Garante alinhamento correto */
+  }
+
+  .data-table tr {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 6px;
+  }
+
+  .data-table td,
+  .data-table th {
+    width: 100% !important;            /* Evita puxar pro lado */
+    text-align: center !important;
+    justify-content: center !important;
+  }
 
   .hamburger {
     font-size: 1.5rem;
@@ -1290,10 +1296,24 @@ main .container > *:last-child {
     font-size: 0.9rem;
     flex-shrink: 0;
   }
-  
-  .admin-actions-cell {
-    flex-direction: column;
-  }
+
+.data-table td.admin-actions-cell {
+    /* FALTAVA ISSO: */
+    display: flex !important; 
+    
+    /* ISSO VOCÊ JÁ TINHA: */
+    flex-direction: row !important; 
+    
+    /* ADICIONE ISSO PARA GARANTIR O ESPAÇAMENTO: */
+    gap: 8px !important;
+}
+
+.data-table td.admin-actions-cell a,
+.data-table td.admin-actions-cell button {
+    flex: 1; /* Faz cada botão/link ocupar 50% do espaço disponível */
+    width: 50%;
+    margin: 0; /* Remove qualquer margem que possa estar atrapalhando */
+}
 }
 
 /* ================================================= */

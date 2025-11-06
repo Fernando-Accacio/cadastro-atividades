@@ -797,7 +797,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
                   <td data-label="ID">{hobby.id}</td>
                   <td data-label="Imagem">
                     {hobby.image_url ? (
-                      <img src={hobby.image_url} alt={hobby.title} style={{ width: '80px', height: '50px', objectFit: 'cover', borderRadius: '4px' }} />
+                      <img src={hobby.image_url} alt={hobby.title} style={{ width: '60px', height: '30px', objectFit: 'cover', borderRadius: '4px' }} />
                     ) : (
                       <span style={{color: '#999'}}>Sem Imagem</span>
                     )}
