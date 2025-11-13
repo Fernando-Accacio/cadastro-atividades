@@ -160,7 +160,7 @@ function HomePage() {
     return (
       <p>
         {objectiveText}{' '}
-        Venha conhecer um pouco mais{' '}
+        {' '}
         <Link to="/sobremim" className="link-effect">
           sobre mim!
         </Link>

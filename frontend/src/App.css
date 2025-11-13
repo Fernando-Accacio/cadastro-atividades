@@ -1139,12 +1139,12 @@ main .container > *:last-child {
   }
 
   .hobby-image {
-    width: 350px;
-    height: 300px;
+    width: 450px;
+    min-height: 300px;
     flex-shrink: 0;
-    object-position: center; /* (Manter center é bom) */
-    object-fit: cover;    /* <-- MUDANÇA AQUI */
-    background-color: #f0f3f7; /* <-- ADICIONE ISSO (Cor de fundo suave) */
+    object-position: center;
+    object-fit: cover;
+    background-color: #f0f3f7;
   }
 
   .hobby-content {

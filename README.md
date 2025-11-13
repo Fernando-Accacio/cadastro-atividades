@@ -1,4 +1,3 @@
-Você está absolutamente certo. Peço desculpas.
 💼 Portfólio de Trabalhos Acadêmicos (Full-Stack)
 
 Este projeto é uma aplicação web completa, responsiva e de pilha dividida (decoupled), servindo como um portfólio pessoal interativo. Ele apresenta trabalhos acadêmicos, um currículo profissional e um painel de controle administrativo seguro para gerenciamento de todo o conteúdo.
