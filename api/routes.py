@@ -58,26 +58,34 @@ def init_routes(app):
     # Rota de Login (sem mudanças)
     @app.route('/api/login', methods=['POST'])
     def login():
-        # ... (código sem mudanças) ...
-        db: Session = next(get_db())
-        data = request.get_json()
-        if not data or not data.get('username') or not data.get('password'):
-            return jsonify({'error': 'Usuário e senha são obrigatórios'}), 400
-        username = data.get('username')
-        password = data.get('password')
-        user = db.query(User).filter(User.username == username).first()
-        if not user or not user.check_password(password):
-            return jsonify({'error': 'Usuário ou senha incorretos'}), 401
-        secret_key = current_app.config['JWT_SECRET_KEY']
-        token_payload = {
-            'user_id': user.id,
-            'username': user.username,
-            'exp': datetime.utcnow() + timedelta(hours=8)
-        }
-        token = jwt.encode(token_payload, secret_key, algorithm="HS256")
-        return jsonify({'token': token})
+                # ... (código sem mudanças) ...
+                db: Session = next(get_db())
+                data = request.get_json()
+                if not data or not data.get('username') or not data.get('password'):
+                    return jsonify({'error': 'Usuário e senha são obrigatórios'}), 400
 
-        # ... (logo após sua rota /api/login)
+                # Pega o nome de usuário digitado
+                username_digitado = data.get('username')
+                # Normaliza: converte para minúsculas e remove espaços extras
+                username_normalizado = username_digitado.lower().strip()
+                
+                password = data.get('password')
+                
+                # Busca no banco usando o nome normalizado
+                user = db.query(User).filter(User.username == username_normalizado).first()
+
+                if not user or not user.check_password(password):
+                    return jsonify({'error': 'Usuário ou senha incorretos'}), 401
+                    
+                secret_key = current_app.config['JWT_SECRET_KEY']
+                token_payload = {
+                    'user_id': user.id,
+                    'username': user.username, # Retorna o username salvo no banco
+                    'exp': datetime.utcnow() + timedelta(hours=8)
+                }
+                token = jwt.encode(token_payload, secret_key, algorithm="HS256")
+                return jsonify({'token': token})
+
 
     @app.route('/api/admin/user-exists', methods=['GET'])
     def check_user_exists():
@@ -96,40 +104,49 @@ def init_routes(app):
 
     @app.route('/api/admin/create-first-user', methods=['POST'])
     def create_first_user():
-        """
-        Cria o primeiro usuário administrador.
-        Esta rota SÓ funciona se não houver nenhum outro usuário no banco.
-        """
-        db: Session = next(get_db())
-        try:
-            user_count = db.query(User).count()
-            if user_count > 0:
-                return jsonify({'error': 'Um administrador já existe. Use a tela de login.'}), 403 # 403 Forbidden
+            """
+            Cria o primeiro usuário administrador.
+            Esta rota SÓ funciona se não houver nenhum outro usuário no banco.
+            """
+            db: Session = next(get_db())
+            try:
+                user_count = db.query(User).count()
+                if user_count > 0:
+                    return jsonify({'error': 'Um administrador já existe. Use a tela de login.'}), 403 # 403 Forbidden
 
-            data = request.get_json()
-            username = data.get('username')
-            password = data.get('password')
+                data = request.get_json()
+                
+                username_digitado = data.get('username')
+                password = data.get('password')
 
-            if not username or not password:
-                return jsonify({'error': 'Usuário e senha são obrigatórios.'}), 400
+                username_normalizado = None
+                if username_digitado:
+                    # Normaliza: converte para minúsculas e remove espaços extras
+                    username_normalizado = username_digitado.lower().strip()
 
-            new_admin = User(username=username)
-            new_admin.set_password(password)
-            
-            db.add(new_admin)
-            db.commit()
-            
-            return jsonify({'message': 'Administrador criado com sucesso! Agora você pode fazer login.'}), 201
+                # Verifica o nome de usuário JÁ normalizado
+                if not username_normalizado or not password:
+                    return jsonify({'error': 'Usuário e senha são obrigatórios.'}), 400
 
-        except IntegrityError: # Segurança extra caso dois tentem ao mesmo tempo
-            db.rollback()
-            return jsonify({'error': 'Esse nome de usuário já está em uso.'}), 409
-        except Exception as e:
-            db.rollback()
-            print(f"Erro ao criar primeiro admin: {e}")
-            return jsonify({'error': str(e)}), 500
-        finally:
-            db.close()
+                # Salva o usuário com o nome normalizado no banco
+                new_admin = User(username=username_normalizado)
+
+                new_admin.set_password(password)
+                
+                db.add(new_admin)
+                db.commit()
+                
+                return jsonify({'message': 'Administrador criado com sucesso! Agora você pode fazer login.'}), 201
+
+            except IntegrityError: # Segurança extra caso dois tentem ao mesmo tempo
+                db.rollback()
+                return jsonify({'error': 'Esse nome de usuário já está em uso.'}), 409
+            except Exception as e:
+                db.rollback()
+                print(f"Erro ao criar primeiro admin: {e}")
+                return jsonify({'error': str(e)}), 500
+            finally:
+                db.close()
 
             # ... (junto com as outras rotas /api/admin/...)
 
@@ -1099,34 +1116,46 @@ def init_routes(app):
     @app.route('/api/admin/credentials', methods=['PUT', 'OPTIONS'])
     @token_required
     def update_admin_credentials():
-        db: Session = next(get_db())
-        data = request.get_json()
-        current_password = data.get('current_password')
-        new_username = data.get('new_username')
-        new_password = data.get('new_password')
-        if not current_password: return jsonify({'error': 'Senha atual é obrigatória para verificação.'}), 400
-        user_id = g.current_user_id 
-        user = db.query(User).filter(User.id == user_id).first()
-        if not user: return jsonify({'error': 'Usuário não encontrado'}), 404
-        if not user.check_password(current_password): return jsonify({'error': 'Senha atual incorreta.'}), 403
-        new_username = new_username.strip() if new_username else None
-        new_password = new_password.strip() if new_password else None
-        if not new_username and not new_password: return jsonify({'error': 'Você deve fornecer um novo usuário ou uma nova senha.'}), 400
-        username_is_same = new_username and new_username == user.username
-        password_is_same = new_password and user.check_password(new_password)
-        if username_is_same and password_is_same: return jsonify({'error': 'O novo nome de usuário e a nova senha não podem ser iguais aos atuais.'}), 409
-        if username_is_same: return jsonify({'error': 'O novo nome de usuário não pode ser igual ao atual.'}), 409
-        if password_is_same: return jsonify({'error': 'A nova senha não pode ser igual à atual.'}), 409
-        try:
-            if new_username: user.username = new_username
-            if new_password: user.set_password(new_password)
-            db.commit()
-            return jsonify({'status': 'success', 'message': 'Credenciais atualizadas! Por favor, faça login novamente.'}), 200
-        except IntegrityError:
-            db.rollback()
-            return jsonify({'error': 'Esse nome de usuário já está em uso.'}), 409
-        except Exception as e:
-            db.rollback()
-            return jsonify({'error': f'Erro interno: {e}'}), 500
-        finally:
-            db.close()
+            db: Session = next(get_db())
+            data = request.get_json()
+            current_password = data.get('current_password')
+            
+            new_username_digitado = data.get('new_username')
+            
+            new_password = data.get('new_password')
+            if not current_password: return jsonify({'error': 'Senha atual é obrigatória para verificação.'}), 400
+            
+            user_id = g.current_user_id 
+            user = db.query(User).filter(User.id == user_id).first()
+            if not user: return jsonify({'error': 'Usuário não encontrado'}), 404
+            if not user.check_password(current_password): return jsonify({'error': 'Senha atual incorreta.'}), 403
+            
+            # Normaliza: converte para minúsculas e remove espaços extras
+            new_username = new_username_digitado.lower().strip() if new_username_digitado else None
+            
+            new_password = new_password.strip() if new_password else None
+            
+            if not new_username and not new_password: return jsonify({'error': 'Você deve fornecer um novo usuário ou uma nova senha.'}), 400
+            
+            username_is_same = new_username and new_username == user.username
+            password_is_same = new_password and user.check_password(new_password)
+            
+            if username_is_same and password_is_same: return jsonify({'error': 'O novo nome de usuário e a nova senha não podem ser iguais aos atuais.'}), 409
+            if username_is_same: return jsonify({'error': 'O novo nome de usuário não pode ser igual ao atual.'}), 409
+            if password_is_same: return jsonify({'error': 'A nova senha não pode ser igual à atual.'}), 409
+            
+            try:
+                # Salva o nome de usuário normalizado
+                if new_username: user.username = new_username 
+                if new_password: user.set_password(new_password)
+                
+                db.commit()
+                return jsonify({'status': 'success', 'message': 'Credenciais atualizadas! Por favor, faça login novamente.'}), 200
+            except IntegrityError:
+                db.rollback()
+                return jsonify({'error': 'Esse nome de usuário já está em uso.'}), 409
+            except Exception as e:
+                db.rollback()
+                return jsonify({'error': f'Erro interno: {e}'}), 500
+            finally:
+                db.close()
