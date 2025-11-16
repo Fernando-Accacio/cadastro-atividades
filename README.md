@@ -244,3 +244,5 @@ cadastro-atividades/
     │   └── index.js
     │
     └── package.json
+
+Este repositório inclui a pasta screenshots/, contendo imagens de exemplo do site em funcionamento, e o arquivo schema.sql, que contém a exportação completa do banco de dados (estrutura e dados) para importação e teste local.
