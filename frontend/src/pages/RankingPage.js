@@ -2,6 +2,14 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
 import { MdEmojiEvents } from 'react-icons/md';
 
+const LoadingComponent = () => (
+  <div className="container loading-container">
+    <h2 className="page-title">Carregando Ranking...</h2>
+    <p style={{ textAlign: 'center' }}>Aguarde um momento...</p>
+  </div>
+);
+//---------------------------------------
+
 const getRankDetails = (index) => {
   switch (index) {
     case 0:
@@ -18,6 +26,7 @@ const getRankDetails = (index) => {
 function RankingPage() {
   const [rankedProjects, setRankedProjects] = useState([]);
   const [hasVotes, setHasVotes] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     api.get('/api/projects/ranked')
@@ -27,13 +36,21 @@ function RankingPage() {
       })
       .catch(error => {
         console.error("Houve um erro ao buscar o ranking!", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }, []);
+
+  if (isLoading) {
+    return <LoadingComponent />;
+  }
+  //-----------------------------------------
 
   return (
     <div className="container">
       <h2 className="page-title">Ranking de Projetos</h2>
-      <p style={{textAlign: 'center', marginBottom: '30px'}}>
+      <p style={{ textAlign: 'center', marginBottom: '30px' }}>
         Projetos mais votados pela comunidade.
       </p>
 
@@ -55,17 +72,17 @@ function RankingPage() {
             {rankedProjects.map((project, index) => {
               const { className, medal } = getRankDetails(index);
 
-            return (
-              <tr key={project.id}> 
-                <td data-label="Posição" className={className}> 
-                   {index + 1}º
-                   {medal && <span className="rank-medal">{medal}</span>}
-                </td>
-                <td data-label="Projeto">{project.name}</td>
-                 <td data-label="Descrição">{project.description}</td>
-                <td data-label="Votos">{project.votes}</td>
-              </tr>
-             );
+              return (
+                <tr key={project.id}>
+                  <td data-label="Posição" className={className}>
+                    {index + 1}º
+                    {medal && <span className="rank-medal">{medal}</span>}
+                  </td>
+                  <td data-label="Projeto">{project.name}</td>
+                  <td data-label="Descrição">{project.description}</td>
+                  <td data-label="Votos">{project.votes}</td>
+                </tr>
+              );
             })}
           </tbody>
         </table>

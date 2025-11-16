@@ -948,6 +948,12 @@ main .container > *:last-child {
   .app-header .header-logo {
     padding-left: 0 !important;
   }
+
+  .loading-container {
+  text-align: center;
+  padding-top: 100px;
+  min-height: 60vh;
+}
 }
 
 @media screen and (max-width: 768px) {
