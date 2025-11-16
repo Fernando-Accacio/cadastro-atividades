@@ -148,7 +148,7 @@ function CurriculumPage() {
     }, []);
 
     if (isLoading) {
-        return <div className="container"><h2 className="page-title">Carregando Currículo...</h2>;
+        return <div className="container"><h2 className="page-title">Carregando Currículo...</h2>
         <p style={{ textAlign: 'center' }}>Aguarde um momento...</p></div>
 
     }
