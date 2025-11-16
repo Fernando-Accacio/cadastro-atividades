@@ -1477,17 +1477,19 @@ main .container > *:last-child {
     color: var(--text-secondary);
 }
 
-/* --- ESTILO PARA OS CHECKBOXES (A CORREÇÃO) --- */
 .radio-options-group input[type="checkbox"] {
     margin-right: 10px;  /* Espaço entre o checkbox e o texto */
     margin-top: 3px;     /* Ajuste fino vertical para alinhar com a primeira linha do texto */
     width: 16px;         /* Tamanho do checkbox */
     height: 16px;
     flex-shrink: 0;      /* Impede que o checkbox encolha */
-    accent-color: #0077cc; /* Cor primária do tema */
+    accent-color: #0077cc ; /* Cor primária do tema */
 }
 
-/* --- SEU ESTILO ANTIGO PARA RADIOS (Mantido) --- */
+.general-info-section input[type="checkbox"] {
+    accent-color: #0077cc !important;
+}
+
 .radio-options-group input[type="radio"] {
     margin-right: 8px;
     width: 16px;
