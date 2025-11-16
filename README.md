@@ -2,8 +2,8 @@
 
 Este projeto é uma aplicação web completa, responsiva e de pilha dividida (decoupled), servindo como um portfólio pessoal interativo. Ele apresenta trabalhos acadêmicos, um currículo profissional e um painel de controle administrativo seguro para gerenciamento de todo o conteúdo.
 
-🌐 Site em Produção: [https://cadastro-atividades.vercel.app/](https://cadastro-atividades.vercel.app/)
-⚙️ API em Produção: [https://cadastro-atividades.onrender.com/](https://cadastro-atividades.onrender.com/)
+🌐 **Site em Produção:** [Acessar Site](https://cadastro-atividades.vercel.app/)  
+⚙️ **API em Produção:** [Acessar API](https://cadastro-atividades.onrender.com/)
 
 ## ✨ Funcionalidades
 
