@@ -9,7 +9,7 @@ Este projeto é uma aplicação web completa, responsiva e de pilha dividida (de
 
 ### Públicas
 
-  * **🧑‍💻 Apresentação Pessoal:** Página inicial com biografia e links diretos para LinkedIn, GitHub e E-mail.
+  * **🧑‍💻 Apresentação Pessoal: Página inicial com biografia, links diretos para LinkedIn, GitHub e E-mail e direcionamento para a seção "Sobre Mim" com lista de hobbies.
   * **📚 Visualização de Projetos:** Trabalhos organizados por "Áreas do Saber", com cards interativos, com opção de acessar o projeto em outra plataforma e votar no que achar melhor.
 * 📄 Página de Currículo: Exibe o currículo e oferece um botão para **download do PDF** (ideal para todos os dispositivos) e um botão de **impressão** (otimizado para uso apenas em computadores).
   * **⭐ Sistema de Votação e Ranking:** Visitantes podem votar nos projetos. Uma página de ranking exibe os mais votados, com destaque para o Top 3.
@@ -41,7 +41,7 @@ Este manual descreve como interagir com a aplicação, tanto do ponto de vista d
 
 Qualquer pessoa que acessa o site pode:
 
-* **Explorar a Home:** Ver a apresentação pessoal, biografia e acessar links diretos para LinkedIn, GitHub e E-mail.
+* **Explorar a Home:** Ver a apresentação pessoal, biografia,  se direcionar a seção "Sobre Mim", descobrir hobbies e acessar links diretos para LinkedIn, GitHub e E-mail.
 * **Visualizar Projetos:** Navegar pelos trabalhos acadêmicos, que são organizados por "Áreas do Saber".
 * **Interagir com Projetos:**
     * Clicar em um card para ver detalhes.
