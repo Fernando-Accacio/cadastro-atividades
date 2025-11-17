@@ -33,10 +33,6 @@ Este projeto é uma aplicação web completa, responsiva e de pilha dividida (de
 
 -----
 
-Aqui está a seção "Manual de Uso" atualizada, incluindo o gerenciamento do conteúdo pessoal:
-
----
-
 ## 📖 Manual de Uso
 
 Este manual descreve como interagir com a aplicação, tanto do ponto de vista de um visitante público quanto do administrador do conteúdo.
@@ -89,7 +85,7 @@ O painel inclui uma "Zona de Perigo" para ações destrutivas que exigem confirm
 * **Resetar Votos:** Zerar a contagem de votos de todos os projetos.
 * **Apagar Mensagens:** Limpar permanentemente todas as mensagens recebidas.
 
-''''''''''''
+-----
 
 ## 🏗️ Arquitetura de Produção
 
