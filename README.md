@@ -10,7 +10,7 @@ Este projeto é uma aplicação web completa, responsiva e de pilha dividida (de
 ### Públicas
 
   * **🧑‍💻 Apresentação Pessoal:** Página inicial com biografia e links diretos para LinkedIn, GitHub e E-mail.
-  * **📚 Visualização de Projetos:** Trabalhos organizados por "Áreas do Saber", com cards interativos.
+  * **📚 Visualização de Projetos:** Trabalhos organizados por "Áreas do Saber", com cards interativos, com opção de acessar o projeto em outra plataforma e votar no que achar melhor.
 * 📄 Página de Currículo: Exibe o currículo e oferece um botão para **download do PDF** (ideal para todos os dispositivos) e um botão de **impressão** (otimizado para uso apenas em computadores).
   * **⭐ Sistema de Votação e Ranking:** Visitantes podem votar nos projetos. Uma página de ranking exibe os mais votados, com destaque para o Top 3.
   * **💬 Formulário de Contato:** Permite o envio direto de mensagens para o administrador.
@@ -32,6 +32,64 @@ Este projeto é uma aplicação web completa, responsiva e de pilha dividida (de
     Este projeto foi desenhado como um portfólio de usuário único (single-user), onde apenas o proprietário (administrador) pode gerenciar o conteúdo. A conta de administrador não é criada publicamente; ela é criada de forma segura no lado do servidor (backend) através de um comando CLI (flask create-admin), garantindo que ninguém mais possa se registrar ou modificar o portfólio.
 
 -----
+
+Aqui está a seção "Manual de Uso" atualizada, incluindo o gerenciamento do conteúdo pessoal:
+
+---
+
+## 📖 Manual de Uso
+
+Este manual descreve como interagir com a aplicação, tanto do ponto de vista de um visitante público quanto do administrador do conteúdo.
+
+### 👤 Para Visitantes
+
+Qualquer pessoa que acessa o site pode:
+
+* **Explorar a Home:** Ver a apresentação pessoal, biografia e acessar links diretos para LinkedIn, GitHub e E-mail.
+* **Visualizar Projetos:** Navegar pelos trabalhos acadêmicos, que são organizados por "Áreas do Saber".
+* **Interagir com Projetos:**
+    * Clicar em um card para ver detalhes.
+    * Acessar o link externo do projeto (se houver).
+    * Votar em um projeto para demonstrar seu apoio.
+* **Ver o Ranking:** Acessar a página de ranking para ver os projetos mais votados, com um destaque especial para o Top 3.
+* **Acessar o Currículo:**
+    * Visualizar o currículo profissional online.
+    * Baixar uma versão em PDF otimizada para qualquer dispositivo.
+    * Usar o botão de "Impressão" (otimizado para computadores) para imprimir o currículo.
+* **Entrar em Contato:** Utilizar o formulário de contato para enviar uma mensagem diretamente ao administrador.
+
+### 👑 Para o Administrador (Proprietário)
+
+O administrador possui controle total sobre o conteúdo do portfólio através de um painel seguro.
+
+#### Acesso e Autenticação
+
+1.  **Acesso ao Painel:** Navegue até a rota de login do site.
+2.  **Login Seguro:** Insira o nome de usuário e senha (definidos via backend com o comando `flask create-admin`).
+3.  **Token JWT:** Após o login bem-sucedido, a API retorna um JSON Web Token (JWT), que é salvo no `localStorage` do navegador para autenticar todas as requisições futuras.
+
+#### Gerenciamento de Conteúdo
+
+Uma vez logado, o administrador tem acesso ao Painel de Controle, onde pode:
+
+* **Gerenciar Conteúdo Pessoal:** Criar, editar ou deletar os textos da seção "Sobre Mim", a lista de "Hobbies" e as informações do "Currículo" que são exibidas no site.
+* **Gerenciar Projetos:**
+    * **Adicionar Projetos:** Preencher o formulário para adicionar um novo trabalho, incluindo o upload direto da imagem de capa para o Cloudinary.
+    * **Editar Projetos:** Modificar qualquer informação de um projeto já existente.
+    * **Deletar Projetos:** Remover permanentemente um projeto do banco de dados.
+* **Gerenciar Interações:**
+    * **Visualizar Mensagens:** Ler todas as mensagens enviadas pelos visitantes através do formulário de contato.
+* **Gerenciar Conta:**
+    * **Alterar Credenciais:** Mudar com segurança o nome de usuário e a senha da conta de administrador.
+
+#### Ferramentas de Manutenção (Zona de Perigo)
+
+O painel inclui uma "Zona de Perigo" para ações destrutivas que exigem confirmação:
+
+* **Resetar Votos:** Zerar a contagem de votos de todos os projetos.
+* **Apagar Mensagens:** Limpar permanentemente todas as mensagens recebidas.
+
+''''''''''''
 
 ## 🏗️ Arquitetura de Produção
 
