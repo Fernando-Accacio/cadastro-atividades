@@ -338,6 +338,7 @@ main {
   height: 400px;
   object-fit: contain;
   background-color: #ffffff;
+  max-width: 100%;
   display: block;
 }
 
@@ -1126,14 +1127,30 @@ main .container > *:last-child {
   }
 }
 
+@media (max-width: 768px) {
+
+    .container {
+        padding: 0 15px;
+    }
+
+    .project-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .project-card {
+        width: 100%;
+        margin: 0 auto; 
+    }
+    
+}
+
 @media (min-width: 768px) {
-  /* Regras para Hobbies em Desktop */
   .informal-intro {
     padding: 40px;
     font-size: 1.15em;
   }
 
-/* Mostra o botão de imprimir no desktop (sendo mais específico) */
 .download-button.print-button {
    display: inline-flex; 
 }
