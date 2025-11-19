@@ -23,17 +23,17 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   const [maintMessage, setMaintMessage] = useState('');
   const [maintError, setMaintError] = useState('');
 
-  // --- *** NOVO *** ESTADOS PARA PROJETOS E HOBBIES ---
-  // (Separado de Manutenção para mensagens corretas no card)
+  // --- ESTADOS PARA PROJETOS E HOBBIES ---
+  // (Separado de Manutenção para mensagens no card)
   const [projMessage, setProjMessage] = useState('');
   const [projError, setProjError] = useState('');
   const [hobbyMessage, setHobbyMessage] = useState('');
   const [hobbyError, setHobbyError] = useState('');
 
-  // --- NOVO ESTADO PARA ZONA DE PERIGO ---
+  // --- ESTADO PARA ZONA DE PERIGO ---
   const [deleteUserError, setDeleteUserError] = useState('');
 
-  // --- NOVOS ESTADOS PARA REGISTRO ---
+  // --- ESTADOS PARA REGISTRO ---
   const [adminExists, setAdminExists] = useState(null); // null = loading
   const [regUsername, setRegUsername] = useState('');
   const [regPassword, setRegPassword] = useState('');
@@ -45,13 +45,12 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   const [hobbies, setHobbies] = useState([]);
   const [isHobbyLoading, setIsHobbyLoading] = useState(false);
 
-  // --- ESTADO DE General Info (Homepage) ATUALIZADO ---
+  // --- ESTADO DE General Info (Homepage)  ---
   const [homeInfo, setHomeInfo] = useState({
     objective: '',
     main_name: '',
     profile_pic_url: '',
     informal_intro: '',
-    // Novos campos
     linkedin_url: '',
     github_url: '',
     email_address: '',
@@ -59,7 +58,6 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
     show_github: true,
     show_email: true,
   });
-  // --- FIM DA ATUALIZAÇÃO ---
 
   const [homeMessage, setHomeMessage] = useState('');
   const [homeError, setHomeError] = useState('');
@@ -80,7 +78,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       });
   }, [onLogout]);
     
-  // --- fetchHomeInfo ATUALIZADA ---
+  // --- fetchHomeInfo ---
   const fetchHomeInfo = useCallback(() => {
     api.get('/api/general-info')
       .then(response => {
@@ -90,7 +88,6 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
           main_name: data.main_name || '',
           profile_pic_url: data.profile_pic_url || '',
           informal_intro: data.informal_intro || '',
-          // Popula os novos campos
           linkedin_url: data.linkedin_url || '',
           github_url: data.github_url || '',
           email_address: data.email_address || '',
@@ -102,7 +99,6 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       })
       .catch(error => console.error("Erro ao buscar General Info para Admin!", error));
   }, []);
-  // --- FIM DA ATUALIZAÇÃO ---
 
   const fetchProjects = useCallback(() => {
     api.get('/api/projects') 
@@ -128,7 +124,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       });
   }, []);
 
-  // useEffect Principal (sem alteração)
+  // useEffect Principal
   useEffect(() => {
     if (isAuthenticated) {
       setCredMessage('');
@@ -140,7 +136,6 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       setDeleteUserError('');
       setIntroMessage(''); 
       setIntroError(''); 
-      // *** ADICIONADO ***
       setProjMessage(''); 
       setProjError('');
       setHobbyMessage(''); 
@@ -153,7 +148,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
     }
   }, [isAuthenticated, fetchMessages, fetchProjects, fetchHobbies, fetchHomeInfo]);
 
-  // useEffect (checa se admin existe) (sem alteração)
+  // useEffect (checa se admin existe)
   useEffect(() => {
     if (!isAuthenticated && adminExists === null) {
       api.get('/api/admin/user-exists')
@@ -169,7 +164,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   }, [isAuthenticated, adminExists]);
 
 
-  // --- Handlers (Login, Resets, Credenciais) (sem alteração) ---
+  // --- Handlers (Login, Resets, Credenciais) ---
   
   const handleLoginSubmit = (e) => {
     e.preventDefault();
@@ -222,14 +217,12 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
     });
   };
 
-  // *** MODIFICADO ***
   const clearAllMessages = () => {
     setCredMessage(''); setCredError('');
     setHomeMessage(''); setHomeError('');
     setMaintMessage(''); setMaintError('');
     setDeleteUserError('');
     setIntroMessage(''); setIntroError('');
-    // Adicionado
     setProjMessage(''); setProjError('');
     setHobbyMessage(''); setHobbyError('');
   }
@@ -261,7 +254,6 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
     }
   };
 
-  // *** MODIFICADO ***
   const handleDeleteProject = (projectId, projectName) => {
     clearAllMessages();
     if (window.confirm(`CERTEZA que quer apagar o projeto "${projectName}"?`)) {
@@ -305,7 +297,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       });
   };
 
-  // --- handleHomeInfoChange ATUALIZADO ---
+  // --- handleHomeInfoChange ---
   // Agora suporta inputs de texto E checkboxes
   const handleHomeInfoChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -314,14 +306,13 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       [name]: type === 'checkbox' ? checked : value 
     }));
   };
-  // --- FIM DA ATUALIZAÇÃO ---
 
   const handleProfilePicFileChange = (e) => {
     setProfilePicFile(e.target.files[0]);
   };
 
-// --- handleHomeInfoSubmit ATUALIZADO ---
-// Agora envia os novos campos de links e checkboxes
+// --- handleHomeInfoSubmit ---
+// Envia os campos de links e checkboxes
 const handleHomeInfoSubmit = (e, formId = 'homepage') => { 
     e.preventDefault();
     clearAllMessages(); 
@@ -332,7 +323,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
     formData.append('main_name', homeInfo.main_name); 
     formData.append('informal_intro', homeInfo.informal_intro);
     
-    // Novos campos de links
+    // Campos de links
     formData.append('linkedin_url', homeInfo.linkedin_url);
     formData.append('github_url', homeInfo.github_url);
     formData.append('email_address', homeInfo.email_address);
@@ -362,14 +353,12 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
       setHomeError('');
       setIntroError('');
 
-      // --- ATUALIZA O ESTADO COM OS NOVOS DADOS VINDOS DA RESPOSTA ---
       const data = response.data;
       setHomeInfo({
         objective: data.objective,
         main_name: data.main_name,
         profile_pic_url: data.profile_pic_url,
         informal_intro: data.informal_intro,
-        // Atualiza os novos campos
         linkedin_url: data.linkedin_url || '',
         github_url: data.github_url || '',
         email_address: data.email_address || '',
@@ -377,7 +366,6 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
         show_github: data.show_github ?? true,
         show_email: data.show_email ?? true,
       });
-      // --- FIM DA ATUALIZAÇÃO ---
 
       setProfilePicFile(null); 
     })
@@ -391,28 +379,25 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
       console.error("Erro ao atualizar Home Info:", error);
     });
 };
-// --- FIM DA ATUALIZAÇÃO ---
 
-  // --- Handler de Deletar Hobby (MODIFICADO) ---
+  // --- Handler de Deletar Hobby---
   const handleHobbyDelete = (hobbyId, hobbyTitle) => {
     clearAllMessages();
     if (window.confirm(`Tem certeza que deseja apagar o hobby "${hobbyTitle}"?`)) {
       api.delete(`/api/hobbies/${hobbyId}`)
         .then(() => {
-          // Usa o estado de HOBBY, não de manutenção
           setHobbyMessage("Hobby apagado com sucesso.");
           fetchHobbies(); 
         })
         .catch(err => {
           const errorMsg = err.response?.data?.error || 'Erro ao apagar o hobby.';
-          // Usa o estado de HOBBY, não de manutenção
           setHobbyError(errorMsg); 
           console.error("Erro ao deletar hobby:", err);
         });
     }
   };
 
-  // --- NOVO HANDLER PARA DELETAR USUÁRIO (sem alteração) ---
+  // --- HANDLER PARA DELETAR USUÁRIO ---
   const handleDeleteUser = () => {
     clearAllMessages();
     if (window.confirm("Você tem CERTEZA que quer apagar sua conta de administrador?")) {
@@ -433,7 +418,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
 
   // --- RENDER ---
 
-  // --- LÓGICA DE RENDER (Login/Registro) (sem alteração) ---
+  // --- LÓGICA DE RENDER (Login/Registro)---
   if (!isAuthenticated) {
     if (adminExists === null) {
         return (
@@ -504,7 +489,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
     );
   }
 
-  // Constantes de verificação (sem alterações)
+  // Constantes de verificação
   const hasMessages = messages.length > 0;
   const hasVotes = projects.some(p => p.votes > 0);
   const hasProjects = projects.length > 0;
@@ -515,7 +500,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
     <div className="container">
       <h1 className="page-title">Painel do Administrador</h1>
       
-      {/* --- GERENCIAR HOMEPAGE (JSX ATUALIZADO) --- */}
+      {/* --- GERENCIAR HOMEPAGE --- */}
       <div className="admin-section">
         <h2>Gerenciar Homepage</h2>
         <p>Modifique Nome, Descrição, Foto de Perfil e Links Sociais exibidos na página inicial.</p>
@@ -554,7 +539,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
 
           <hr className="form-divider" />
 
-          {/* --- NOVOS CAMPOS DE LINKS SOCIAIS --- */}
+          {/* --- CAMPOS DE LINKS SOCIAIS --- */}
           <h3>Links Sociais</h3>
           
           {/* LinkedIn */}
@@ -681,7 +666,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
               <FaSave /> Salvar Homepage
             </button>
           </div>
-          {/* MENSAGENS DO FORM HOMEPAGE (LOCAL CORRETO) */}
+          {/* MENSAGENS DO FORM HOMEPAGE */}
           {homeError && <p className="form-message error">{homeError}</p>}
           {homeMessage && <p className="form-message success">{homeMessage}</p>}
         </form>
@@ -691,7 +676,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
 
       <hr className="form-divider" />
       
-      {/* --- LINK: GERENCIAR CURRÍCULO (Sem alterações) --- */}
+      {/* --- LINK: GERENCIAR CURRÍCULO--- */}
       <div className="admin-section">
         <h2>Áreas de Conteúdo (Currículo)</h2>
         <p>Acesse o painel dedicado para gerenciar os dados do seu currículo.</p>
@@ -707,7 +692,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
         {/* SEM MENSAGENS (APENAS LINK) */}
       </div>
 
-      {/* --- GERENCIAR TRABALHOS (*** MODIFICADO ***) --- */}
+      {/* --- GERENCIAR TRABALHOS --- */}
       <div className="admin-section">
         <h2>Gerenciar Trabalhos</h2>
         <p>Adicionar um novo projeto ao portfólio ou editar/deletar projetos existentes.</p>
@@ -754,12 +739,12 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
           </table>
         )}
         
-        {/* *** ADICIONADO *** (Mensagens de Ação - Projetos) */}
+        {/* (Mensagens de Ação - Projetos) */}
         {projError && <p className="form-message error" style={{ marginTop: '15px' }}>{projError}</p>}
         {projMessage && <p className="form-message success" style={{ marginTop: '15px' }}>{projMessage}</p>}
       </div>
 
-      {/* --- GERENCIAR HOBBIES (*** MODIFICADO ***) --- */}
+      {/* --- GERENCIAR HOBBIES --- */}
       <div className="admin-section">
         <h2>Gerenciar Hobbies</h2>
         <p>Adicionar, editar ou remover hobbies da página "Sobre Mim".</p>
@@ -823,7 +808,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
           </table>
         )}
 
-        {/* *** ADICIONADO *** (Mensagens de Ação - Hobbies) */}
+        {/* (Mensagens de Ação - Hobbies) */}
         {hobbyError && <p className="form-message error" style={{ marginTop: '15px' }}>{hobbyError}</p>}
         {hobbyMessage && <p className="form-message success" style={{ marginTop: '15px' }}>{hobbyMessage}</p>}
 
@@ -849,14 +834,14 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
                     <FaSave /> Salvar Introdução "Sobre Mim"
                 </button>
             </div>
-            {/* MENSAGENS DO FORM INTRO (LOCAL CORRETO) */}
+            {/* MENSAGENS DO FORM INTRO */}
             {introError && <p className="form-message error">{introError}</p>}
             {introMessage && <p className="form-message success">{introMessage}</p>}
         </form>
 
       </div>
 
-      {/* --- ALTERAR CREDENCIAIS (Sem alterações) --- */}
+      {/* --- ALTERAR CREDENCIAIS --- */}
       <div className="admin-section">
         <h2>Alterar Credenciais</h2>
         <p>Mude seu nome de usuário ou senha. Você será deslogado após a alteração.</p>
@@ -890,13 +875,13 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
               <FaSave /> Salvar Alterações
             </button>
           </div>
-          {/* MENSAGENS DO FORM CREDENCIAIS (LOCAL CORRETO) */}
+          {/* MENSAGENS DO FORM CREDENCIAIS */}
           {credError && <p className="form-message error">{credError}</p>}
           {credMessage && <p className="form-message success">{credMessage}</p>}
         </form>
       </div>
 
-      {/* --- MANUTENÇÃO (Reset) (Sem alterações) --- */}
+      {/* --- MANUTENÇÃO (Reset) --- */}
       <div className="admin-section">
         <h2>Manutenção</h2>
         <p>Ações perigosas que afetam o banco de dados. Use com cuidado.</p>
@@ -909,12 +894,12 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
           </button>
         </div>
         
-        {/* MENSAGENS DE MANUTENÇÃO (LOCAL CORRETO) */}
+        {/* MENSAGENS DE MANUTENÇÃO */}
         {maintError && <p className="form-message error" style={{ marginTop: '15px' }}>{maintError}</p>}
         {maintMessage && <p className="form-message success" style={{ marginTop: '15px' }}>{maintMessage}</p>}
       </div>
 
-      {/* --- RESUMO DE VOTOS (Sem alterações) --- */}
+      {/* --- RESUMO DE VOTOS --- */}
       <div className="admin-section">
         <h2>Resumo de Votos</h2>
         {!hasVotes ? (
@@ -943,7 +928,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
         {/* SEM MENSAGENS (APENAS LEITURA) */}
       </div>
 
-      {/* --- MENSAGENS RECEBIDAS (Sem alterações) --- */}
+      {/* --- MENSAGENS RECEBIDAS --- */}
       <div className="admin-section">
         <h2>Mensagens Recebidas</h2>
         {!hasMessages ? (
@@ -973,7 +958,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
         {/* SEM MENSAGENS (APENAS LEITURA) */}
       </div>
 
-      {/* --- ZONA DE PERIGO (Sem alterações) --- */}
+      {/* --- ZONA DE PERIGO --- */}
       <hr className="form-divider" />
       <div className="admin-section" style={{ borderColor: '#dc3545' }}>
           <h2 style={{ color: '#dc3545' }}>Zona de Perigo</h2>
@@ -983,7 +968,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
                   <FaTrash /> Apagar Minha Conta de Administrador
               </button>
           </div>
-          {/* MENSAGEM DE ZONA DE PERIGO (LOCAL CORRETO) */}
+          {/* MENSAGEM DE ZONA DE PERIGO */}
           {deleteUserError && <p className="form-message error" style={{ marginTop: '15px' }}>{deleteUserError}</p>}
       </div>
 

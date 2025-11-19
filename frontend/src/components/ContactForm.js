@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-// *** MANTIDO DO CÓDIGO ATUAL ***
 // Importa a instância configurada do Axios
 import api from '../api/axiosConfig'; // (ajuste o caminho se necessário)
 
-// *** NOVO: Estilos CSS embutidos ***
-// Adicionados aqui para ficarem "dentro do arquivo jsx" como solicitado,
-// baseados nos nomes de classe (form-message, success, error) do seu AdminPage.js
+// Preciso para corrigir bugs de estilo
 const formStyles = `
 .form-message {
   padding: 12px 15px;
@@ -57,7 +54,6 @@ function ContactForm() {
     setStatusMessage('Enviando...');
     setMessageType('loading');
 
-    // *** MANTIDO DO CÓDIGO ATUAL ***
     // Usa a instância 'api' em vez de 'axios'
     api.post('/api/contact', formData)
       .then(response => {
@@ -84,13 +80,10 @@ function ContactForm() {
       });
   };
 
-  // *** CORREÇÃO NO RETORNO ***
-  // 1. Adicionado um Fragmento <>...</> para permitir a <style> e o <form>
+  // 1. Fragmento <>...</> para permitir a <style> e o <form>
   // 2. Injetada a tag <style> com os estilos
-  // 3. Atualizadas as classNames da div de mensagem de status
   return (
     <>
-      {/* *** NOVO: Injeta os estilos CSS definidos acima *** */}
       <style>{formStyles}</style>
       
       <form onSubmit={handleSubmit} className="contact-form">
@@ -135,7 +128,6 @@ function ContactForm() {
           {messageType === 'loading' ? 'Enviando...' : 'Enviar'}
         </button>
         
-        {/* *** CORREÇÃO AQUI: Classes atualizadas para corresponder ao CSS *** */}
         {/* Exibe a mensagem de status */}
         {statusMessage && (
           <div className={`form-message ${messageType}`}>

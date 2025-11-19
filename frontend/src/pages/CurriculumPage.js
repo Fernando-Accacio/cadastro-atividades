@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
 import { FaDownload, FaPrint } from 'react-icons/fa';
 
-// Estilos (sem alterações)
+// Estilos
 const curriculumStyle = {
     background: 'rgba(255, 255, 255, 0.7)',
     backdropFilter: 'blur(20px) saturate(180%)',
@@ -31,7 +31,7 @@ const personalInfoStyle = {
     color: 'var(--text-secondary)'
 };
 
-// CONSTANTES PADRÃO (FALLBACKS) - (sem alterações)
+// CONSTANTES PADRÃO (FALLBACKS)
 const DEFAULT_CONSTS = {
     NAME: "Seu Nome",
     CONTACT_INFO: "Telefone: (11) 9XXXX-XXXX | E-mail: seuemail@gmail.com",
@@ -67,7 +67,7 @@ function CurriculumPage() {
     const [isLoading, setIsLoading] = useState(true);
     const downloadUrl = `${api.defaults.baseURL}/api/download/curriculo`;
 
-    // --- MUDANÇA 1: Lógica de Ordenação das Habilidades ---
+    // --- Lógica de Ordenação das Habilidades ---
     const groupSkills = (skillsArray) => {
         const grouped = skillsArray.reduce((acc, skill) => {
             const category = skill.category || 'Geral'; 
@@ -78,7 +78,7 @@ function CurriculumPage() {
             return acc;
         }, {});
         
-        // --- NOVA LÓGICA DE ORDENAÇÃO ---
+        // --- LÓGICA DE ORDENAÇÃO ---
         const desiredOrder = ['Técnica', 'Soft Skill', 'Idioma', 'Outras'];
         
         const getSortIndex = (category) => {
@@ -90,7 +90,6 @@ function CurriculumPage() {
         const sortedCategories = Object.keys(grouped).sort((a, b) => {
             return getSortIndex(a) - getSortIndex(b);
         });
-        // --- FIM DA NOVA LÓGICA ---
 
         // Mapeia usando a array ordenada
         return sortedCategories.map(category => ({
@@ -98,9 +97,8 @@ function CurriculumPage() {
             names: grouped[category]
         }));
     };
-    // --- FIM DA MUDANÇA 1 ---
 
-    // --- NOVA FUNÇÃO: Imprimir PDF ---
+    // Imprimir PDF ---
     const handlePrint = async () => {
         try {
             const response = await fetch(downloadUrl);
@@ -118,7 +116,6 @@ function CurriculumPage() {
             alert("Não foi possível abrir o PDF para impressão.");
         }
     };
-    // --- FIM DA NOVA FUNÇÃO ---
     
     useEffect(() => {
         const fetchAllData = async () => {
@@ -153,13 +150,13 @@ function CurriculumPage() {
 
     }
 
-    // --- Lógica de Placeholders (sem alterações) ---
+    // --- Lógica de Placeholders ---
     const educationToRender = education.length > 0 ? education : DEFAULT_CONSTS.DEFAULT_EDUCATION;
     const additionalInfoToRender = additionalInfo.length > 0 ? additionalInfo : DEFAULT_CONSTS.DEFAULT_ADDITIONAL_INFO;
     const skillsToRender = skills.length > 0 ? skills : DEFAULT_CONSTS.DEFAULT_SKILLS;
     const groupedSkills = groupSkills(skillsToRender);
     
-    // --- Constantes de Cabeçalho (sem alterações) ---
+    // --- Constantes de Cabeçalho ---
     const fullName = info.full_name || DEFAULT_CONSTS.NAME;
     const addressLine = info.address ? `Endereço: ${info.address}` : DEFAULT_CONSTS.ADDRESS;
     const contactParts = [];
@@ -173,7 +170,7 @@ function CurriculumPage() {
                                : DEFAULT_CONSTS.DEFAULT_EXPERIENCE_FALLBACK;
 
 
-    // --- MUDANÇA 2: Lógica para Ocultar a última linha <hr> ---
+    // --- Lógica para Ocultar a última linha <hr> ---
     const sectionsVisibility = {
         objective: !!objectiveText,
         education: info.show_education,
@@ -189,7 +186,6 @@ function CurriculumPage() {
     const lastVisibleSectionKey = visibleSectionKeys.length > 0 
                                   ? visibleSectionKeys[visibleSectionKeys.length - 1] 
                                   : '';
-    // --- FIM DA MUDANÇA 2 ---
 
 
     return (
@@ -197,7 +193,7 @@ function CurriculumPage() {
             <h2 className="page-title">Currículo</h2>
 
             <div style={curriculumStyle}>
-                {/* --- 1. INFORMAÇÕES PESSOAIS --- (Sem alterações) */}
+                {/* --- 1. INFORMAÇÕES PESSOAIS --- */}
                 <div style={personalInfoStyle}>
                     <h1 style={{fontSize: '2.5em'}}>{fullName}</h1>
                     <p style={{whiteSpace: 'pre-line'}}>

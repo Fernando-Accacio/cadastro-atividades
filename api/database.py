@@ -1,7 +1,6 @@
 import click
 from flask.cli import with_appcontext
 from sqlalchemy.orm import Session
-# IMPORTAMOS O NOVO MODELO 'User' E AGORA 'Base' E 'engine'
 from .models import SessionLocal, Project, Contact, User, create_tables, Base, engine
 import os  # Importamos o OS para ler o .env
 
@@ -29,7 +28,6 @@ def db_session_decorator(func):
 def init_db_command():
     """Apaga e recria as tabelas do banco de dados."""
     try:
-        # --- MUDANÇA AQUI ---
         # 1. Apaga todas as tabelas existentes
         Base.metadata.drop_all(bind=engine)
         click.echo('Tabelas antigas apagadas com sucesso.')
@@ -41,7 +39,7 @@ def init_db_command():
         click.echo(f"Erro ao recriar tabelas: {e}")
 
 # =========================================================
-# === NOVO COMANDO: CRIAR O PRIMEIRO ADMIN ================
+# ===CRIAR O PRIMEIRO ADMIN ================
 # =========================================================
 @click.command('create-admin')
 @click.argument('username')
@@ -83,6 +81,6 @@ def reset_messages_command(db: Session):
 
 def init_app(app):
     app.cli.add_command(init_db_command)
-    app.cli.add_command(create_admin_command)  # <-- Adicionamos o novo comando
+    app.cli.add_command(create_admin_command)
     app.cli.add_command(reset_votes_command)
     app.cli.add_command(reset_messages_command)

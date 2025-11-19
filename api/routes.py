@@ -1,7 +1,7 @@
 from flask import request, jsonify, current_app, g
 import requests
 from flask import Response
-import re # Para limpar o nome do arquivo
+import re
 from sqlalchemy.orm import Session
 from collections import defaultdict
 from .models import get_db_session, Project, Contact, User, Hobby, GeneralInfo, Experience, Education, Skill, AdditionalInfo
@@ -13,16 +13,14 @@ from functools import wraps
 import cloudinary.uploader
 import cloudinary
 
-# Decorador token_required (Correto, já ignora OPTIONS)
-# Decorador token_required CORRIGIDO
+# Decorador token_required
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         
-        # === MUDANÇA CRÍTICA AQUI ===
         # Se o método for OPTIONS, permite a passagem para o CORS lidar.
         if request.method == 'OPTIONS':
-            return jsonify({'message': 'Preflight request allowed.'}), 200 # <--- ESTA É A CORREÇÃO
+            return jsonify({'message': 'Preflight request allowed.'}), 200
         # ============================
 
         token = None
@@ -55,10 +53,9 @@ def init_routes(app):
             db.close() 
             next(db_session_generator, None)
 
-    # Rota de Login (sem mudanças)
+    # Rota de Login
     @app.route('/api/login', methods=['POST'])
     def login():
-                # ... (código sem mudanças) ...
                 db: Session = next(get_db())
                 data = request.get_json()
                 if not data or not data.get('username') or not data.get('password'):
@@ -148,7 +145,6 @@ def init_routes(app):
             finally:
                 db.close()
 
-            # ... (junto com as outras rotas /api/admin/...)
 
     @app.route('/api/admin/delete-user', methods=['DELETE', 'OPTIONS'])
     @token_required
@@ -180,7 +176,7 @@ def init_routes(app):
     # =========================================================
     # === ROTAS PÚBLICAS GERAIS ===============================
     # =========================================================
-    # ... (Rotas get_ranked_projects, vote_for_project, submit_contact, download_curriculo - sem mudanças) ...
+    # ... (Rotas get_ranked_projects, vote_for_project, submit_contact, download_curriculo) ...
     @app.route('/api/projects/ranked', methods=['GET'])
     def get_ranked_projects():
         db: Session = next(get_db())
@@ -279,7 +275,7 @@ def init_routes(app):
     # --- Rotas Públicas de Leitura (General Info, Lists) ---
     
     # =========================================================
-    # === ROTA GET /api/general-info ATUALIZADA ===
+    # === ROTA GET /api/general-info ===
     # =========================================================
     @app.route('/api/general-info', methods=['GET'])
     def get_general_info():
@@ -287,7 +283,7 @@ def init_routes(app):
         try:
             info = db.query(GeneralInfo).first()
             if not info:
-                # Retorna um objeto padrão com todos os campos (incluindo os novos)
+                # Retorna um objeto padrão com todos os campos
                 return jsonify({
                     'id': 1, 'full_name': None, 'address': None, 'phone': None, 
                     'email': None, 'responsible': None, 'profile_pic_url': None,
@@ -297,7 +293,6 @@ def init_routes(app):
                     'show_education': True,
                     'show_skills': True,
                     'show_additional_info': True,
-                    # --- NOVOS PADRÕES ---
                     'linkedin_url': '',
                     'github_url': '',
                     'email_address': '',
@@ -319,7 +314,6 @@ def init_routes(app):
                 'show_skills': info.show_skills,
                 'show_additional_info': info.show_additional_info,
                 
-                # --- NOVOS CAMPOS ---
                 # Usar getattr para segurança caso a migração (models.py) ainda não tenha sido executada
                 'linkedin_url': getattr(info, 'linkedin_url', ''),
                 'github_url': getattr(info, 'github_url', ''),
@@ -336,9 +330,6 @@ def init_routes(app):
             }), 500
         finally:
             db.close() 
-    # =========================================================
-    # === FIM DA ATUALIZAÇÃO GET /api/general-info ===
-    # =========================================================
 
     @app.route('/api/experiences', methods=['GET'])
     def get_experiences():
@@ -395,7 +386,7 @@ def init_routes(app):
     # =========================================================
     
     # =========================================================
-    # === ROTA PUT /api/general-info ATUALIZADA ===
+    # === ROTA PUT /api/general-info ===
     # =========================================================
     @app.route('/api/general-info', methods=['PUT', 'OPTIONS'])
     @token_required
@@ -408,7 +399,7 @@ def init_routes(app):
             info = GeneralInfo(id=1)
             db.add(info)
         try:
-            # --- Lógica da Foto de Perfil (Sem alteração) ---
+            # --- Lógica da Foto de Perfil---
             profile_pic_url_to_save = info.profile_pic_url 
             if 'profile_pic_file' in files:
                 file_to_upload = files['profile_pic_file']
@@ -423,7 +414,7 @@ def init_routes(app):
             if 'profile_pic_file' in files or 'profile_pic_url' in data:
                  info.profile_pic_url = profile_pic_url_to_save
 
-            # --- Lógica do PDF (Sem alteração) ---
+            # --- Lógica do PDF---
             pdf_url_to_save = info.pdf_url
             if 'pdf_file' in files:
                 pdf_file_to_upload = files['pdf_file']
@@ -436,7 +427,6 @@ def init_routes(app):
             if 'pdf_file' in files or 'pdf_url' in data:
                 info.pdf_url = pdf_url_to_save
 
-            # --- ATUALIZAÇÃO INTELIGENTE DE CAMPOS ---
             # Verifica se a chave existe no form ANTES de atualizar
             # Isso impede que um formulário apague os dados do outro
             
@@ -487,12 +477,11 @@ def init_routes(app):
                 info.show_github = data.get('show_github') == 'true'
             if 'show_email' in data:
                 info.show_email = data.get('show_email') == 'true'
-            # --- FIM DA ATUALIZAÇÃO INTELIGENTE ---
 
             db.commit()
             db.refresh(info)
             
-            # Retorna o objeto completo atualizado
+            # Retorna o objeto completo
             info_dict = {c.name: getattr(info, c.name) for c in info.__table__.columns}
             return jsonify(info_dict), 200
         
@@ -504,16 +493,11 @@ def init_routes(app):
             return jsonify({'error': f'Erro interno do servidor: {str(e)}'}), 500
         finally:
             db.close()
-    # =========================================================
-    # === FIM DA ATUALIZAÇÃO PUT /api/general-info ===
-    # =========================================================
-
 
     # === CRUD: EXPERIENCES ===
     @app.route('/api/experiences', methods=['POST'])
     @token_required
     def add_experience():
-        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         data = request.get_json()
         if not all(data.get(k) for k in ['title', 'company', 'start_date', 'end_date']):
@@ -535,10 +519,9 @@ def init_routes(app):
             db.close()
 
 
-    @app.route('/api/experiences/<int:exp_id>', methods=['GET', 'OPTIONS']) # --- ADICIONADO 'OPTIONS' ---
+    @app.route('/api/experiences/<int:exp_id>', methods=['GET', 'OPTIONS'])
     @token_required
     def get_experience(exp_id):
-        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         try:
             exp = db.query(Experience).filter(Experience.id == exp_id).first()
@@ -548,10 +531,9 @@ def init_routes(app):
             db.close()
 
 
-    @app.route('/api/experiences/<int:exp_id>', methods=['PUT', 'OPTIONS']) # --- ADICIONADO 'OPTIONS' ---
+    @app.route('/api/experiences/<int:exp_id>', methods=['PUT', 'OPTIONS'])
     @token_required
     def update_experience(exp_id):
-        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         data = request.get_json()
         exp = db.query(Experience).filter(Experience.id == exp_id).first()
@@ -574,7 +556,6 @@ def init_routes(app):
             db.close()
 
 
-    # --- CORREÇÃO AQUI ---
     @app.route('/api/experiences/<int:exp_id>', methods=['DELETE', 'OPTIONS'])
     @token_required
     def delete_experience(exp_id):
@@ -595,7 +576,6 @@ def init_routes(app):
     @app.route('/api/education', methods=['POST'])
     @token_required
     def add_education():
-        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         data = request.get_json()
         if not all(data.get(k) for k in ['degree', 'institution', 'start_date', 'end_date']):
@@ -619,10 +599,9 @@ def init_routes(app):
             db.close()
 
 
-    @app.route('/api/education/<int:edu_id>', methods=['GET', 'OPTIONS']) # --- ADICIONADO 'OPTIONS' ---
+    @app.route('/api/education/<int:edu_id>', methods=['GET', 'OPTIONS'])
     @token_required
     def get_education_item(edu_id):
-        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         try:
             edu = db.query(Education).filter(Education.id == edu_id).first()
@@ -632,7 +611,7 @@ def init_routes(app):
             db.close()
 
 
-    @app.route('/api/education/<int:edu_id>', methods=['PUT', 'OPTIONS']) # <-- DEVE CONTER 'OPTIONS'
+    @app.route('/api/education/<int:edu_id>', methods=['PUT', 'OPTIONS'])
     @token_required
     def update_education(edu_id):
             db: Session = next(get_db())
@@ -640,16 +619,15 @@ def init_routes(app):
             edu = db.query(Education).filter(Education.id == edu_id).first()
             if not edu: return jsonify({'error': 'Formação não encontrada'}), 404
             
-            # --- Lógica correta (start_date/end_date) ---
+            # --- Lógica (start_date/end_date) ---
             if not all(data.get(k) for k in ['degree', 'institution', 'start_date', 'end_date']):
                 return jsonify({'error': 'Campos obrigatórios faltando.'}), 400
             try:
                 edu.degree = data['degree']
                 edu.institution = data['institution']
-                edu.start_date = data['start_date'] # <-- CORRETO
-                edu.end_date = data['end_date']     # <-- CORRETO
+                edu.start_date = data['start_date']
+                edu.end_date = data['end_date']
                 edu.details = data.get('details', edu.details)
-            # --- Fim da Lógica ---
                 
                 db.commit()
                 db.refresh(edu)
@@ -661,7 +639,6 @@ def init_routes(app):
                 db.close()
 
 
-    # --- CORREÇÃO AQUI ---
     @app.route('/api/education/<int:edu_id>', methods=['DELETE', 'OPTIONS'])
     @token_required
     def delete_education(edu_id):
@@ -682,7 +659,6 @@ def init_routes(app):
     @app.route('/api/skills', methods=['POST'])
     @token_required
     def add_skill():
-        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         data = request.get_json()
         if not data.get('name'):
@@ -703,10 +679,9 @@ def init_routes(app):
             db.close()
 
 
-    @app.route('/api/skills/<int:skill_id>', methods=['GET', 'OPTIONS']) # --- ADICIONADO 'OPTIONS' ---
+    @app.route('/api/skills/<int:skill_id>', methods=['GET', 'OPTIONS'])
     @token_required
     def get_skill(skill_id):
-        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         try:
             skill = db.query(Skill).filter(Skill.id == skill_id).first()
@@ -716,10 +691,9 @@ def init_routes(app):
             db.close()
 
 
-    @app.route('/api/skills/<int:skill_id>', methods=['PUT', 'OPTIONS']) # --- ADICIONADO 'OPTIONS' ---
+    @app.route('/api/skills/<int:skill_id>', methods=['PUT', 'OPTIONS'])
     @token_required
     def update_skill(skill_id):
-        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         data = request.get_json()
         skill = db.query(Skill).filter(Skill.id == skill_id).first()
@@ -739,7 +713,6 @@ def init_routes(app):
             db.close()
 
 
-    # --- CORREÇÃO AQUI ---
     @app.route('/api/skills/<int:skill_id>', methods=['DELETE', 'OPTIONS'])
     @token_required
     def delete_skill(skill_id):
@@ -760,7 +733,6 @@ def init_routes(app):
     @app.route('/api/additional-info', methods=['POST'])
     @token_required
     def add_additional_info():
-        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         data = request.get_json()
         if not data or not data.get('text'):
@@ -778,7 +750,6 @@ def init_routes(app):
             db.close()
 
 
-    # --- CORREÇÃO AQUI ---
     @app.route('/api/additional-info/<int:item_id>', methods=['DELETE', 'OPTIONS'])
     @token_required
     def delete_additional_info(item_id):
@@ -795,10 +766,9 @@ def init_routes(app):
         finally:
             db.close()
             
-    @app.route('/api/additional-info/<int:item_id>', methods=['GET', 'OPTIONS']) # --- ADICIONADO 'OPTIONS' ---
+    @app.route('/api/additional-info/<int:item_id>', methods=['GET', 'OPTIONS'])
     @token_required
     def get_additional_info_item(item_id):
-        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         try:
             item = db.query(AdditionalInfo).filter(AdditionalInfo.id == item_id).first()
@@ -807,10 +777,9 @@ def init_routes(app):
         finally:
             db.close()
         
-    @app.route('/api/additional-info/<int:item_id>', methods=['PUT', 'OPTIONS']) # --- ADICIONADO 'OPTIONS' ---
+    @app.route('/api/additional-info/<int:item_id>', methods=['PUT', 'OPTIONS'])
     @token_required
     def update_additional_info(item_id):
-        # ... (código sem mudanças) ...
         db: Session = next(get_db())
         data = request.get_json()
         item = db.query(AdditionalInfo).filter(AdditionalInfo.id == item_id).first()
@@ -831,7 +800,6 @@ def init_routes(app):
     # =========================================================
     # === ROTAS DE PROJETOS (CRUD ÚNICO) ======================
     # =========================================================
-    # ... (Rotas de Projects - sem mudanças) ...
     @app.route('/api/projects', methods=['POST'])
     @token_required
     def add_project():
@@ -945,7 +913,6 @@ def init_routes(app):
             db.close()
             
     # === CRUD: HOBBIES ===
-    # ... (Rotas de Hobbies - sem mudanças) ...
     @app.route('/api/hobbies', methods=['GET'])
     def get_hobbies():
         db: Session = next(get_db())
@@ -996,7 +963,7 @@ def init_routes(app):
         finally:
             db.close()
 
-    @app.route('/api/hobbies/<int:hobby_id>', methods=['GET', 'OPTIONS']) # --- ADICIONADO 'OPTIONS' ---
+    @app.route('/api/hobbies/<int:hobby_id>', methods=['GET', 'OPTIONS'])
     @token_required
     def get_hobby_by_id(hobby_id):
         db: Session = next(get_db())
@@ -1012,7 +979,7 @@ def init_routes(app):
         finally:
             db.close()
 
-    @app.route('/api/hobbies/<int:hobby_id>', methods=['PUT', 'OPTIONS']) # --- ADICIONADO 'OPTIONS' ---
+    @app.route('/api/hobbies/<int:hobby_id>', methods=['PUT', 'OPTIONS'])
     @token_required
     def update_hobby(hobby_id):
         db: Session = next(get_db())
@@ -1047,7 +1014,6 @@ def init_routes(app):
         finally:
             db.close()
 
-    # --- CORREÇÃO AQUI ---
     @app.route('/api/hobbies/<int:hobby_id>', methods=['DELETE', 'OPTIONS'])
     @token_required 
     def delete_hobby(hobby_id):
@@ -1067,7 +1033,6 @@ def init_routes(app):
             db.close()
 
     # --- Rotas de Admin (Mensagens, Votos, Credenciais) ---
-    # ... (sem mudanças) ...
     @app.route('/api/messages', methods=['GET'])
     @token_required 
     def get_messages():

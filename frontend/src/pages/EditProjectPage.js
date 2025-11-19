@@ -18,7 +18,7 @@ function EditProjectPage({ isAuthenticated }) {
     area_saber: '',
     materia: '',
     project_link: '',
-    image_url: '', // <-- Adicionamos o campo de URL
+    image_url: '', //
   });
   
   const [currentImageUrl, setCurrentImageUrl] = useState(''); 
@@ -169,7 +169,7 @@ function EditProjectPage({ isAuthenticated }) {
         </div>
 
         {/* ======================================== */}
-        {/* === NOVA SELEÇÃO (UPLOAD vs URL) ===== */}
+        {/* === SELEÇÃO (UPLOAD vs URL) ===== */}
         {/* ======================================== */}
         <div className="form-group">
           <label>Imagem do Projeto</label>

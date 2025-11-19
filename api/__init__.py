@@ -1,5 +1,3 @@
-# api/__init__.py
-
 from flask import Flask
 from flask_cors import CORS
 import cloudinary # <-- NOVO IMPORT
@@ -11,7 +9,6 @@ import os
 load_dotenv() 
 
 def create_app():
-    # Não precisa de outro load_dotenv() aqui, já foi carregado
     
     app = Flask(__name__)
     

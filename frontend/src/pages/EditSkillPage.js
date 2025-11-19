@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { FaArrowLeft, FaSave, FaTrash } from 'react-icons/fa'; // <-- Importei o FaTrash
+import { FaArrowLeft, FaSave, FaTrash } from 'react-icons/fa';
 
 function EditSkillPage({ isAuthenticated }) {
   const [formData, setFormData] = useState({
@@ -66,7 +66,7 @@ function EditSkillPage({ isAuthenticated }) {
       });
   };
 
-  // --- NOVA FUNÇÃO DE DELETAR ---
+  // --- FUNÇÃO DE DELETAR ---
   const handleDelete = () => {
     const skillName = formData.name || `ID: ${id}`;
     
@@ -126,7 +126,6 @@ function EditSkillPage({ isAuthenticated }) {
           </select>
         </div>
 
-        {/* --- BOTÕES ATUALIZADOS --- */}
         <div className="admin-actions" style={{ display: 'flex', gap: '10px' }}>
             <button 
                 type="submit" 

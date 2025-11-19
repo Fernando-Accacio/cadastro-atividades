@@ -11,13 +11,12 @@ function HomePage() {
   const [sortedAreaKeys, setSortedAreaKeys] = useState([]);
   const [profilePicUrl, setProfilePicUrl] = useState(DEFAULT_PROFILE_PIC);
   
-  // --- ESTADO ATUALIZADO ---
-  // O generalInfo agora inclui os links e as flags de visibilidade
+  // O generalInfo inclui os links e as flags de visibilidade
   const [generalInfo, setGeneralInfo] = useState({
     objective: '',
     main_name: '',
     profile_pic_url: '',
-    // Novos campos para os links
+    // Campos para os links
     linkedin_url: '',
     github_url: '',
     email_address: '',
@@ -64,7 +63,7 @@ function HomePage() {
     api.get('/api/general-info')
       .then(response => {
         const data = response.data;
-        // --- SETSTATE ATUALIZADO ---
+        // --- SETSTATE ---
         // Preenche o estado com os novos dados da API
         setGeneralInfo({
             objective: data.objective || '',
@@ -87,7 +86,7 @@ function HomePage() {
       });
   }, [fetchProjects]);
 
-  // Função de voto (sem alteração)
+  // Função de voto
   const handleVoteUpdate = (updatedProject) => {
     const area = updatedProject.area_saber || updatedProject.area || updatedProject.category;
 
@@ -168,7 +167,7 @@ function HomePage() {
     );
   };
 
-  // --- RENDERIZAÇÃO DOS LINKS SOCIAIS ATUALIZADA ---
+  // --- RENDERIZAÇÃO DOS LINKS SOCIAIS ---
   const renderSocialLinks = () => {
     // Se estiver carregando, não mostre nada
     if (isLoading) return null;
@@ -207,7 +206,6 @@ function HomePage() {
     );
   };
   
-  // --- FIM DA ATUALIZAÇÃO ---
 
   return (
     <div className="container">

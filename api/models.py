@@ -68,7 +68,7 @@ class GeneralInfo(Base):
     __tablename__ = "general_info"
     id = Column(Integer, primary_key=True, index=True) 
 
-    main_name = Column(String, nullable=True)      # NOVO: Nome principal na Home
+    main_name = Column(String, nullable=True)      # Nome principal na Home
     full_name = Column(String, nullable=True)      # Nome completo
     address = Column(String, nullable=True)        # Endereço
     phone = Column(String, nullable=True)          # Telefone
@@ -88,7 +88,7 @@ class GeneralInfo(Base):
     show_additional_info = Column(Boolean, nullable=False, default=True, server_default='true')
 
     # ================================================================
-    # === ATUALIZAÇÃO: NOVOS CAMPOS PARA LINKS SOCIAIS DA HOMEPAGE ===
+    # ===CAMPOS PARA LINKS SOCIAIS DA HOMEPAGE ===
     # ================================================================
     linkedin_url = Column(String, nullable=True)
     github_url = Column(String, nullable=True)
@@ -97,10 +97,6 @@ class GeneralInfo(Base):
     show_linkedin = Column(Boolean, nullable=False, default=True, server_default='true')
     show_github = Column(Boolean, nullable=False, default=True, server_default='true')
     show_email = Column(Boolean, nullable=False, default=True, server_default='true')
-    # ================================================================
-    # === FIM DA ATUALIZAÇÃO ===
-    # ================================================================
-
     
 # 2. Experiência Profissional
 class Experience(Base):

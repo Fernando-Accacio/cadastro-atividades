@@ -48,7 +48,7 @@ function SobreMimPage() {
     <div className="container">
       <h2 className="page-title">Um Pouco Mais Sobre Mim</h2>
 
-      {/* --- INTRODUÇÃO DINÂMICA (DO V1) --- */}
+      {/* --- INTRODUÇÃO DINÂMICA --- */}
       <div className="informal-intro">
         {isLoading ? (
           <p>Carregando introdução...</p>
@@ -60,12 +60,12 @@ function SobreMimPage() {
         )}
       </div>
 
-      {/* --- SEÇÃO DE HOBBIES (ESTRUTURA DO V2) --- */}
+      {/* --- SEÇÃO DE HOBBIES --- */}
       <div className="hobbies-container">
         {isLoading ? (
           <p style={{textAlign: 'center', fontStyle: 'italic', fontSize: '1.1rem'}}>Carregando hobbies...</p>
         ) : hobbies.length === 0 ? (
-          // Mensagem de placeholder (pode ser a do V1 ou V2, usei a do V1)
+          // Mensagem de placeholder
           <div className="informal-intro" style={{backgroundColor: '#ffffffff'}}>
             <p style={{margin: 0, color: '#555555'}}>Cadastre seus hobbies no painel administrativo.</p>
           </div>
@@ -76,8 +76,6 @@ function SobreMimPage() {
               {hobby.image_url ? (
                 <img src={hobby.image_url} alt={hobby.title} className="hobby-image" />
               ) : (
-                // ⚠️ CORREÇÃO DE ESTILO APLICADA AQUI
-                // Removido o 'width: 40%' do V2 e usado o estilo correto do V1
                 <div className="hobby-image" style={{
                     height: '300px',
                     flexShrink: 0,

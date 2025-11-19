@@ -8,8 +8,8 @@ const LoadingComponent = () => (
     <p style={{ textAlign: 'center' }}>Aguarde um momento...</p>
   </div>
 );
-//---------------------------------------
 
+//Destaca os 3 primeiros com medalhas
 const getRankDetails = (index) => {
   switch (index) {
     case 0:
@@ -45,7 +45,6 @@ function RankingPage() {
   if (isLoading) {
     return <LoadingComponent />;
   }
-  //-----------------------------------------
 
   return (
     <div className="container">

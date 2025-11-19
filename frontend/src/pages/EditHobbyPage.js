@@ -18,7 +18,7 @@ function EditHobbyPage({ isAuthenticated }) {
   });
   
   const [currentImageUrl, setCurrentImageUrl] = useState(''); // Para mostrar a imagem atual
-  const [imageFile, setImageFile] = useState(null); // Para o NOVO arquivo
+  const [imageFile, setImageFile] = useState(null);
   const [uploadType, setUploadType] = useState('url'); // 'file' ou 'url'
   
   const [message, setMessage] = useState('');

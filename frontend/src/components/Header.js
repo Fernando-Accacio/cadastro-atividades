@@ -13,7 +13,6 @@ function Header({ isAuthenticated, onLogout }) {
 
   return (
     <header className="app-header">
-      {/* ALTERADO: Substitui <h1> por <img> para a logo */}
       <Link to="/" className="header-logo" onClick={() => setMenuActive(false)}>
         {/* Acessa a imagem na pasta public. Altere o 'src' se o nome do seu arquivo for diferente */}
         <img src="/logo.png" alt="Logo do Meu Portfólio" className="logo-img" />

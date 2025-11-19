@@ -2,10 +2,6 @@
 /* FUNDO DO SITE                                   */
 /* =============================================== */
 
-/* =============================================== */
-/* FUNDO DO SITE - AJUSTADO PARA MAIOR VISIBILIDADE */
-/* =============================================== */
-
 body {
   position: relative;
   overflow-x: hidden;
@@ -90,7 +86,7 @@ html {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden; /* <-- Sua regra foi unificada aqui */
+  overflow-x: hidden;
 }
 
 .app-container {
@@ -107,8 +103,8 @@ html {
 
 main {
   flex-grow: 1;
-  padding-top: 70px;    /* <-- Sua regra foi unificada aqui */
-  padding-bottom: 60px; /* <-- Sua regra foi unificada aqui */
+  padding-top: 70px;
+  padding-bottom: 60px;
 }
 
 .main-content-flex-grow {
@@ -230,6 +226,8 @@ main {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
         0 2px 8px rgba(0, 0, 0, 0.04);
   text-align: center;
+  margin-top: 40px;
+
 }
 
 .about-section h2 {
@@ -515,8 +513,8 @@ main {
   cursor: pointer;
   font-size: 1em;
   font-weight: 500;
-  box-shadow: none; /* <-- ADICIONADO */
-transition: background-color 0.3s; /* <-- AJUSTADO */
+  box-shadow: none;
+transition: background-color 0.3s;
 }
 
 .danger-button:hover {
@@ -714,9 +712,7 @@ transition: background-color 0.3s; /* <-- AJUSTADO */
 }
 
 .app-footer {
-  /* ... seus outros estilos de footer ... */
   flex-shrink: 0;
-  /* (O resto dos seus estilos .app-footer vão aqui) */
   text-align: center;
   padding: 30px;
   background: rgba(255, 255, 255, 0.85);
@@ -727,16 +723,12 @@ transition: background-color 0.3s; /* <-- AJUSTADO */
   box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.05);
 }
 
-main .container > *:first-child {
-  margin-top: 0 !important;
-}
-
 main .container > *:last-child {
   margin-bottom: 0 !important;
 }
 
 /* =============================================== */
-/* NOVOS ESTILOS - ADMIN E ADICIONAR/EDITAR PROJETO */
+/* ESTILOS - ADMIN E ADICIONAR/EDITAR PROJETO */
 /* =============================================== */
 
 /* Botão de Adicionar (+) na HomePage */
@@ -804,7 +796,7 @@ main .container > *:last-child {
 }
 
 /* ================================================= */
-/* === CORREÇÃO DEFINITIVA PARA BOTÕES DE AÇÃO === */
+/* === BOTÕES DE AÇÃO === */
 /* ================================================= */
 
 .danger-button-small {
@@ -944,9 +936,12 @@ main .container > *:last-child {
     padding-right: 20px;
   }
 
-  /* Ajustes Mobile - linha 800 */
   .app-header {
     padding: 0 !important;
+  }
+
+  .hamburger {
+    margin-right: 16px;
   }
 
   .app-header .header-logo {
@@ -1333,13 +1328,10 @@ main .container > *:last-child {
   }
 
 .data-table td.admin-actions-cell {
-    /* FALTAVA ISSO: */
     display: flex !important; 
     
-    /* ISSO VOCÊ JÁ TINHA: */
     flex-direction: row !important; 
     
-    /* ADICIONE ISSO PARA GARANTIR O ESPAÇAMENTO: */
     gap: 8px !important;
 }
 
@@ -1350,10 +1342,6 @@ main .container > *:last-child {
     margin: 0; /* Remove qualquer margem que possa estar atrapalhando */
 }
 }
-
-/* ================================================= */
-/* === INÍCIO DO NOVO CÓDIGO (MINHA CORREÇÃO)    === */
-/* ================================================= */
 
 /* Este formulário vai usar os mesmos estilos '.contact-form',
   mas com 'margin-top' 0 para se encaixar melhor no '.admin-section'.
@@ -1558,7 +1546,6 @@ main .container > *:last-child {
     width: 100%;
 }
 
-/* Adicione esta classe se você precisar de uma cor de destaque no link de voltar */
 .back-to-admin:hover {
     color: var(--text-accent);
     text-decoration: underline;
@@ -1572,7 +1559,7 @@ main .container > *:last-child {
     }
 }
 
-/* Correções de Cores de Ação */
+/* Cores de Ação */
 .add-button {
     background-color: #0077cc !important; /* Azul primário (Padrão do tema) */
 }
@@ -1580,7 +1567,7 @@ main .container > *:last-child {
     background-color: #005fa3 !important;
 }
 
-/* Novo Botão de Salvar da Homepage - Cor Laranja */
+/* Botão de Salvar da Homepage - Cor Laranja */
 .btn-save-general {
     background-color: #0077cc !important; /* Laranja (Cor contrastante) */
     width: auto;
@@ -1601,13 +1588,11 @@ main .container > *:last-child {
 
 /* Estilo para a Section onde gerenciamos GeneralInfo */
 .general-info-section {
-    /* Mantenha o estilo do painel para consistência */
     border: 1px solid rgba(255, 255, 255, 0.5);
     padding: 30px;
     border-radius: 8px; /* Usar '8px' ou 'var(--radius-main)' */
     margin-bottom: 40px;
 }
-/* Altere o estilo do back-to-admin para o seu padrão */
 .back-to-admin {
     color: #0077cc; /* Azul Primário */
     text-decoration: none;
@@ -1629,9 +1614,9 @@ main .container > *:last-child {
   align-items: center;
   margin-top: 30px;
   flex-wrap: wrap;
-  width: 100%; /* ADICIONA */
-  padding: 0 20px; /* ADICIONA - Espaçamento lateral */
-  box-sizing: border-box; /* ADICIONA */
+  width: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
 

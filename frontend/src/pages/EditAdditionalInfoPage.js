@@ -1,12 +1,9 @@
-// pages/EditAdditionalInfoPage.jsx
-// (Arquivo inteiro corrigido com a função de Deletar)
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import api from '../api/axiosConfig'; 
-import { FaArrowLeft, FaSave, FaTrash } from 'react-icons/fa'; // Importa o FaTrash
+import { FaArrowLeft, FaSave, FaTrash } from 'react-icons/fa';
 
-function EditAdditionalInfoPage({ isAuthenticated }) { // Adicionei isAuthenticated
+function EditAdditionalInfoPage({ isAuthenticated }) {
     const { id } = useParams(); 
     const navigate = useNavigate();
     const [text, setText] = useState('');
@@ -24,7 +21,6 @@ function EditAdditionalInfoPage({ isAuthenticated }) { // Adicionei isAuthentica
 
         const fetchItem = async () => {
             try {
-                // A rota /api/additional-info/id é singular (correto)
                 const response = await api.get(`/api/additional-info/${id}`);
                 setText(response.data.text);
                 setIsLoading(false);
@@ -50,7 +46,6 @@ function EditAdditionalInfoPage({ isAuthenticated }) { // Adicionei isAuthentica
         }
 
         try {
-            // A rota /api/additional-info/id é singular (correto)
             await api.put(`/api/additional-info/${id}`, { text });
             setMessage('Item atualizado com sucesso!');
             setTimeout(() => {
@@ -64,7 +59,7 @@ function EditAdditionalInfoPage({ isAuthenticated }) { // Adicionei isAuthentica
         }
     };
 
-    // --- FUNÇÃO DE DELETAR ADICIONADA ---
+    // --- FUNÇÃO DE DELETAR ---
     const handleDelete = async () => {
         const confirmDelete = window.confirm(`Tem certeza que quer deletar este item? (ID: ${id})`);
         
@@ -74,7 +69,6 @@ function EditAdditionalInfoPage({ isAuthenticated }) { // Adicionei isAuthentica
             setIsSaving(true);
             
             try {
-                // A rota /api/additional-info/id é singular (correto)
                 await api.delete(`/api/additional-info/${id}`);
                 setMessage('Item deletado com sucesso! Redirecionando...');
                 setTimeout(() => {

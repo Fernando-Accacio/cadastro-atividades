@@ -14,7 +14,6 @@ import AddProjectPage from './pages/AddProjectPage';
 import EditProjectPage from './pages/EditProjectPage';
 import EditHobbyPage from './pages/EditHobbyPage'; 
 import AddHobbyPage from './pages/AddHobbyPage'; 
-// NOVOS IMPORTS DE ADMIN DE CURRÍCULO
 import CurriculumAdminPage from './pages/CurriculumAdminPage';
 import AddExperiencePage from './pages/AddExperiencePage';
 import EditExperiencePage from './pages/EditExperiencePage';
@@ -23,13 +22,12 @@ import EditEducationPage from './pages/EditEducationPage';
 import AddSkillPage from './pages/AddSkillPage';
 import EditSkillPage from './pages/EditSkillPage';
 
-// === IMPORTS FALTANTES PARA AS NOVAS TELAS ===
 import AddAdditionalInfoPage from './pages/AddAdditionalInfoPage';
 import EditAdditionalInfoPage from './pages/EditAdditionalInfoPage'; 
 
 import './App.css';
 
-// Componente helper para o Logout (sem mudanças)
+// Componente helper para o Logout
 function LogoutHandler({ handleLogout }) {
     const navigate = useNavigate();
     useEffect(() => {
@@ -43,7 +41,7 @@ function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [token, setToken] = useState(localStorage.getItem('admin_token'));
 
-    // useEffect de verificação de token (sem mudanças)
+    // useEffect de verificação de token
     useEffect(() => {
         if (token) {
             try {
@@ -65,7 +63,7 @@ function App() {
         }
     }, [token]);
 
-    // handleLogin e handleLogout (sem mudanças)
+    // handleLogin e handleLogout
     const handleLogin = (newToken) => {
         localStorage.setItem('admin_token', newToken);
         setToken(newToken);
@@ -79,16 +77,9 @@ function App() {
 
     return (
         <Router>
-            {/* O 'app-container' não é necessário para o sticky footer,
-              pois já estilizamos o #root, mas não tem problema manter.
-            */}
             <div className="app-container">
                 <Header isAuthenticated={isAuthenticated} onLogout={handleLogout} />
                 
-                {/* *** A CORREÇÃO ESTÁ AQUI ***
-                  Adicione a classe 'main-content-flex-grow' na tag <main>
-                  Isso fará com que esta seção "cresça" e empurre o Footer para baixo.
-                */}
                 <main className="main-content-flex-grow">
                     <Routes>
                         {/* Rotas Públicas */}
@@ -136,7 +127,7 @@ function App() {
                         <Route path="/admin/curriculum/add-skill" element={<AddSkillPage isAuthenticated={isAuthenticated} />} />
                         <Route path="/admin/curriculum/edit-skill/:id" element={<EditSkillPage isAuthenticated={isAuthenticated} />} />
                         
-                        {/* === ROTAS NOVAS DE INFORMAÇÕES ADICIONAIS === */}
+                        {/* === ROTAS DE INFORMAÇÕES ADICIONAIS === */}
                         <Route path="/admin/curriculum/add-additional-info" element={<AddAdditionalInfoPage isAuthenticated={isAuthenticated} />} />
                         <Route path="/admin/curriculum/edit-additional-info/:id" element={<EditAdditionalInfoPage isAuthenticated={isAuthenticated} />} />
                         {/* ============================================== */}

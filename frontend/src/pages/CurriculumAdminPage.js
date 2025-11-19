@@ -103,8 +103,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
         setPdfFile(e.target.files[0]);
     };
 
-    // *** MODIFICADO ***
-    // Adicionado 'section' para direcionar as mensagens de erro/sucesso
+    // 'section' para direcionar as mensagens de erro/sucesso
     const handleGeneralInfoSubmit = async (e, section = 'general') => {
         e.preventDefault();
         
@@ -155,7 +154,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
             setResumeSummary(response.data.resume_summary || '');
             setPdfFile(null); 
 
-            // *** MODIFICADO ***: Direciona a mensagem
+            // Direciona a mensagem
             if (section === 'experience') {
                 setExpMessage('Texto "Sem Experiência" atualizado com sucesso!');
                 setTimeout(() => setExpMessage(''), 5000);
@@ -168,7 +167,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
             console.error("Erro ao salvar General Info:", err.response || err);
             const errorMsg = err.response?.data?.error || 'Erro ao salvar informações gerais.';
 
-            // *** MODIFICADO ***: Direciona o erro
+            // Direciona o erro
             if (section === 'experience') {
                 setExpError(errorMsg);
                 setTimeout(() => setExpError(''), 5000);
@@ -284,7 +283,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
                 <h2>Informações Pessoais, Objetivo e Arquivo</h2>
                 <p>Gerencie os dados de contato do currículo e o seu Objetivo Profissional.</p>
                 
-                {/* *** MODIFICADO ***: Adicionado (e) => ... 'general' */}
+                {/* Adicionado (e) => ... 'general' */}
                 <form onSubmit={(e) => handleGeneralInfoSubmit(e, 'general')}>
                     <h3>Dados de Cabeçalho do Currículo</h3>
                     <div className="form-group">
@@ -379,7 +378,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
                         </button>
                     </div>
 
-                    {/* MENSAGENS DO FORM PRINCIPAL (LOCAL CORRETO) */}
+                    {/* MENSAGENS DO FORM PRINCIPAL */}
                     {error && <p className="form-message error">{error}</p>}
                     {message && <p className="form-message success">{message}</p>}
                 </form>
@@ -390,9 +389,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
             {/* 2. EXPERIÊNCIA */}
             <div className="admin-section">
                 <h2>Experiência Profissional</h2>
-                
-                {/* *** MENSAGENS MOVIDAS DAQUI *** */}
-                
+                                
                 <div className="admin-actions">
                     <Link to="/admin/curriculum/add-experience" className="add-button" style={{backgroundColor: '#28a745'}}>
                         <FaPlus /> Adicionar Experiência
@@ -402,7 +399,7 @@ function CurriculumAdminPage({ isAuthenticated }) {
                     </button>
                 </div>
                 {showNoExperienceInput && (
-                    // *** MODIFICADO ***: Adicionado (e) => ... 'experience'
+                    // Adicionado (e) => ... 'experience'
                     <form onSubmit={(e) => handleGeneralInfoSubmit(e, 'experience')} className="admin-credentials-form" style={{marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '20px'}}>
                         <div className="form-group">
                             <label htmlFor="experience_fallback_text">Texto para "Sem Experiência"</label>
@@ -439,7 +436,6 @@ function CurriculumAdminPage({ isAuthenticated }) {
                     </tbody>
                 </table>
                 
-                {/* *** MOVIDO PARA CÁ *** (Abaixo do card) */}
                 {expError && <p className="form-message error" style={{marginTop: '15px'}}>{expError}</p>}
                 {expMessage && <p className="form-message success" style={{marginTop: '15px'}}>{expMessage}</p>}
             </div>
@@ -450,7 +446,6 @@ function CurriculumAdminPage({ isAuthenticated }) {
             <div className="admin-section">
                 <h2>Formação Acadêmica</h2>
                 
-                {/* *** MENSAGENS MOVIDAS DAQUI *** */}
                 
                 <div className="admin-actions">
                     <Link to="/admin/curriculum/add-education" className="add-button" style={{backgroundColor: '#28a745'}}>
@@ -476,7 +471,6 @@ function CurriculumAdminPage({ isAuthenticated }) {
                     </tbody>
                 </table>
                 
-                {/* *** MOVIDO PARA CÁ *** (Abaixo do card) */}
                 {eduError && <p className="form-message error" style={{marginTop: '15px'}}>{eduError}</p>}
                 {eduMessage && <p className="form-message success" style={{marginTop: '15px'}}>{eduMessage}</p>}
             </div>
@@ -487,7 +481,6 @@ function CurriculumAdminPage({ isAuthenticated }) {
             <div className="admin-section">
                 <h2>Habilidades (Skills)</h2>
                 
-                {/* *** MENSAGENS MOVIDAS DAQUI *** */}
                 
                 <div className="admin-actions">
                     <Link to="/admin/curriculum/add-skill" className="add-button" style={{backgroundColor: '#28a745'}}>
@@ -518,7 +511,6 @@ function CurriculumAdminPage({ isAuthenticated }) {
                     </tbody>
                 </table>
                 
-                {/* *** MOVIDO PARA CÁ *** (Abaixo do card) */}
                 {skillError && <p className="form-message error" style={{marginTop: '15px'}}>{skillError}</p>}
                 {skillMessage && <p className="form-message success" style={{marginTop: '15px'}}>{skillMessage}</p>}
             </div>
@@ -529,7 +521,6 @@ function CurriculumAdminPage({ isAuthenticated }) {
             <div className="admin-section">
                 <h2>Informações Adicionais</h2>
                 
-                {/* *** MENSAGENS MOVIDAS DAQUI *** */}
                 
                 <div className="admin-actions">
                     <Link to="/admin/curriculum/add-additional-info" className="add-button" style={{backgroundColor: '#5bc0de'}}>
@@ -548,7 +539,6 @@ function CurriculumAdminPage({ isAuthenticated }) {
                                     <td data-label="ID">{item.id}</td>
                                     
                                     {/*
-                                    ===== A SOLUÇÃO É ADICIONAR ESTE 'style' AQUI =====
                                     */}
                                     <td 
                                         data-label="Texto"

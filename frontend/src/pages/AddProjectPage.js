@@ -3,7 +3,7 @@ import api from '../api/axiosConfig';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 
-// Estilo para os radio buttons (opcional, mas fica melhor)
+// Estilo para os radio buttons
 const radioStyle = {
   display: 'flex',
   alignItems: 'center',
@@ -18,12 +18,12 @@ function AddProjectPage({ isAuthenticated }) {
     area_saber: '',
     materia: '',
     project_link: '',
-    image_url: '', // <-- Adicionamos o campo de URL de volta
+    image_url: '',
   });
   
   const [imageFile, setImageFile] = useState(null);
   
-  // NOVO ESTADO: para controlar a escolha (file ou url)
+  // ESTADO: para controlar a escolha (file ou url)
   const [uploadType, setUploadType] = useState('file'); // 'file' ou 'url'
   
   const [message, setMessage] = useState('');
@@ -83,7 +83,6 @@ function AddProjectPage({ isAuthenticated }) {
     
     // LÓGICA CONDICIONAL: Adiciona ARQUIVO ou URL
     if (uploadType === 'file' && imageFile) {
-      // Renomeado para 'image_file' para não conflitar com o campo 'image_url'
       formData.append('image_file', imageFile); 
     } 
     else if (uploadType === 'url' && projectData.image_url) {
@@ -145,7 +144,7 @@ function AddProjectPage({ isAuthenticated }) {
         </div>
         
         {/* ======================================== */}
-        {/* === NOVA SELEÇÃO (UPLOAD vs URL) ===== */}
+        {/* === (UPLOAD vs URL) ===== */}
         {/* ======================================== */}
         <div className="form-group">
           <label>Imagem do Projeto</label>

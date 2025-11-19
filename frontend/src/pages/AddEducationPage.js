@@ -1,5 +1,3 @@
-// Crie/Substitua este arquivo em /pages/AddEducationPage.js
-
 import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
 import { Link, useNavigate } from 'react-router-dom';
@@ -8,15 +6,14 @@ import { FaArrowLeft, FaPlus, FaSave } from 'react-icons/fa'; // Importe o FaSav
 function AddEducationPage({ isAuthenticated }) {
     const navigate = useNavigate();
     
-    // --- MUDANÇA 1: Atualizar o estado ---
+    // Atualizar o estado ---
     const [formData, setFormData] = useState({
         degree: '',
         institution: '',
-        start_date: '', // NOVO
-        end_date: '',   // NOVO (Pode ser "Atual")
+        start_date: '',
+        end_date: '',
         details: '',
     });
-    // --- Fim da Mudança 1 ---
 
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
@@ -38,13 +35,12 @@ function AddEducationPage({ isAuthenticated }) {
         setMessage('');
         setError('');
 
-        // --- MUDANÇA 2: Validar os campos novos ---
+        // Validar os campos novos ---
         const { degree, institution, start_date, end_date } = formData;
         if (!degree || !institution || !start_date || !end_date) {
             setError('Todos os campos com * são obrigatórios.');
             return;
         }
-        // --- Fim da Mudança 2 ---
         
         setIsLoading(true);
 
@@ -55,7 +51,6 @@ function AddEducationPage({ isAuthenticated }) {
                 // Limpa o formulário corretamente
                 setFormData({ degree: '', institution: '', start_date: '', end_date: '', details: '' }); 
                 
-                // Opcional: redireciona após um tempo
                 setTimeout(() => {
                     navigate('/admin/curriculum');
                 }, 1500);
@@ -92,7 +87,7 @@ function AddEducationPage({ isAuthenticated }) {
                     <input type="text" id="institution" name="institution" value={formData.institution} onChange={handleChange} required />
                 </div>
                 
-                {/* --- MUDANÇA 3: Atualizar o Formulário --- */}
+                {/* ---Atualizar o Formulário --- */}
                 <div className="form-group" style={{ display: 'flex', gap: '20px' }}>
                     <div style={{ flex: 1 }}>
                         <label htmlFor="start_date">Data de Início (Ex: Jan/2023) *</label>
@@ -103,7 +98,6 @@ function AddEducationPage({ isAuthenticated }) {
                         <input type="text" id="end_date" name="end_date" value={formData.end_date} onChange={handleChange} required />
                     </div>
                 </div>
-                {/* --- Fim da Mudança 3 --- */}
 
                 <div className="form-group">
                     <label htmlFor="details">Detalhes / Destaques</label>
