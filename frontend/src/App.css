@@ -156,6 +156,53 @@ main {
     opacity: 0.85; 
 }
 
+.user-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-left: 20px;
+    padding-left: 20px;
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    height: 40px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Estilo da Imagem de Perfil no Header */
+.header-profile-img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #0077cc; /* Borda azul fina para destaque */
+    display: block;
+}
+
+/* Ícone padrão caso não tenha foto */
+.header-default-icon {
+    font-size: 1.5rem;
+    color: #0077cc;
+}
+
+/* O texto "Olá, Nome" - FORÇANDO A COR ESCURA */
+.user-name {
+    color: #333333 !important; /* Importante para sobrepor qualquer cor branca herdada */
+    font-weight: 600;
+    font-size: 0.95rem;
+    white-space: nowrap;
+
+    white-space: nowrap;      /* Obriga a ficar em uma linha */
+    overflow: hidden;         /* Esconde o que vazar */
+    text-overflow: ellipsis;  /* Coloca "..." no final */
+    max-width: 150px;         /* Tamanho máximo no Desktop */
+    display: inline-block;    /* Necessário para o ellipsis funcionar bem */
+    vertical-align: middle;   /* Alinha com a foto */
+}
+
 .nav-menu {
   display: flex;
   align-items: center;
@@ -898,7 +945,7 @@ main .container > *:last-child {
 /* =============================================== */
 
 @media screen and (max-width: 960px) {
-  /* Regras do Menu Mobile */
+  /* --- MENU PRINCIPAL --- */
   .nav-menu {
     display: flex;
     flex-direction: column;
@@ -908,10 +955,14 @@ main .container > *:last-child {
     position: absolute;
     top: 85px;
     right: 0;
-    max-height: 85vh;
+    height: 80vh; 
     padding: 20px 0;
+    
+    /* Espaço extra no fundo pro botão não colar na borda */
+    padding-bottom: 20px;
+    
     overflow-y: auto;
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-radius: var(--radius-main);
@@ -928,31 +979,122 @@ main .container > *:last-child {
   .nav-menu a {
     width: fit-content;
     padding: 15px 20px;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
+    text-align: center;
+    background: ghostwhite;
+    border-radius: 10px;
+    /* Garante que os links fiquem no meio */
+    order: 1; 
   }
 
+  /* --- HEADER E LOADERS --- */
   .hamburger {
     display: block;
     padding-right: 20px;
-  }
-
-  .app-header {
-    padding: 0 !important;
-  }
-
-  .hamburger {
     margin-right: 16px;
   }
 
-  .app-header .header-logo {
-    padding-left: 0 !important;
-  }
+  .app-header { padding: 0 !important; }
+  .app-header .header-logo { padding-left: 0 !important; }
 
   .loading-container {
-  text-align: center;
-  padding-top: 100px;
-  min-height: 60vh;
+    text-align: center;
+    padding-top: 100px;
+    min-height: 60vh;
+  }
+
+  /* --- DIVIDIR O BLOCO DO USUÁRIO --- */
+  .user-controls {
+    /* Isso faz o container 'sumir' pro Flexbox, 
+       permitindo controlar os filhos (info e botão) separadamente */
+    display: contents; 
+  }
+  
+  /* 1. FOTO E NOME -> VÃO PARA O TOPO */
+.user-info {
+    order: -1; 
+    display: flex;
+    flex-direction: row !important;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+        
+    /* Espaço entre a FOTO/NOME e o RISCO (Padding interno) */
+    padding-bottom: 15px; 
+        
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+  }
+
+  .header-profile-img {
+    width: 50px; 
+    height: 50px;
+  }
+  
+  .user-name {
+      font-size: 1.1rem;
+      color: #333;
+  }
+
+  /* 2. BOTÃO SAIR -> VAI PARA O FUNDO */
+  .logout-button {
+    order: 999; /* Força final absoluto */
+    margin-top: auto; /* Empurra para baixo ocupando o espaço vazio */
+    
+    width: 80%;
+    justify-content: center;
+    padding: 12px;
+    margin-left: 0; /* Reset */
+  }
 }
+
+/* =============================================== */
+/* AJUSTE PARA LAPTOPS E TABLETS LANDSCAPE (1024px) */
+/* =============================================== */
+
+/* Aplica apenas quando a tela é menor que 1280px mas maior que 960px (onde começa o mobile) */
+@media screen and (min-width: 961px) and (max-width: 1280px) {
+  
+  /* 1. Reduz o espaço nas laterais do cabeçalho */
+  .app-header {
+    padding: 0 15px; 
+  }
+
+  /* 2. Aperta os links de navegação */
+  .nav-menu {
+    gap: 10px; /* Diminui o espaço entre os links (era 25px) */
+  }
+
+  .nav-menu a {
+    font-size: 0.9rem; /* Diminui um pouco a fonte */
+    white-space: nowrap; /* Garante que "Painel Admin" e "Sobre Mim" não quebrem linha */
+  }
+
+  /* 3. Ajusta a área do usuário (lado direito) */
+  .user-controls {
+    margin-left: 10px; /* Cola mais nos links */
+    padding-left: 10px;
+    gap: 10px; /* Cola o botão sair no nome */
+  }
+
+  /* 4. Diminui o nome e força o corte (...) mais cedo */
+  .user-name {
+    font-size: 0.85rem;
+    max-width: 90px; /* Corta o nome antes para caber tudo */
+  }
+  
+  /* 5. Diminui a foto levemente */
+  .header-profile-img {
+      width: 30px;
+      height: 30px;
+  }
+
+  /* 6. Deixa o botão Sair mais compacto */
+  .logout-button {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    margin-left: 5px;
+  }
 }
 
 @media screen and (max-width: 768px) {

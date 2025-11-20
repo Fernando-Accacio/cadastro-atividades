@@ -171,6 +171,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
     setError('');
     api.post('/api/login', { username, password })
       .then(response => {
+        localStorage.setItem('admin_username', response.data.username);
         onLogin(response.data.token);
         setUsername('');
         setPassword('');

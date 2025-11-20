@@ -53,35 +53,43 @@ def init_routes(app):
             db.close() 
             next(db_session_generator, None)
 
-    # Rota de Login
+# Rota de Login
     @app.route('/api/login', methods=['POST'])
     def login():
-                db: Session = next(get_db())
-                data = request.get_json()
-                if not data or not data.get('username') or not data.get('password'):
-                    return jsonify({'error': 'Usuário e senha são obrigatórios'}), 400
+        db: Session = next(get_db())
+        try:
+            data = request.get_json()
+            if not data or not data.get('username') or not data.get('password'):
+                return jsonify({'error': 'Usuário e senha são obrigatórios'}), 400
 
-                # Pega o nome de usuário digitado
-                username_digitado = data.get('username')
-                # Normaliza: converte para minúsculas e remove espaços extras
-                username_normalizado = username_digitado.lower().strip()
-                
-                password = data.get('password')
-                
-                # Busca no banco usando o nome normalizado
-                user = db.query(User).filter(User.username == username_normalizado).first()
+            # Pega o nome de usuário digitado
+            username_digitado = data.get('username')
+            # Normaliza
+            username_normalizado = username_digitado.lower().strip()
+            
+            password = data.get('password')
+            
+            # Busca no banco
+            user = db.query(User).filter(User.username == username_normalizado).first()
 
-                if not user or not user.check_password(password):
-                    return jsonify({'error': 'Usuário ou senha incorretos'}), 401
-                    
-                secret_key = current_app.config['JWT_SECRET_KEY']
-                token_payload = {
-                    'user_id': user.id,
-                    'username': user.username, # Retorna o username salvo no banco
-                    'exp': datetime.utcnow() + timedelta(hours=8)
-                }
-                token = jwt.encode(token_payload, secret_key, algorithm="HS256")
-                return jsonify({'token': token})
+            if not user or not user.check_password(password):
+                return jsonify({'error': 'Usuário ou senha incorretos'}), 401
+                
+            secret_key = current_app.config['JWT_SECRET_KEY']
+            token_payload = {
+                'user_id': user.id,
+                'username': user.username,
+                'exp': datetime.utcnow() + timedelta(hours=8)
+            }
+            token = jwt.encode(token_payload, secret_key, algorithm="HS256")
+            
+            return jsonify({
+                'token': token,
+                'username': user.username
+            }), 200
+            
+        finally:
+            db.close()
 
 
     @app.route('/api/admin/user-exists', methods=['GET'])
