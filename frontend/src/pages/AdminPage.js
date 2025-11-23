@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 const LoadingComponent = () => (
   <div className="container loading-container">
     <h2 className="page-title">Carregando Painel Admin...</h2>
-    <p style={{ textAlign: 'center' }}>Aguarde enquanto carregamos suas informações.</p>
+    <p style={{ textAlign: 'center' }}>Aguarde enquanto carregamos suas informações...</p>
   </div>
 );
 
