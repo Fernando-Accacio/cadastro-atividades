@@ -1,7 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../api/axiosConfig';
-import { FaEye, FaEyeSlash, FaPlus, FaTrash, FaPencilAlt, FaSave, FaHeart, FaAddressCard, FaHome, FaFileUpload, FaUser, FaLinkedin, FaGithub, FaEnvelope } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaPlus, FaTrash, FaPencilAlt, FaSave, FaAddressCard, FaLinkedin, FaGithub, FaEnvelope, FaFileUpload } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+
+// --- COMPONENTE DE LOADING ---
+const LoadingComponent = () => (
+  <div className="container loading-container">
+    <h2 className="page-title">Carregando Painel Admin...</h2>
+    <p style={{ textAlign: 'center' }}>Aguarde enquanto carregamos suas informações.</p>
+  </div>
+);
 
 function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   // --- Estados para Login, Mensagens, Projetos, Credenciais ---
@@ -24,7 +32,6 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   const [maintError, setMaintError] = useState('');
 
   // --- ESTADOS PARA PROJETOS E HOBBIES ---
-  // (Separado de Manutenção para mensagens no card)
   const [projMessage, setProjMessage] = useState('');
   const [projError, setProjError] = useState('');
   const [hobbyMessage, setHobbyMessage] = useState('');
@@ -64,10 +71,13 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   const [profilePicFile, setProfilePicFile] = useState(null);
   const [introMessage, setIntroMessage] = useState(''); 
   const [introError, setIntroError] = useState(''); 
-  
-  // --- Funções de Fetch ---
+   
+  // --- CARREGAMENTO DOS DADOS DO ADMIN ---
+  const [isLoadingData, setIsLoadingData] = useState(false);
+
+  // --- Funções de Fetch (Atualizadas para retornar Promise) ---
   const fetchMessages = useCallback(() => {
-    api.get('/api/messages')
+    return api.get('/api/messages')
       .then(response => setMessages(response.data))
       .catch(error => {
         console.error("Houve um erro ao buscar as mensagens!", error);
@@ -78,9 +88,8 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       });
   }, [onLogout]);
     
-  // --- fetchHomeInfo ---
   const fetchHomeInfo = useCallback(() => {
-    api.get('/api/general-info')
+    return api.get('/api/general-info')
       .then(response => {
         const data = response.data;
         setHomeInfo({
@@ -91,7 +100,6 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
           linkedin_url: data.linkedin_url || '',
           github_url: data.github_url || '',
           email_address: data.email_address || '',
-          // Garante que o valor seja booleano (!!data.X ?? true -> se for null/undefined, usa true)
           show_linkedin: data.show_linkedin ?? true,
           show_github: data.show_github ?? true,
           show_email: data.show_email ?? true,
@@ -101,7 +109,7 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
   }, []);
 
   const fetchProjects = useCallback(() => {
-    api.get('/api/projects') 
+    return api.get('/api/projects') 
       .then(response => {
         const flatProjects = Object.values(response.data).flat();
         flatProjects.sort((a, b) => parseInt(a.id) - parseInt(b.id)); 
@@ -112,43 +120,48 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
 
   const fetchHobbies = useCallback(() => {
     setIsHobbyLoading(true);
-    api.get('/api/hobbies')
+    return api.get('/api/hobbies')
       .then(response => {
         setHobbies(response.data);
-        setIsHobbyLoading(false);
       })
       .catch(err => {
         console.error("Erro ao buscar hobbies:", err);
         setMaintError("Não foi possível carregar os hobbies.");
-        setIsHobbyLoading(false);
+      })
+      .finally(() => {
+          setIsHobbyLoading(false);
       });
   }, []);
 
-  // useEffect Principal
+  // --- useEffect Principal (Carregamento de Dados) ---
   useEffect(() => {
     if (isAuthenticated) {
-      setCredMessage('');
-      setCredError('');
-      setMaintMessage('');
-      setMaintError('');
-      setHomeMessage('');
-      setHomeError('');
+      // Limpar mensagens de erro anteriores
+      setCredMessage(''); setCredError('');
+      setMaintMessage(''); setMaintError('');
+      setHomeMessage(''); setHomeError('');
       setDeleteUserError('');
-      setIntroMessage(''); 
-      setIntroError(''); 
-      setProjMessage(''); 
-      setProjError('');
-      setHobbyMessage(''); 
-      setHobbyError('');
+      setIntroMessage(''); setIntroError(''); 
+      setProjMessage(''); setProjError('');
+      setHobbyMessage(''); setHobbyError('');
       
-      fetchMessages();
-      fetchProjects();
-      fetchHobbies();
-      fetchHomeInfo(); 
+      // Iniciar o Loading
+      setIsLoadingData(true);
+
+      // Executa todos os fetches e espera todos terminarem
+      Promise.all([
+        fetchMessages(),
+        fetchProjects(),
+        fetchHobbies(),
+        fetchHomeInfo()
+      ]).finally(() => {
+        // Finaliza o Loading independente de sucesso ou erro nos fetches individuais
+        setIsLoadingData(false);
+      });
     }
   }, [isAuthenticated, fetchMessages, fetchProjects, fetchHobbies, fetchHomeInfo]);
 
-  // useEffect (checa se admin existe)
+  // useEffect (checa se admin existe - Login screen check)
   useEffect(() => {
     if (!isAuthenticated && adminExists === null) {
       api.get('/api/admin/user-exists')
@@ -165,7 +178,6 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
 
 
   // --- Handlers (Login, Resets, Credenciais) ---
-  
   const handleLoginSubmit = (e) => {
     e.preventDefault();
     setError('');
@@ -259,7 +271,6 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
     clearAllMessages();
     if (window.confirm(`CERTEZA que quer apagar o projeto "${projectName}"?`)) {
       api.delete(`/api/projects/${projectId}`)
-        // Usa o estado de PROJETO, não de manutenção
         .then(() => { setProjMessage('Projeto apagado!'); fetchProjects(); })
         .catch(err => { setProjError('Erro ao apagar o projeto.'); console.error(err); });
     }
@@ -298,8 +309,6 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
       });
   };
 
-  // --- handleHomeInfoChange ---
-  // Agora suporta inputs de texto E checkboxes
   const handleHomeInfoChange = (e) => {
     const { name, value, type, checked } = e.target;
     setHomeInfo(prevData => ({ 
@@ -312,19 +321,15 @@ function AdminPage({ isAuthenticated, onLogin, onLogout }) {
     setProfilePicFile(e.target.files[0]);
   };
 
-// --- handleHomeInfoSubmit ---
-// Envia os campos de links e checkboxes
-const handleHomeInfoSubmit = (e, formId = 'homepage') => { 
+  const handleHomeInfoSubmit = (e, formId = 'homepage') => { 
     e.preventDefault();
     clearAllMessages(); 
 
     const formData = new FormData();
-    // Campos existentes
     formData.append('objective', homeInfo.objective);
     formData.append('main_name', homeInfo.main_name); 
     formData.append('informal_intro', homeInfo.informal_intro);
-    
-    // Campos de links
+     
     formData.append('linkedin_url', homeInfo.linkedin_url);
     formData.append('github_url', homeInfo.github_url);
     formData.append('email_address', homeInfo.email_address);
@@ -379,9 +384,8 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
       }
       console.error("Erro ao atualizar Home Info:", error);
     });
-};
+  };
 
-  // --- Handler de Deletar Hobby---
   const handleHobbyDelete = (hobbyId, hobbyTitle) => {
     clearAllMessages();
     if (window.confirm(`Tem certeza que deseja apagar o hobby "${hobbyTitle}"?`)) {
@@ -398,7 +402,6 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
     }
   };
 
-  // --- HANDLER PARA DELETAR USUÁRIO ---
   const handleDeleteUser = () => {
     clearAllMessages();
     if (window.confirm("Você tem CERTEZA que quer apagar sua conta de administrador?")) {
@@ -417,9 +420,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
     }
   };
 
-  // --- RENDER ---
-
-  // --- LÓGICA DE RENDER (Login/Registro)---
+  // --- LÓGICA DE RENDER (Login/Registro) ---
   if (!isAuthenticated) {
     if (adminExists === null) {
         return (
@@ -490,17 +491,22 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
     );
   }
 
+  // --- RENDERIZAR LOADING DE DADOS (NOVA PARTE) ---
+  if (isLoadingData) {
+    return <LoadingComponent />;
+  }
+
   // Constantes de verificação
   const hasMessages = messages.length > 0;
   const hasVotes = projects.some(p => p.votes > 0);
   const hasProjects = projects.length > 0;
   const hasHobbies = hobbies.length > 0;
 
-  // Painel de Admin (se estiver autenticado)
+  // Painel de Admin (se estiver autenticado e carregado)
   return (
     <div className="container">
       <h1 className="page-title">Painel do Administrador</h1>
-      
+       
       {/* --- GERENCIAR HOMEPAGE --- */}
       <div className="admin-section">
         <h2>Gerenciar Homepage</h2>
@@ -542,7 +548,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
 
           {/* --- CAMPOS DE LINKS SOCIAIS --- */}
           <h3>Links Sociais</h3>
-          
+           
           {/* LinkedIn */}
           <div className="form-group">
             <label htmlFor="linkedin_url"><FaLinkedin /> URL do LinkedIn</label>
@@ -650,7 +656,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
               </div>
             )}
           </div>
-          
+           
           <div className="form-group">
             <label htmlFor="profile_pic_file"><FaFileUpload /> Ou Carregue uma Nova Imagem (Substituirá a URL)</label>
             <input 
@@ -661,7 +667,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
               accept="image/*"
             />
           </div>
-          
+           
           <div className="admin-actions" style={{ justifyContent: 'flex-start' }}>
             <button type="submit" className="add-button" style={{backgroundColor: '#ff5722', color: 'white'}}>
               <FaSave /> Salvar Homepage
@@ -676,7 +682,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
 
 
       <hr className="form-divider" />
-      
+       
       {/* --- LINK: GERENCIAR CURRÍCULO--- */}
       <div className="admin-section">
         <h2>Áreas de Conteúdo (Currículo)</h2>
@@ -763,9 +769,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
         <hr className="form-divider" />
 
         <h3>Hobbies Atuais</h3>
-        {isHobbyLoading && !hasHobbies ? (
-          <p>Carregando hobbies...</p>
-        ) : !hasHobbies ? (
+        {!hasHobbies ? (
           <p style={{ textAlign: 'center', fontStyle: 'italic' }}>Nenhum hobby cadastrado.</p>
         ) : (
           <table className="data-table">
@@ -829,7 +833,7 @@ const handleHomeInfoSubmit = (e, formId = 'homepage') => {
                 />
                 <small>Este texto aparecerá no topo da página "Sobre Mim".</small>
             </div>
-            
+             
             <div className="admin-actions" style={{ justifyContent: 'flex-start', marginTop: '10px' }}>
                 <button type="submit" className="add-button" style={{backgroundColor: '#0077cc', color: 'white'}}>
                     <FaSave /> Salvar Introdução "Sobre Mim"
