@@ -940,6 +940,97 @@ main .container > *:last-child {
   text-decoration: underline;
 }
 
+/* --- MODAL (POPUP) --- */
+.modal-backdrop {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); /* Fundo escuro transparente */
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1100; /* Acima do header */
+}
+
+.modal-content {
+    background: white; /* ou var(--card-background) */
+    padding: 25px;
+    border-radius: 12px;
+    width: 400px; /* Largura fixa para o logout */
+    max-width: 90%;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #888;
+}
+
+.modal-body p {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-cancel {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn-cancel:hover {
+    color: #222;
+    background-color: #f9f9f9;
+    border-color: #ccc;
+}
+
+.btn-confirm-logout {
+    padding: 8px 16px;
+    border: none;
+    background: #dc3545; /* Vermelho */
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-confirm-logout:hover {
+    background: #c82333;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
 /* =============================================== */
 /* AJUSTES RESPONSIVOS (MOBILE)                    */
 /* =============================================== */
@@ -1262,6 +1353,37 @@ main .container > *:last-child {
   .admin-section .data-table td::before {
     display: none;
   }
+
+  .modal-content {
+        width: 70%; /* Ocupa quase toda a largura da tela */
+        padding: 20px; /* Reduz levemente o padding para ganhar espaço */
+    }
+
+    .modal-header h3 {
+        font-size: 1.1rem; /* Ajusta o título para não quebrar linha desnecessariamente */
+    }
+
+    /* Ajuste no corpo do texto */
+    .modal-body p {
+        margin-bottom: 25px; /* Um pouco mais de respiro antes dos botões */
+    }
+
+    /* Botões "Touch-Friendly" */
+    .modal-footer {
+        /* Mantém lado a lado, mas garante espaçamento */
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-cancel, 
+    .btn-confirm-logout {
+        flex: 1; /* Faz os botões terem o mesmo tamanho (50% cada) */
+        padding: 12px 0; /* Aumenta a altura para facilitar o toque */
+        font-size: 1rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 }
 
 @media (max-width: 768px) {

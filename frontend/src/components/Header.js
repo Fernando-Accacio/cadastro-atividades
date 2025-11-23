@@ -6,12 +6,14 @@ import api from '../api/axiosConfig';
 function Header({ isAuthenticated, onLogout }) {
   const [menuActive, setMenuActive] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
+  
+  // NOVO: Estado para controlar o Modal de Logout
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
   const navigate = useNavigate();
   
-  // Recupera o nome salvo no localStorage durante o Login
   const userName = localStorage.getItem('admin_username'); 
 
-  // Busca a imagem de perfil definida na Home/Admin
   useEffect(() => {
     if (isAuthenticated) {
       api.get('/api/general-info')
@@ -24,63 +26,97 @@ function Header({ isAuthenticated, onLogout }) {
     }
   }, [isAuthenticated]);
 
+  // 1. Função chamada ao clicar no botão "Sair" (Abre o Modal)
   const handleLogoutClick = () => {
-    localStorage.removeItem('admin_username'); // Limpa o nome
+    setShowLogoutModal(true);
+    setMenuActive(false); // Fecha o menu mobile se estiver aberto
+  };
+
+  // 2. Função que executa o logout de verdade (Chamada pelo Modal)
+  const confirmLogout = () => {
+    localStorage.removeItem('admin_username'); 
     onLogout();
+    setShowLogoutModal(false); // Fecha o modal
     navigate('/admin'); 
   };
 
+  // 3. Fecha o modal sem sair
+  const closeLogoutModal = () => {
+    setShowLogoutModal(false);
+  };
+
   return (
-    <header className="app-header">
-      <Link to="/" className="header-logo" onClick={() => setMenuActive(false)}>
-        <img src="/logo.png" alt="Portfólio" className="logo-img" />
-      </Link>
-      
-      <div className="hamburger" onClick={() => setMenuActive(!menuActive)}>
-        &#9776;
-      </div>
+    <>
+      <header className="app-header">
+        <Link to="/" className="header-logo" onClick={() => setMenuActive(false)}>
+          <img src="/logo.png" alt="Portfólio" className="logo-img" />
+        </Link>
+        
+        <div className="hamburger" onClick={() => setMenuActive(!menuActive)}>
+          &#9776;
+        </div>
 
-      <nav className={menuActive ? "nav-menu active" : "nav-menu"}>
-        <NavLink to="/" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setMenuActive(false)}>
-          Home
-        </NavLink>
-        <NavLink to="/sobremim" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setMenuActive(false)}>
-          Sobre Mim
-        </NavLink>
-        <NavLink to="/curriculo" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setMenuActive(false)}>
-          Currículo
-        </NavLink>
-        <NavLink to="/ranking" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setMenuActive(false)}>
-          Ranking
-        </NavLink>
-        <NavLink to="/contact" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setMenuActive(false)}>
-          Contato
-        </NavLink>
-        <NavLink to="/admin" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setMenuActive(false)}>
-          Painel Admin
-        </NavLink>
+        <nav className={menuActive ? "nav-menu active" : "nav-menu"}>
+          <NavLink to="/" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setMenuActive(false)}>
+            Home
+          </NavLink>
+          <NavLink to="/sobremim" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setMenuActive(false)}>
+            Sobre Mim
+          </NavLink>
+          <NavLink to="/curriculo" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setMenuActive(false)}>
+            Currículo
+          </NavLink>
+          <NavLink to="/ranking" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setMenuActive(false)}>
+            Ranking
+          </NavLink>
+          <NavLink to="/contact" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setMenuActive(false)}>
+            Contato
+          </NavLink>
+          <NavLink to="/admin" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setMenuActive(false)}>
+            Painel Admin
+          </NavLink>
 
-        {isAuthenticated && (
-          <div className="user-controls">
-            <div className="user-info">
-                {/* Lógica: Se tiver imagem, mostra ela. Se não, mostra o ícone padrão */}
-                {profileImage ? (
+          {isAuthenticated && (
+            <div className="user-controls">
+              <div className="user-info">
+                  {profileImage ? (
                     <img src={profileImage} alt="Perfil" className="header-profile-img" />
-                ) : (
+                  ) : (
                     <FaUserCircle className="header-default-icon" />
-                )}
-                
-                {/* Mostra o nome ou "Admin" se der erro no localStorage */}
-                <span className="user-name">Olá, {userName || 'Admin'}</span>
-            </div>
+                  )}
+                  <span className="user-name">Olá, {userName || 'Admin'}</span>
+              </div>
 
-            <button onClick={handleLogoutClick} className="logout-button">
-              <FaSignOutAlt /> Sair
-            </button>
+              {/* O botão agora chama handleLogoutClick que abre o modal */}
+              <button onClick={handleLogoutClick} className="logout-button">
+                <FaSignOutAlt /> Sair
+              </button>
+            </div>
+          )}
+        </nav>
+      </header>
+
+      {/* --- MODAL DE LOGOUT (Igual ao da Vending Machine) --- */}
+      {showLogoutModal && (
+        <div className="modal-backdrop">
+          <div className="modal-content logout-modal-content">
+            <div className="modal-header">
+              <h3>Sair do Sistema</h3>
+              <button className="close-btn" onClick={closeLogoutModal}>×</button>
+            </div>
+            <div className="modal-body">
+              <p>Você tem certeza que deseja sair da sua conta?</p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-cancel" onClick={closeLogoutModal}>Cancelar</button>
+              <button className="btn-confirm-logout" onClick={confirmLogout}>
+                Sair
+              </button>
+            </div>
           </div>
-        )}
-      </nav>
-    </header>
+        </div>
+      )}
+    </>
   );
 }
 
